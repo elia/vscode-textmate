@@ -6,8 +6,9 @@
     "type": "git",
     "url": "https://github.com/elia/vscode-textmate.git"
   },
+  "icon": "icon.png",
   "publisher": "elia",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "engines": {
     "vscode": "^1.77.0"
   },
