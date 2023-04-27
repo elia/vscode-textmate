@@ -1,5 +1,8 @@
 # TextMate for Visual Studio Code
 
+![blue textmate](icon.png)
+
+<!--
 This is the README for your extension "tmcode". After writing up a brief description, we recommend including the following sections.
 
 ## Features
@@ -63,3 +66,4 @@ You can author your README using Visual Studio Code.  Here are some useful edito
 * [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
 
 **Enjoy!**
+-->
