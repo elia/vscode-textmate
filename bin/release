@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+set -e
+yarn install
+git diff --exit-code
+git tag -m "" "v$(cat package.json | ruby -rjson -e 'puts JSON[$<.read][%{version}]')"
+git push --tags
+yarn run vsce publish
