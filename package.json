@@ -1,5 +1,5 @@
 {
-  "name": "textmate",
+  "name": "vscode-textmate",
   "displayName": "TextMate Keymap and features",
   "description": "TextMate features and keybindings for Visual Studio Code",
   "repository": {
@@ -7,7 +7,7 @@
     "url": "https://github.com/elia/vscode-textmate.git"
   },
   "publisher": "elia",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.77.0"
   },
