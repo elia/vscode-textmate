@@ -1,14 +1,14 @@
 {
   "name": "vscode-textmate",
-  "displayName": "[ALPHA] TextMate Keymap and features",
-  "description": "[ALPHA] TextMate features and keybindings for Visual Studio Code",
+  "displayName": "TextMate (keymap and features)",
+  "description": "TextMate features and keybindings for Visual Studio Code",
   "repository": {
     "type": "git",
     "url": "https://github.com/elia/vscode-textmate.git"
   },
   "icon": "icon.png",
   "publisher": "elia",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "engines": {
     "vscode": "^1.77.0"
   },
