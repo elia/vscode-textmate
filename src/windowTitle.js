@@ -44,7 +44,7 @@ const updateTitle = (branchName) => {
     .update(
       "title",
       vscode.workspace
-        .getConfiguration("tmcode")
+        .getConfiguration("vscode-textmate")
         .get("windowTitle")
         .replace("${scmBranch}", branchName),
     )

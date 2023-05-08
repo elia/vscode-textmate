@@ -24,7 +24,7 @@
       "type": "object",
       "title": "TextMate Settings",
       "properties": {
-        "tmcode.windowTitle": {
+        "vscode-textmate.windowTitle": {
           "type": "string",
           "default": null,
           "description": "The window title to use for the editor. If not set, the default title will be used.",
