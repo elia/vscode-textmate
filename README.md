@@ -12,6 +12,10 @@ A good amount of keybindings have been ported from TextMate.
 
 You can now use `scmBranchName` in the `windowTitle` setting.
 
+### Bracket/Block Navigation
+
+You can now navigate between brackets and blocks using `ctrl` with `up` and `down`, adding `shift` to also update the selection.
+
 ## License
 
 [MIT](LICENSE)
