@@ -2,27 +2,43 @@
 
 const vscode = require("vscode")
 
-class BranchDetector {
-  constructor(projectRootPath, branchDidChange) {
-    const headFile = projectRootPath + "/.git/HEAD"
-    this.readBranchName(headFile).then(branchDidChange)
-    this.intervalId = setInterval(
-      () =>
-        this.readBranchName(headFile).then((branchName) => {
-          if (this.branchName !== branchName) {
-            this.branchName = branchName
-            branchDidChange(branchName)
-          }
-        }),
-      3000,
-    )
+class WindowTitleUpdater {
+  constructor(projectRootPath) {
+    this.projectRootPath = projectRootPath
+    this.updateTitle()
+    this.intervalId = setInterval(() => this.updateTitle(), 3000)
+  }
+
+  async updateTitle() {
+    const workspace = vscode.workspace
+    let windowTitle = workspace.getConfiguration("vscode-textmate", null).get("windowTitle")
+    const currentTitle = workspace.getConfiguration("window", workspace.uri).get("title")
+
+    console.log({currentTitle, windowTitle})
+
+    windowTitle = titleMarker + windowTitle
+    if (windowTitle.includes("${scmBranch}"))
+      windowTitle = windowTitle.replace("${scmBranch}", await this.readBranchName())
+
+    if (
+      currentTitle === "" || 
+      (!currentTitle || currentTitle.startsWith(titleMarker)) &&
+      windowTitle !== currentTitle
+    ) {
+      workspace
+        .getConfiguration("window", workspace.uri)
+        .update("title", windowTitle)
+      return Promise.resolve()
+    }
   }
 
   dispose() {
     clearInterval(this.intervalId)
   }
 
-  async readBranchName(headFilePath) {
+  async readBranchName() {
+    const headFilePath = this.projectRootPath + "/.git/HEAD"
+
     try {
       const data = await vscode.workspace.fs.readFile(
         vscode.Uri.file(headFilePath),
@@ -38,30 +54,19 @@ class BranchDetector {
   }
 }
 
-const updateTitle = (branchName) => {
-  vscode.workspace
-    .getConfiguration("window")
-    .update(
-      "title",
-      vscode.workspace
-        .getConfiguration("vscode-textmate")
-        .get("windowTitle")
-        .replace("${scmBranch}", branchName),
-    )
-  return Promise.resolve()
-}
+const titleMarker = '${vscode-textmate}'
 
 const activate = (context) => {
   // No open project, no Git repository.
   if (!vscode.workspace.workspaceFolders) return
 
-  const projectRoot = vscode.workspace.workspaceFolders[0].uri.path
+  const updater = new WindowTitleUpdater(vscode.workspace.workspaceFolders[0].uri.path)
 
-  context.subscriptions.push(new BranchDetector(projectRoot, updateTitle))
+  context.subscriptions.push(updater)
+  vscode.workspace.onDidChangeConfiguration(async (event) => await updater.updateTitle())
 }
 
 const deactivate = () => {
-  updateTitle(null)
 }
 
 module.exports = {
