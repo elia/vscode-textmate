@@ -15,6 +15,12 @@
   "categories": [
     "Keymaps"
   ],
+  "capabilities": {
+    "virtualWorkspaces": {
+      "supported": "limited",
+      "description": "Some features might be limited."
+    }
+  },
   "activationEvents": [
     "onStartupFinished"
   ],
