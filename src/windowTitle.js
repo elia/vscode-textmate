@@ -14,14 +14,15 @@ class WindowTitleUpdater {
     let windowTitle = workspace.getConfiguration("vscode-textmate", null).get("windowTitle")
     const currentTitle = workspace.getConfiguration("window", workspace.uri).get("title")
 
-    console.log({currentTitle, windowTitle})
-
     windowTitle = titleMarker + windowTitle
     if (windowTitle.includes("${scmBranch}"))
-      windowTitle = windowTitle.replace("${scmBranch}", await this.readBranchName())
-
+      try {
+        windowTitle = windowTitle.replace("${scmBranch}", await this.readBranchName())
+      } catch (e) {
+        windowTitle = `${this.titleMarker} ERROR: ${e.message}`
+      }
     if (
-      currentTitle === "" || 
+      currentTitle === "" ||
       (!currentTitle || currentTitle.startsWith(titleMarker)) &&
       windowTitle !== currentTitle
     ) {
@@ -37,20 +38,29 @@ class WindowTitleUpdater {
   }
 
   async readBranchName() {
-    const headFilePath = this.projectRootPath + "/.git/HEAD"
+    const fs = vscode.workspace.fs
 
-    try {
-      const data = await vscode.workspace.fs.readFile(
-        vscode.Uri.file(headFilePath),
-      )
-      const content = Buffer.from(data).toString("utf8")
-      if (content.startsWith("ref: refs/heads/")) {
-        return content.replace(/^(ref: refs\/heads\/\.*)/, "").trim()
+    const readFile = async (path) => {
+      try {
+        const data = await fs.readFile(vscode.Uri.file(path))
+        return Buffer.from(data).toString("utf8")
+      } catch (e) {
+        return `Cannot read ${path} - ${e.message}`
       }
-    } catch (_) {
-      // Unable to read file. Perhaps it does not exist.
     }
-    return undefined
+
+    const defaultGitDir = `${this.projectRootPath}/.git`
+    let gitDir = `${this.projectRootPath}/.git`
+    const gitDirStat = await fs.stat(vscode.Uri.file(gitDir)).catch(() => false)
+    if (!gitDirStat) return "No Git repository"
+
+    gitDir =
+      (gitDirStat.type & vscode.FileType.File)
+        ? (await readFile(gitDir)).replace("gitdir: ", "").trim()
+        : defaultGitDir
+    const headFilePath = `${gitDir}/HEAD`
+
+    return (await readFile(headFilePath)).replace(/^(ref: refs\/heads\/\.*)/, "").trim()
   }
 }
 
