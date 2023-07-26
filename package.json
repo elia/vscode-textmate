@@ -54,6 +54,10 @@
       {
         "title": "TextMate: moveToEndOfBlockAndModifySelection",
         "command": "vscode-textmate.moveToEndOfBlockAndModifySelection"
+      },
+      {
+        "title": "TextMate: closeOtherEditors",
+        "command": "vscode-textmate.closeOtherEditors"
       }
     ],
     "keybindings": [
@@ -147,7 +151,7 @@
       },
       {
         "key": "ctrl+cmd+w",
-        "command": "workbench.action.closeOtherEditors"
+        "command": "vscode-textmate.closeOtherEditors"
       },
       {
         "key": "alt+cmd+t",
