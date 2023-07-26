@@ -11,20 +11,27 @@ class WindowTitleUpdater {
 
   async updateTitle() {
     const workspace = vscode.workspace
-    let windowTitle = workspace.getConfiguration("vscode-textmate", null).get("windowTitle")
-    const currentTitle = workspace.getConfiguration("window", workspace.uri).get("title")
+    let windowTitle = workspace
+      .getConfiguration("vscode-textmate", null)
+      .get("windowTitle")
+    const currentTitle = workspace
+      .getConfiguration("window", workspace.uri)
+      .get("title")
 
     windowTitle = titleMarker + windowTitle
     if (windowTitle.includes("${scmBranch}"))
       try {
-        windowTitle = windowTitle.replace("${scmBranch}", await this.readBranchName())
+        windowTitle = windowTitle.replace(
+          "${scmBranch}",
+          await this.readBranchName(),
+        )
       } catch (e) {
         windowTitle = `${this.titleMarker} ERROR: ${e.message}`
       }
     if (
       currentTitle === "" ||
-      (!currentTitle || currentTitle.startsWith(titleMarker)) &&
-      windowTitle !== currentTitle
+      ((!currentTitle || currentTitle.startsWith(titleMarker)) &&
+        windowTitle !== currentTitle)
     ) {
       workspace
         .getConfiguration("window", workspace.uri)
@@ -55,29 +62,34 @@ class WindowTitleUpdater {
     if (!gitDirStat) return "No Git repository"
 
     gitDir =
-      (gitDirStat.type & vscode.FileType.File)
+      gitDirStat.type & vscode.FileType.File
         ? (await readFile(gitDir)).replace("gitdir: ", "").trim()
         : defaultGitDir
     const headFilePath = `${gitDir}/HEAD`
 
-    return (await readFile(headFilePath)).replace(/^(ref: refs\/heads\/\.*)/, "").trim()
+    return (await readFile(headFilePath))
+      .replace(/^(ref: refs\/heads\/\.*)/, "")
+      .trim()
   }
 }
 
-const titleMarker = '${vscode-textmate}'
+const titleMarker = "${vscode-textmate}"
 
 const activate = (context) => {
   // No open project, no Git repository.
   if (!vscode.workspace.workspaceFolders) return
 
-  const updater = new WindowTitleUpdater(vscode.workspace.workspaceFolders[0].uri.path)
+  const updater = new WindowTitleUpdater(
+    vscode.workspace.workspaceFolders[0].uri.path,
+  )
 
   context.subscriptions.push(updater)
-  vscode.workspace.onDidChangeConfiguration(async (event) => await updater.updateTitle())
+  vscode.workspace.onDidChangeConfiguration(
+    async (event) => await updater.updateTitle(),
+  )
 }
 
-const deactivate = () => {
-}
+const deactivate = () => {}
 
 module.exports = {
   activate,
