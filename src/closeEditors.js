@@ -1,9 +1,8 @@
 const vscode = require("vscode")
 
 const activate = (context) => {
-  const disposable = vscode.commands.registerCommand(
-    "vscode-textmate.closeOtherEditors",
-    () => {
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-textmate.closeOtherEditors", () => {
       vscode.window.tabGroups.all.forEach((group) => {
         group.tabs.forEach((tab) => {
           if (tab.isActive || tab.isDirty || tab.isPinned) return
@@ -11,10 +10,20 @@ const activate = (context) => {
           vscode.window.tabGroups.close(tab, preserveFocus)
         })
       })
-    },
+    }),
+    vscode.commands.registerCommand(
+      "vscode-textmate.closeEditorInAllGroups",
+      () => {
+        vscode.window.tabGroups.all.forEach((group) => {
+          group.tabs.forEach((tab) => {
+            if (tab.isDirty || tab.isPinned) return
+            const preserveFocus = false
+            vscode.window.tabGroups.close(tab, preserveFocus)
+          })
+        })
+      },
+    ),
   )
-
-  context.subscriptions.push(disposable)
 }
 
 const deactivate = () => {}

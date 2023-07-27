@@ -159,11 +159,7 @@
       },
       {
         "key": "ctrl+alt+cmd+w",
-        "command": "workbench.action.closeEditorsInGroup"
-      },
-      {
-        "key": "cmd+k w",
-        "command": "-workbench.action.closeEditorsInGroup"
+        "command": "vscode-textmate.closeEditorInAllGroups"
       },
       {
         "key": "cmd",

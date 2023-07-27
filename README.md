@@ -12,10 +12,10 @@ A good amount of keybindings have been ported from TextMate.
 
 You can now use `scmBranchName` in the `windowTitle` setting.
 
-### `vscode-textmate.closeOtherEditors`
+### `vscode-textmate.closeOtherEditors`, `vscode-textmate.closeEditorInAllGroups`
 
-Fix the default VSCode behavior of asking to save unsaved files when closing other editors.
-This command will silently close all editors except the current one and any "dirty" editor.
+Fix the default VSCode behavior of asking to save unsaved files when closing editors.
+These commands will close specified editors except any "dirty" or "pinned" editor.
 
 ### Bracket/Block Navigation
 
