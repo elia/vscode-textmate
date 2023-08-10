@@ -985,12 +985,12 @@
     "atpsoft.emacs-incremental-search",
     "kirillplatonov.erb-toggle",
     "aPinix.indent-jump",
-    "elliotlarson.ruby-around-the-block"
+    "elliotlarson.ruby-around-the-block",
     "erikphansen.vscode-toggle-column-selection",
     "BriteSnow.vscode-toggle-quotes",
     "wscourge.togglecase",
     "rioj7.select-by",
     "huacnlee.theme-macos-classic",
-    "eamodio.gitlens",
+    "eamodio.gitlens"
   ]
 }
