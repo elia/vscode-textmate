@@ -979,5 +979,18 @@
     "glob": "^8.1.0",
     "mocha": "^10.2.0",
     "typescript": "^4.9.5"
-  }
+  },
+  "extensionDependencies": [
+    "formulahendry.code-runner",
+    "atpsoft.emacs-incremental-search",
+    "kirillplatonov.erb-toggle",
+    "aPinix.indent-jump",
+    "elliotlarson.ruby-around-the-block"
+    "erikphansen.vscode-toggle-column-selection",
+    "BriteSnow.vscode-toggle-quotes",
+    "wscourge.togglecase",
+    "rioj7.select-by",
+    "huacnlee.theme-macos-classic",
+    "eamodio.gitlens",
+  ]
 }
