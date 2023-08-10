@@ -1,4 +1,4 @@
-# TextMate for Visual Studio Code
+# <img src="./icon.png" style="width:1.4em;vertical-align:middle;line-height:0;"> TextMate for Visual Studio Code
 
 This extension aims at recreating the TextMate experience in Visual Studio Code. It is a work in progress and is not yet ready for use.
 
