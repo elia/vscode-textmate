@@ -914,12 +914,6 @@
         "command": "-editor.togglecase"
       },
       {
-        "key": "cmd+r",
-        "command": "workbench.action.tasks.runTask",
-        "args": "Run RSpec tests",
-        "when": "resourceFilename =~ /_spec\\.rb$/"
-      },
-      {
         "key": "alt+cmd+o",
         "command": "workbench.action.tasks.runTask",
         "args": "Bundle open"
