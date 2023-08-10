@@ -1,5 +1,4 @@
 const vs = require("vscode")
-// const BracketMatchingController = require("vs/editor/contrib/bracketMatching/bracketMatching")
 
 let OPENING = ["(", "[", "{"]
 let CLOSING = [")", "]", "}"]
