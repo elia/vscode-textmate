@@ -35,6 +35,12 @@
           "default": null,
           "description": "The window title to use for the editor. If not set, the default title will be used.",
           "scope": "resource"
+        },
+        "vscode-textmate.projectFolders": {
+          "type": "array",
+          "default": [],
+          "description": "The folders containing projects.",
+          "scope": "machine"
         }
       }
     },
@@ -58,9 +64,17 @@
       {
         "title": "TextMate: closeOtherEditors",
         "command": "vscode-textmate.closeOtherEditors"
+      },
+      {
+        "title": "TextMate: Open Recent Project",
+        "command": "vscode-textmate.openProject"
       }
     ],
     "keybindings": [
+      {
+        "key": "cmd+shift+o",
+        "command": "vscode-textmate.openProject"
+      },
       {
         "key": "ctrl+up",
         "command": "vscode-textmate.moveToBeginningOfBlock"
@@ -136,10 +150,6 @@
         "key": "shift+cmd+k",
         "command": "-editor.action.deleteLines",
         "when": "textInputFocus && !editorReadonly"
-      },
-      {
-        "key": "shift+cmd+o",
-        "command": "open-project-folder.openproject"
       },
       {
         "key": "ctrl+cmd+t",

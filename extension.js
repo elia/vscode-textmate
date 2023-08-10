@@ -2,6 +2,7 @@ const features = [
   require("./src/windowTitle"),
   require("./src/bracketNavigation"),
   require("./src/closeEditors"),
+  require("./src/openProject"),
 ]
 
 /**

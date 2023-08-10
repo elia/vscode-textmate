@@ -17,6 +17,10 @@ You can now use `scmBranchName` in the `windowTitle` setting.
 Fix the default VSCode behavior of asking to save unsaved files when closing editors.
 These commands will close specified editors except any "dirty" or "pinned" editor.
 
+### `vscode-textmate.openProject`
+
+Open a project in a new window, selecting from subfolders of the folders listed in `vscode-textmate.projectFolders`.
+
 ### Bracket/Block Navigation
 
 You can now navigate between brackets and blocks using `ctrl` with `up` and `down`, adding `shift` to also update the selection.
