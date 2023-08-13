@@ -168,10 +168,6 @@
         "command": "workbench.files.action.showActiveFileInExplorer"
       },
       {
-        "key": "ctrl+alt+cmd+y",
-        "command": "fork.open"
-      },
-      {
         "key": "ctrl+alt+cmd+t",
         "command": "workbench.action.terminal.openNativeConsole",
         "when": "!terminalFocus"
