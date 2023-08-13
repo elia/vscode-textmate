@@ -3,6 +3,7 @@ const features = [
   require("./src/bracketNavigation"),
   require("./src/closeEditors"),
   require("./src/openProject"),
+  require("./src/indentJump"),
 ]
 
 /**

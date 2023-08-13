@@ -46,6 +46,22 @@
     },
     "commands": [
       {
+        "command": "vscode-textmate.moveToBeginningOfColumn",
+        "title": "Indent Jump Up"
+      },
+      {
+        "command": "vscode-textmate.moveToEndOfColumn",
+        "title": "Indent Jump Down"
+      },
+      {
+        "command": "vscode-textmate.moveToBeginningOfColumnAndModifySelection",
+        "title": "Indent Jump Up (and select)"
+      },
+      {
+        "command": "vscode-textmate.moveToEndOfColumnAndModifySelection",
+        "title": "Indent Jump Down (and select)"
+      },
+      {
         "title": "TextMate: moveToBeginningOfBlock",
         "command": "vscode-textmate.moveToBeginningOfBlock"
       },
@@ -71,6 +87,30 @@
       }
     ],
     "keybindings": [
+      {
+        "command": "vscode-textmate.moveToBeginningOfColumn",
+        "key": "ctrl-up",
+        "mac": "alt-up",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "vscode-textmate.moveToEndOfColumn",
+        "key": "ctrl-down",
+        "mac": "alt-down",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "vscode-textmate.moveToBeginningOfColumnAndModifySelection",
+        "key": "ctrl-shift-up",
+        "mac": "alt-shift-up",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "vscode-textmate.moveToEndOfColumnAndModifySelection",
+        "key": "ctrl-shift-down",
+        "mac": "alt-shift-down",
+        "when": "editorTextFocus"
+      },
       {
         "key": "cmd+shift+o",
         "command": "vscode-textmate.openProject"
@@ -984,7 +1024,6 @@
     "formulahendry.code-runner",
     "atpsoft.emacs-incremental-search",
     "kirillplatonov.erb-toggle",
-    "aPinix.indent-jump",
     "elliotlarson.ruby-around-the-block",
     "erikphansen.vscode-toggle-column-selection",
     "BriteSnow.vscode-toggle-quotes",
