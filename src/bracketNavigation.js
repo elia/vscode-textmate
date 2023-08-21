@@ -120,9 +120,7 @@ function activate(context) {
   )
 }
 
-function deactivate() {
-  // Currently do nothing...deregister commands?
-}
+function deactivate() {}
 
 module.exports = {
   activate,

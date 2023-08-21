@@ -6,20 +6,16 @@ const features = [
   require("./src/indentJump"),
 ]
 
-/**
- * @param {vscode.ExtensionContext} context
- */
 function activate(context) {
-  console.log('Activating "vscode-textmate"...')
+  console.log("[vscode-textmate] activating...")
   features.forEach((feature) => { feature.activate(context) })
-  console.log('"vscode-textmate" activated!')
+  console.log('[vscode-textmate] activated!')
 }
 
-// This method is called when your extension is deactivated
 function deactivate() {
-  console.log('Deactivating "vscode-textmate"...')
+  console.log('[vscode-textmate] deactivating...')
   features.forEach((feature) => { feature.deactivate() })
-  console.log('"vscode-textmate" deactivated!')
+  console.log('[vscode-textmate] deactivated!')
 }
 
 module.exports = {
