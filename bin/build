@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+
+puts "~~> Building package.json..."
+
+require 'json'
+package = JSON.parse File.read("#{__dir__}/../package.src.json")
+
+class Hash
+  def dig!(*keys)
+    dig(*keys) or raise "couldn't find keys: #{[*keys].inspect}"
+  end
+end
+
+Dir["#{__dir__}/../src/*.json"].each do |path|
+  config = JSON.parse File.read(path) rescue raise("error parsing #{path}: #{$!}")
+
+  print "  - #{File.basename(path)} ("
+  [
+    %w[contributes configuration properties],
+    %w[contributes commands],
+    %w[contributes keybindings],
+  ].each do |key|
+    base = package.dig!(*key)
+    value = config.dig(*key)
+    next if value.nil? || value.empty?
+
+    print "#{key.join('.')}: +#{value.size}, "
+
+    case value
+    when Hash then base.merge!(value)
+    when Array then base.concat(value)
+    else raise value.inspect
+    end
+  end
+  puts ")"
+end
+
+File.write "#{__dir__}/../package.json", JSON.pretty_generate(package)
+
+puts "~~> Done."

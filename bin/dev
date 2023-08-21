@@ -1,0 +1,17 @@
+#!/usr/bin/env node
+
+const fs = require("fs")
+const util = require("node:util")
+const execFile = util.promisify(require("node:child_process").execFile)
+
+const build = async () => {
+  const { stdout } = await execFile(`${__dirname}/build`)
+  console.log(stdout)
+}
+
+build()
+
+fs.watch("./src/", function (event, targetfile) {
+  console.log(`~~> ${event}: ${targetfile}`)
+  build()
+})

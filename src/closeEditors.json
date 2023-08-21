@@ -1,0 +1,23 @@
+{
+  "contributes": {
+    "configuration": {
+      "properties": {}
+    },
+    "commands": [
+      {
+        "title": "TextMate: closeOtherEditors",
+        "command": "vscode-textmate.closeOtherEditors"
+      }
+    ],
+    "keybindings": [
+      {
+        "key": "ctrl+cmd+w",
+        "command": "vscode-textmate.closeOtherEditors"
+      },
+      {
+        "key": "ctrl+alt+cmd+w",
+        "command": "vscode-textmate.closeEditorInAllGroups"
+      }
+    ]
+  }
+}

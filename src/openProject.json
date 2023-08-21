@@ -1,0 +1,26 @@
+{
+  "contributes": {
+    "configuration": {
+      "properties": {
+        "vscode-textmate.projectFolders": {
+          "type": "array",
+          "default": [],
+          "description": "The folders containing projects.",
+          "scope": "machine"
+        }
+      }
+    },
+    "commands": [
+      {
+        "title": "TextMate: Open Recent Project",
+        "command": "vscode-textmate.openProject"
+      }
+    ],
+    "keybindings": [
+      {
+        "key": "cmd+shift+o",
+        "command": "vscode-textmate.openProject"
+      }
+    ]
+  }
+}

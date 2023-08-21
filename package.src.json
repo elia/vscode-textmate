@@ -1,0 +1,51 @@
+{
+  "name": "vscode-textmate",
+  "displayName": "TextMate (keymap and features, 🚧 work in progress! 🚧)",
+  "description": "TextMate features and keybindings for Visual Studio Code",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/elia/vscode-textmate.git"
+  },
+  "icon": "icon.png",
+  "publisher": "elia",
+  "version": "0.6.0",
+  "engines": {
+    "vscode": "^1.77.0"
+  },
+  "categories": ["Keymaps"],
+  "capabilities": {
+    "virtualWorkspaces": {
+      "supported": "limited",
+      "description": "Some features might be limited."
+    }
+  },
+  "activationEvents": ["onStartupFinished"],
+  "main": "./extension.js",
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "TextMate Settings",
+      "properties": {}
+    },
+    "commands": [],
+    "keybindings": []
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "yarn run lint",
+    "test": "node ./test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.77.0",
+    "@vscode/test-electron": "^2.3.0",
+    "@vscode/vsce": "^2.19.0",
+    "eslint": "^8.36.0",
+    "glob": "^8.1.0",
+    "mocha": "^10.2.0",
+    "typescript": "^4.9.5"
+  },
+  "extensionDependencies": []
+}

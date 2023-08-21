@@ -1,142 +1,10 @@
 {
-  "name": "vscode-textmate",
-  "displayName": "TextMate (keymap and features, 🚧 work in progress! 🚧)",
-  "description": "TextMate features and keybindings for Visual Studio Code",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/elia/vscode-textmate.git"
-  },
-  "icon": "icon.png",
-  "publisher": "elia",
-  "version": "0.6.0",
-  "engines": {
-    "vscode": "^1.77.0"
-  },
-  "categories": [
-    "Keymaps"
-  ],
-  "capabilities": {
-    "virtualWorkspaces": {
-      "supported": "limited",
-      "description": "Some features might be limited."
-    }
-  },
-  "activationEvents": [
-    "onStartupFinished"
-  ],
-  "main": "./extension.js",
   "contributes": {
     "configuration": {
-      "type": "object",
-      "title": "TextMate Settings",
-      "properties": {
-        "vscode-textmate.projectFolders": {
-          "type": "array",
-          "default": [
-
-          ],
-          "description": "The folders containing projects.",
-          "scope": "machine"
-        },
-        "vscode-textmate.windowTitle": {
-          "type": "string",
-          "default": null,
-          "description": "The window title to use for the editor. If not set, the default title will be used.",
-          "scope": "resource"
-        }
-      }
+      "properties": {}
     },
-    "commands": [
-      {
-        "title": "TextMate: moveToBeginningOfBlock",
-        "command": "vscode-textmate.moveToBeginningOfBlock"
-      },
-      {
-        "title": "TextMate: moveToEndOfBlock",
-        "command": "vscode-textmate.moveToEndOfBlock"
-      },
-      {
-        "title": "TextMate: moveToBeginningOfBlockAndModifySelection",
-        "command": "vscode-textmate.moveToBeginningOfBlockAndModifySelection"
-      },
-      {
-        "title": "TextMate: moveToEndOfBlockAndModifySelection",
-        "command": "vscode-textmate.moveToEndOfBlockAndModifySelection"
-      },
-      {
-        "title": "TextMate: closeOtherEditors",
-        "command": "vscode-textmate.closeOtherEditors"
-      },
-      {
-        "command": "vscode-textmate.moveToBeginningOfColumn",
-        "title": "Indent Jump Up"
-      },
-      {
-        "command": "vscode-textmate.moveToEndOfColumn",
-        "title": "Indent Jump Down"
-      },
-      {
-        "command": "vscode-textmate.moveToBeginningOfColumnAndModifySelection",
-        "title": "Indent Jump Up (and select)"
-      },
-      {
-        "command": "vscode-textmate.moveToEndOfColumnAndModifySelection",
-        "title": "Indent Jump Down (and select)"
-      },
-      {
-        "title": "TextMate: Open Recent Project",
-        "command": "vscode-textmate.openProject"
-      }
-    ],
+    "commands": [],
     "keybindings": [
-      {
-        "key": "ctrl+up",
-        "command": "vscode-textmate.moveToBeginningOfBlock"
-      },
-      {
-        "key": "ctrl+down",
-        "command": "vscode-textmate.moveToEndOfBlock"
-      },
-      {
-        "key": "ctrl+shift+up",
-        "command": "vscode-textmate.moveToBeginningOfBlockAndModifySelection"
-      },
-      {
-        "key": "ctrl+shift+down",
-        "command": "vscode-textmate.moveToEndOfBlockAndModifySelection"
-      },
-      {
-        "key": "ctrl+cmd+w",
-        "command": "vscode-textmate.closeOtherEditors"
-      },
-      {
-        "key": "ctrl+alt+cmd+w",
-        "command": "vscode-textmate.closeEditorInAllGroups"
-      },
-      {
-        "command": "vscode-textmate.moveToBeginningOfColumn",
-        "key": "ctrl-up",
-        "mac": "alt-up",
-        "when": "editorTextFocus"
-      },
-      {
-        "command": "vscode-textmate.moveToEndOfColumn",
-        "key": "ctrl-down",
-        "mac": "alt-down",
-        "when": "editorTextFocus"
-      },
-      {
-        "command": "vscode-textmate.moveToBeginningOfColumnAndModifySelection",
-        "key": "ctrl-shift-up",
-        "mac": "alt-shift-up",
-        "when": "editorTextFocus"
-      },
-      {
-        "command": "vscode-textmate.moveToEndOfColumnAndModifySelection",
-        "key": "ctrl-shift-down",
-        "mac": "alt-shift-down",
-        "when": "editorTextFocus"
-      },
       {
         "key": "cmd+t",
         "command": "-workbench.action.showAllSymbols"
@@ -651,9 +519,7 @@
         "command": "moveby.regex",
         "args": {
           "regex": "(\\s+|[\\w_]+\\b|)",
-          "properties": [
-            "prev"
-          ]
+          "properties": ["prev"]
         }
       },
       {
@@ -994,31 +860,7 @@
       {
         "key": "ctrl+shift+p",
         "command": "editor.action.inspectTMScopes"
-      },
-      {
-        "key": "cmd+shift+o",
-        "command": "vscode-textmate.openProject"
       }
     ]
-  },
-  "scripts": {
-    "lint": "eslint .",
-    "pretest": "yarn run lint",
-    "test": "node ./test/runTest.js"
-  },
-  "devDependencies": {
-    "@types/glob": "^8.1.0",
-    "@types/mocha": "^10.0.1",
-    "@types/node": "16.x",
-    "@types/vscode": "^1.77.0",
-    "@vscode/test-electron": "^2.3.0",
-    "@vscode/vsce": "^2.19.0",
-    "eslint": "^8.36.0",
-    "glob": "^8.1.0",
-    "mocha": "^10.2.0",
-    "typescript": "^4.9.5"
-  },
-  "extensionDependencies": [
-
-  ]
+  }
 }
