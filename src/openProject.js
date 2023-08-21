@@ -28,41 +28,54 @@ const expandFolders = async (folders) => {
 }
 
 const activate = (context) => {
-  let disposable = commands.registerCommand(
-    "vscode-textmate.openProject",
-    async () => {
+  context.subscriptions.push(
+    commands.registerCommand("vscode-textmate.openProject", async () => {
       const settings = workspace.getConfiguration("vscode-textmate")
-      // let recentProjects = settings.get("recentProjects") || []
-      let recentProjects = context.globalState.get("recentProjects") || []
-      const folders = settings.get("projectFolders") || []
-      const iconPath = new ThemeIcon("folder")
-      const currentWorkspaceFolder = workspace?.workspaceFolders?.[0]?.uri?.path
-      const projects = (await expandFolders(folders))
-        .sort((a, b) => {
-          if (currentWorkspaceFolder && currentWorkspaceFolder === a) return -1
-          if (recentProjects.indexOf(a) > recentProjects.indexOf(b)) return 1
-          return -1
-        })
-        .reverse()
-        .flatMap((pathname) => {
-          const entries = []
-          if (recentProjects.indexOf(pathname) > -1)
-            entries.push({ label: "Recent", kind: QuickPickItemKind.Separator })
 
-          entries.push({
+      const currentFolders = workspace?.workspaceFolders?.map(
+        (f) => f.uri?.path,
+      )
+      let recentFolders = (
+        context.globalState.get("recentFolders") || []
+      ).filter((p) => !currentFolders.includes(p))
+
+      const iconPath = new ThemeIcon("folder")
+
+      const favoritesFolders = (
+        await expandFolders(settings.get("projectFolders") || [])
+      )
+        .flat()
+        .filter((p) => !recentFolders.includes(p))
+        .filter((p) => !currentFolders.includes(p))
+        .sort((a, b) =>
+          path
+            .basename(a)
+            .toLowerCase()
+            .localeCompare(path.basename(b).toLowerCase()),
+        )
+
+      const items = []
+      const addItems = (label, pathnames) => {
+        if (pathnames.length === 0) return
+        items.push({ label, kind: QuickPickItemKind.Separator })
+        pathnames.forEach((pathname) =>
+          items.push({
             label: path.basename(pathname),
             description: path.dirname(pathname),
             pathname,
             iconPath,
-          })
+          }),
+        )
+      }
 
-          return entries
-        })
+      addItems("Recent", recentFolders)
+      addItems("Favorites", favoritesFolders)
+      addItems("Current", currentFolders)
 
-      projects.push({ label: ADD })
-      console.debug({ projects })
+      items.push({ label: ADD })
+      console.debug({ recentFolders, favoritesFolders, currentFolders })
 
-      const pick = await window.showQuickPick(projects, {
+      const pick = await window.showQuickPick(items, {
         title: "Open Recent Project",
         matchOnDescription: true,
         matchOnDetail: true,
@@ -88,12 +101,9 @@ const activate = (context) => {
         }
       } else if (pick.pathname) {
         const pathname = pick.pathname //path.join(pick.detail, pick.label)
-        recentProjects = recentProjects.filter(
-          (x, i) => x !== pathname && i < 10,
-        )
-        recentProjects.push(pathname)
-        // settings.update("recentProjects", recentProjects, true)
-        context.globalState.update("recentProjects", recentProjects)
+        recentFolders = recentFolders.filter((x, i) => x !== pathname && i < 10)
+        recentFolders.push(pathname)
+        context.globalState.update("recentFolders", recentFolders)
 
         const uri = Uri.file(pathname)
         if (!workspace.workspaceFolders) {
@@ -104,9 +114,8 @@ const activate = (context) => {
           })
         }
       }
-    },
+    }),
   )
-  context.subscriptions.push(disposable)
 }
 
 const deactivate = () => {}
