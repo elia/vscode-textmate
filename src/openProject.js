@@ -34,7 +34,7 @@ const activate = (context) => {
 
       const currentFolders = workspace?.workspaceFolders?.map(
         (f) => f.uri?.path,
-      )
+      ) || []
       let recentFolders = (
         context.globalState.get("recentFolders") || []
       ).filter((p) => !currentFolders.includes(p))
