@@ -35,6 +35,6 @@ Dir["#{__dir__}/../src/*.json"].each do |path|
   puts ")"
 end
 
-File.write "#{__dir__}/../package.json", JSON.pretty_generate(package)
+File.write "#{__dir__}/../package.json", JSON.pretty_generate(package)+"\n"
 
 puts "~~> Done."
