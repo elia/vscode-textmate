@@ -1,9 +1,9 @@
 const features = [
   require("./src/windowTitle"),
-  require("./src/bracketNavigation"),
+  require("./src/blockMovements"),
   require("./src/closeEditors"),
   require("./src/openProject"),
-  require("./src/indentJump"),
+  require("./src/columnMovements"),
 ]
 
 function activate(context) {
