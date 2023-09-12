@@ -18,4 +18,5 @@ git commit -m "Release $version"
 git diff --exit-code
 git tag -m "" "v$(cat package.json | ruby -rjson -e 'puts JSON[$<.read][%{version}]')"
 git push --tags
+git push
 yarn run vsce publish
