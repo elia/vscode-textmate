@@ -1,27 +1,24 @@
 // See https://github.com/aPinix/indent-jump-vscode for more information and LICENSING.
 
 const vscode = require("vscode")
+const BOUNDARY = /\S/
 
 class IndentJumpMover {
   constructor(editor) {
     this.editor = editor
   }
-  get currentLineNumber() {
+  get currentLine() {
     return this.editor.selection.active.line
   }
-  get currentLevel() {
+  get currentIndent() {
     return this.editor.selection.active.character
   }
 
   moveUp() {
-    this.move(
-      this.findPreviousLine(this.currentLineNumber, this.currentLevel),
-    )
+    this.move(this.findPreviousLine(this.currentLine, this.currentIndent))
   }
   moveDown() {
-    this.move(
-      this.findNextLine(this.currentLineNumber, this.currentLevel)
-    )
+    this.move(this.findNextLine(this.currentLine, this.currentIndent))
   }
   selectUp() {
     let startPoint = this.editor.selection.anchor
@@ -44,7 +41,10 @@ class IndentJumpMover {
   }
   indentJumpForLine(lineToCheck) {
     const line = this.editor.document.lineAt(lineToCheck)
-    console.log({ checking: line.firstNonWhitespaceCharacterIndex })
+    console.log({
+      indentJumpForLine: lineToCheck,
+      checking: line.firstNonWhitespaceCharacterIndex,
+    })
 
     return line.firstNonWhitespaceCharacterIndex
   }
@@ -52,69 +52,50 @@ class IndentJumpMover {
     const line = this.editor.document.lineAt(lineNumber)
     return line.isEmptyOrWhitespace
   }
-  findNextLine(currentLineNumber, currentIndentJump) {
-    const endLineNumber = this.editor.document.lineCount - 1
-    if (currentLineNumber === endLineNumber) return
-    const nextLineNumber = currentLineNumber + 1
-    const jumpingOverSpace =
-      this.indentJumpForLine(nextLineNumber) !== currentIndentJump ||
-      this.emptyLine(nextLineNumber)
-    for (
-      let lineNumber = nextLineNumber;
-      lineNumber <= endLineNumber;
-      lineNumber++
-    ) {
-      let indentationForLine = this.indentJumpForLine(lineNumber)
-      if (
-        jumpingOverSpace &&
-        indentationForLine === currentIndentJump &&
-        !this.emptyLine(lineNumber)
-      ) {
-        return lineNumber
-      } else if (
-        !jumpingOverSpace &&
-        (indentationForLine !== currentIndentJump || this.emptyLine(lineNumber))
-      ) {
-        return lineNumber - 1
-      } else if (
-        !jumpingOverSpace &&
-        indentationForLine === currentIndentJump &&
-        lineNumber === endLineNumber
-      ) {
-        return lineNumber
+
+  hasBoundary(lineNumber, indent) {
+    const line = this.editor.document.lineAt(lineNumber)
+    return BOUNDARY.test(line.text.charAt(indent)) || BOUNDARY.test(line.text.charAt(indent - 1))
+  }
+
+  findNextLine(currentLine, currentIndent) {
+    const endLine = this.editor.document.lineCount - 1 // from 1-based to 0-based
+
+    if (currentLine === endLine) return
+
+    if (this.hasBoundary(currentLine + 1, currentIndent)) {
+      // find the last line with a boundary
+      for (let line = currentLine + 1; line <= endLine; line++) {
+        if (!this.hasBoundary(line, currentIndent)) return line - 1
+      }
+    } else {
+      // find next line with a boundary
+      for (let line = currentLine + 1; line <= endLine; line++) {
+        if (this.hasBoundary(line, currentIndent)) return line
       }
     }
-    return
+    return endLine
   }
-  findPreviousLine(currentLineNumber, currentIndentJump) {
-    if (currentLineNumber === 0) return
-    const previousLineNumber = currentLineNumber - 1
-    const jumpingOverSpace =
-      this.indentJumpForLine(previousLineNumber) !== currentIndentJump ||
-      this.emptyLine(previousLineNumber)
-    for (let lineNumber = previousLineNumber; lineNumber >= 0; lineNumber--) {
-      let indentationForLine = this.indentJumpForLine(lineNumber)
-      if (
-        jumpingOverSpace &&
-        indentationForLine === currentIndentJump &&
-        !this.emptyLine(lineNumber)
-      ) {
-        return lineNumber
-      } else if (
-        !jumpingOverSpace &&
-        (indentationForLine !== currentIndentJump || this.emptyLine(lineNumber))
-      ) {
-        return lineNumber + 1
-      } else if (
-        !jumpingOverSpace &&
-        indentationForLine === currentIndentJump &&
-        lineNumber === 0
-      ) {
-        return lineNumber
+
+  findPreviousLine(currentLine, currentIndent) {
+    const firstLine = 0 // 0-based
+
+    if (currentLine === firstLine) return
+
+    if (this.hasBoundary(currentLine - 1, currentIndent)) {
+      // find the last line with a boundary going up
+      for (let line = currentLine - 1; line >= firstLine; line--) {
+        if (!this.hasBoundary(line, currentIndent)) return line + 1
+      }
+    } else {
+      // find the first line with a boundary going up
+      for (let line = currentLine - 1; line >= firstLine; line--) {
+        if (this.hasBoundary(line, currentIndent)) return line
       }
     }
-    return
+    return firstLine
   }
+
   dispose() {}
 }
 
@@ -132,8 +113,7 @@ function activate(context) {
     ),
   )
   context.subscriptions.push(
-    vscode.commands.registerCommand("vscode-textmate.moveToEndOfColumn",
-    () => {
+    vscode.commands.registerCommand("vscode-textmate.moveToEndOfColumn", () => {
       const editor = vscode.window.activeTextEditor // has to be on all functions to catch the current active text editor
       if (editor) {
         new IndentJumpMover(editor).moveDown()
