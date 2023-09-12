@@ -86,6 +86,10 @@
       {
         "title": "TextMate: Open Recent Project",
         "command": "vscode-textmate.openProject"
+      },
+      {
+        "title": "TextMate: Open Quickly…",
+        "command": "vscode-textmate.openQuickly"
       }
     ],
     "keybindings": [
@@ -998,6 +1002,10 @@
       {
         "key": "cmd+shift+o",
         "command": "vscode-textmate.openProject"
+      },
+      {
+        "key": "cmd+alt+t",
+        "command": "vscode-textmate.openQuickly"
       }
     ]
   },
