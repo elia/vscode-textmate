@@ -4,6 +4,7 @@ const features = [
   require("./src/closeEditors"),
   require("./src/openProject"),
   require("./src/columnMovements"),
+  require("./src/openQuickly"),
 ]
 
 function activate(context) {
