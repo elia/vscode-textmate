@@ -1,4 +1,5 @@
 {
+  "version": "0.7.1",
   "name": "vscode-textmate",
   "displayName": "TextMate (keymap and features, 🚧 work in progress! 🚧)",
   "description": "TextMate features and keybindings for Visual Studio Code",
@@ -8,7 +9,6 @@
   },
   "icon": "icon.png",
   "publisher": "elia",
-  "version": "0.7.1",
   "engines": {
     "vscode": "^1.77.0"
   },

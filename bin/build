@@ -3,7 +3,12 @@
 puts "~~> Building package.json..."
 
 require 'json'
-package = JSON.parse File.read("#{__dir__}/../package.src.json")
+
+package = {
+  version: File.read("#{__dir__}/../VERSION").strip.delete_prefix('v')
+}
+package.merge! JSON.parse File.read("#{__dir__}/../package.src.json")
+
 
 class Hash
   def dig!(*keys)
