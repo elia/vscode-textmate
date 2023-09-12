@@ -36,9 +36,8 @@ class IndentJumpMover {
     this.editor.selection = new vscode.Selection(startPoint, endPoint)
   }
   move(toLine) {
-    let currentCharacter = this.editor.selection.anchor.character
     let position = this.editor.selection.active
-    let newPosition = position.with(toLine, currentCharacter)
+    let newPosition = position.with(toLine, position.currentCharacter)
     let selection = new vscode.Selection(newPosition, newPosition)
     this.editor.selection = selection
     this.editor.revealRange(new vscode.Range(newPosition, newPosition))
