@@ -1,0 +1,17 @@
+{
+  "contributes": {
+    "commands": [
+      {
+        "command": "vscode-textmate.jumpToSelection",
+        "title": "Jump to Selection"
+      }
+    ],
+    "keybindings": [
+      {
+        "key": "cmd+j",
+        "command": "vscode-textmate.jumpToSelection",
+        "when": "editorTextFocus"
+      }
+    ]
+  }
+}

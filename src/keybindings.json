@@ -848,16 +848,6 @@
         "when": "editorTextFocus || findWidgetVisible"
       },
       {
-        "key": "cmd+j",
-        "command": "extension.incrementalSearch.centerText",
-        "when": "editorTextFocus"
-      },
-      {
-        "key": "ctrl+l",
-        "command": "-extension.incrementalSearch.centerText",
-        "when": "editorTextFocus"
-      },
-      {
         "key": "ctrl+shift+p",
         "command": "editor.action.inspectTMScopes"
       }

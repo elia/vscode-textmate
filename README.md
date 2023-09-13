@@ -27,6 +27,7 @@ You can now navigate between brackets and blocks using `ctrl` with `up` and `dow
 
 | Name | Command | Keybinding |
 | ---- | ------- | ---------- |
+| Jump to Selection | `jumpToSelection` | <kbd>⌘J</kbd> |
 | Move to beginning of Block | `moveToBeginningOfBlock` | <kbd>⌃⭡</kbd> |
 | Move to end of Block | `moveToEndOfBlock` | <kbd>⌃⭣</kbd> |
 | Select to beginning of Block | `moveToBeginningOfBlockAndModifySelection` | <kbd>⌃⇧⭡</kbd> |

@@ -84,6 +84,10 @@
         "title": "Indent Jump Down (and select)"
       },
       {
+        "command": "vscode-textmate.jumpToSelection",
+        "title": "Jump to Selection"
+      },
+      {
         "title": "TextMate: Open Recent Project",
         "command": "vscode-textmate.openProject"
       }
@@ -135,6 +139,11 @@
         "command": "vscode-textmate.moveToEndOfColumnAndModifySelection",
         "key": "ctrl-shift-down",
         "mac": "alt-shift-down",
+        "when": "editorTextFocus"
+      },
+      {
+        "key": "cmd+j",
+        "command": "vscode-textmate.jumpToSelection",
         "when": "editorTextFocus"
       },
       {
@@ -980,16 +989,6 @@
         "key": "ctrl+l",
         "command": "-center-editor-window.center",
         "when": "editorTextFocus || findWidgetVisible"
-      },
-      {
-        "key": "cmd+j",
-        "command": "extension.incrementalSearch.centerText",
-        "when": "editorTextFocus"
-      },
-      {
-        "key": "ctrl+l",
-        "command": "-extension.incrementalSearch.centerText",
-        "when": "editorTextFocus"
       },
       {
         "key": "ctrl+shift+p",
