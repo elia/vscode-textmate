@@ -15,7 +15,7 @@ function activate(context) {
 
 function deactivate() {
   console.log('[vscode-textmate] deactivating...')
-  features.forEach((feature) => { feature.deactivate() })
+  features.forEach((feature) => { if (feature.deactivate) feature.deactivate() })
   console.log('[vscode-textmate] deactivated!')
 }
 

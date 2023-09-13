@@ -14,9 +14,6 @@ const activate = (context) => {
   )
 }
 
-const deactivate = () => {}
-
 module.exports = {
   activate,
-  deactivate,
 }
