@@ -21,9 +21,22 @@ These commands will close specified editors except any "dirty" or "pinned" edito
 
 Open a project in a new window, selecting from subfolders of the folders listed in the `projectFolders` setting.
 
-### Bracket/Block Navigation
+### Navigation
 
 You can now navigate between brackets and blocks using `ctrl` with `up` and `down`, adding `shift` to also update the selection.
+
+| Name | Command | Keybinding |
+| ---- | ------- | ---------- |
+| Move to beginning of Block | `moveToBeginningOfBlock` | <kbd>⌃⭡</kbd> |
+| Move to end of Block | `moveToEndOfBlock` | <kbd>⌃⭣</kbd> |
+| Select to beginning of Block | `moveToBeginningOfBlockAndModifySelection` | <kbd>⌃⇧⭡</kbd> |
+| Select to end of Block | `moveToEndOfBlockAndModifySelection` | <kbd>⌃⇧⭣</kbd> |
+| Move to beginning of Column | `moveToBeginningOfColumn` | <kbd>⌥⭡</kbd> |
+| Move to end of Column | `moveToEndOfColumn` | <kbd>⌥⭣</kbd> |
+| Select to beginning of Column | `moveToBeginningOfColumnAndModifySelection` | <kbd>⌥⇧⭡</kbd> |
+| Select to end of Column | `moveToEndOfColumnAndModifySelection` | <kbd>⌥⇧⭣</kbd> |
+
+_All commands are under the `vscode-textmate` namespace, e.g. `vscode-textmate.moveToEndOfColumn`._
 
 ## License
 
