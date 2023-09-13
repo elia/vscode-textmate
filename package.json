@@ -1,5 +1,5 @@
 {
-  "version": "0.7.3",
+  "version": "0.8.0",
   "name": "vscode-textmate",
   "displayName": "TextMate (keymap and features, 🚧 work in progress! 🚧)",
   "description": "TextMate features and keybindings for Visual Studio Code",
@@ -69,19 +69,19 @@
       },
       {
         "command": "vscode-textmate.moveToBeginningOfColumn",
-        "title": "Indent Jump Up"
+        "title": "Move to beginning of Column"
       },
       {
         "command": "vscode-textmate.moveToEndOfColumn",
-        "title": "Indent Jump Down"
+        "title": "Move to end of Column"
       },
       {
         "command": "vscode-textmate.moveToBeginningOfColumnAndModifySelection",
-        "title": "Indent Jump Up (and select)"
+        "title": "Move to beginning of Column (and modify selection)"
       },
       {
         "command": "vscode-textmate.moveToEndOfColumnAndModifySelection",
-        "title": "Indent Jump Down (and select)"
+        "title": "Move to end of Column (and modify selection)"
       },
       {
         "command": "vscode-textmate.jumpToSelection",
