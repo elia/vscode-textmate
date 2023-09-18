@@ -507,7 +507,7 @@
       },
       {
         "key": "alt+right",
-        "when": "textInputFocus",
+        "when": "editorTextFocus",
         "command": "moveby.regex",
         "args": {
           "regex": "(\\s+|[\\w_]+\\b)"
@@ -515,7 +515,7 @@
       },
       {
         "key": "alt+left",
-        "when": "textInputFocus",
+        "when": "editorTextFocus",
         "command": "moveby.regex",
         "args": {
           "regex": "(\\s+|[\\w_]+\\b|)",
