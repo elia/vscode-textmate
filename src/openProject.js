@@ -105,13 +105,10 @@ const activate = (context) => {
         context.globalState.update("recentFolders", recentFolders)
 
         const uri = Uri.file(pathname)
-        if (!workspace.workspaceFolders) {
-          commands.executeCommand("vscode.openFolder", uri)
-        } else {
-          commands.executeCommand("vscode.openFolder", uri, {
-            forceNewWindow: true,
-          })
-        }
+        commands.executeCommand("vscode.openFolder", uri, {
+          // open in new window if workspace has folders
+          forceNewWindow: workspace.workspaceFolders,
+        })
       }
     }),
   )
