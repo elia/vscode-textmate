@@ -32,9 +32,8 @@ const activate = (context) => {
     commands.registerCommand("vscode-textmate.openProject", async () => {
       const settings = workspace.getConfiguration("vscode-textmate")
 
-      const currentFolders = workspace?.workspaceFolders?.map(
-        (f) => f.uri?.path,
-      ) || []
+      const currentFolders =
+        workspace?.workspaceFolders?.map((f) => f.uri?.path) || []
       let recentFolders = (
         context.globalState.get("recentFolders") || []
       ).filter((p) => !currentFolders.includes(p))
@@ -116,6 +115,10 @@ const activate = (context) => {
       }
     }),
   )
+
+  if (!workspace.workspaceFolders) {
+    commands.executeCommand("vscode-textmate.openProject")
+  }
 }
 
 module.exports = {
