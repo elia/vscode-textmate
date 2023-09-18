@@ -1,5 +1,5 @@
 {
-  "version": "0.8.0",
+  "version": "0.8.1",
   "name": "vscode-textmate",
   "displayName": "TextMate (keymap and features, 🚧 work in progress! 🚧)",
   "description": "TextMate features and keybindings for Visual Studio Code",
@@ -648,7 +648,7 @@
       },
       {
         "key": "alt+right",
-        "when": "textInputFocus",
+        "when": "editorTextFocus",
         "command": "moveby.regex",
         "args": {
           "regex": "(\\s+|[\\w_]+\\b)"
@@ -656,7 +656,7 @@
       },
       {
         "key": "alt+left",
-        "when": "textInputFocus",
+        "when": "editorTextFocus",
         "command": "moveby.regex",
         "args": {
           "regex": "(\\s+|[\\w_]+\\b|)",
