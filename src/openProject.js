@@ -36,7 +36,7 @@ const activate = (context) => {
         workspace?.workspaceFolders?.map((f) => f.uri?.path) || []
       let recentFolders = (
         context.globalState.get("recentFolders") || []
-      ).filter((p) => !currentFolders.includes(p))
+      ).filter((p) => !currentFolders.includes(p)).reverse()
 
       const iconPath = new ThemeIcon("folder")
 
