@@ -6,6 +6,10 @@
     "commands": [],
     "keybindings": [
       {
+        "key": "cmd+]",
+        "command": "editor.action.indentLines"
+      },
+      {
         "key": "cmd+t",
         "command": "-workbench.action.showAllSymbols"
       },
