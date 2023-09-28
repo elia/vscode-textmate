@@ -1,5 +1,5 @@
 {
-  "version": "0.8.2",
+  "version": "0.8.3",
   "name": "vscode-textmate",
   "displayName": "TextMate (keymap and features, 🚧 work in progress! 🚧)",
   "description": "TextMate features and keybindings for Visual Studio Code",
@@ -145,6 +145,10 @@
         "key": "cmd+j",
         "command": "vscode-textmate.jumpToSelection",
         "when": "editorTextFocus"
+      },
+      {
+        "key": "cmd+]",
+        "command": "editor.action.indentLines"
       },
       {
         "key": "cmd+t",
