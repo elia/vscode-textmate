@@ -113,7 +113,7 @@ const activate = (context) => {
     }),
   )
 
-  if (!workspace.workspaceFolders) {
+  if (!workspace.workspaceFolders && !vscode.window.tabGroups.all.length) {
     commands.executeCommand("vscode-textmate.openProject")
   }
 }
