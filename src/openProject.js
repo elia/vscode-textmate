@@ -2,14 +2,7 @@
 
 const fs = require("fs/promises")
 const path = require("path")
-const {
-  window,
-  commands,
-  workspace,
-  Uri,
-  ThemeIcon,
-  QuickPickItemKind,
-} = require("vscode")
+const vscode = require("vscode")
 
 const ADD = "$(add) Add Project Folder"
 
@@ -29,16 +22,16 @@ const expandFolders = async (folders) => {
 
 const activate = (context) => {
   context.subscriptions.push(
-    commands.registerCommand("vscode-textmate.openProject", async () => {
-      const settings = workspace.getConfiguration("vscode-textmate")
+    vscode.commands.registerCommand("vscode-textmate.openProject", async () => {
+      const settings = vscode.workspace.getConfiguration("vscode-textmate")
 
       const currentFolders =
-        workspace?.workspaceFolders?.map((f) => f.uri?.path) || []
+        vscode.workspace?.workspaceFolders?.map((f) => f.uri?.path) || []
       let recentFolders = (
         context.globalState.get("recentFolders") || []
       ).filter((p) => !currentFolders.includes(p)).reverse()
 
-      const iconPath = new ThemeIcon("folder")
+      const iconPath = new vscode.ThemeIcon("folder")
 
       const favoritesFolders = (
         await expandFolders(settings.get("projectFolders") || [])
@@ -56,7 +49,7 @@ const activate = (context) => {
       const items = []
       const addItems = (label, pathnames) => {
         if (pathnames.length === 0) return
-        items.push({ label, kind: QuickPickItemKind.Separator })
+        items.push({ label, kind: vscode.QuickPickItemKind.Separator })
         pathnames.forEach((pathname) =>
           items.push({
             label: path.basename(pathname),
@@ -74,7 +67,7 @@ const activate = (context) => {
       items.push({ label: ADD })
       console.debug({ recentFolders, favoritesFolders, currentFolders })
 
-      const pick = await window.showQuickPick(items, {
+      const pick = await vscode.window.showQuickPick(items, {
         title: "Open Recent Project",
         matchOnDescription: true,
         matchOnDetail: true,
@@ -86,7 +79,7 @@ const activate = (context) => {
       console.debug({ pick })
 
       if (pick.label === ADD) {
-        const newFolder = await window.showOpenDialog({
+        const newFolder = await vscode.window.showOpenDialog({
           canSelectFiles: false,
           canSelectFolders: true,
           canSelectMany: false,
@@ -104,17 +97,20 @@ const activate = (context) => {
         recentFolders.push(pathname)
         context.globalState.update("recentFolders", recentFolders)
 
-        const uri = Uri.file(pathname)
-        commands.executeCommand("vscode.openFolder", uri, {
+        const uri = vscode.Uri.file(pathname)
+        vscode.commands.executeCommand("vscode.openFolder", uri, {
           // open in new window if workspace has folders
-          forceNewWindow: workspace.workspaceFolders,
+          forceNewWindow: vscode.workspace.workspaceFolders,
         })
       }
     }),
   )
 
-  if (!workspace.workspaceFolders && !vscode.window.tabGroups.all.length) {
-    commands.executeCommand("vscode-textmate.openProject")
+  if (
+    !vscode.workspace.workspaceFolders &&
+    !vscode.window.tabGroups.all.length
+  ) {
+    vscode.commands.executeCommand("vscode-textmate.openProject")
   }
 }
 
