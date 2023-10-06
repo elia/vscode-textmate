@@ -108,7 +108,7 @@ const activate = (context) => {
 
   if (
     !vscode.workspace.workspaceFolders &&
-    !vscode.window.tabGroups.all.length
+    !vscode.window.tabGroups.activeTabGroup?.tabs?.length
   ) {
     vscode.commands.executeCommand("vscode-textmate.openProject")
   }
