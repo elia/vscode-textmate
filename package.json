@@ -1,5 +1,5 @@
 {
-  "version": "0.8.4",
+  "version": "0.8.5",
   "name": "vscode-textmate",
   "displayName": "TextMate (keymap and features, 🚧 work in progress! 🚧)",
   "description": "TextMate features and keybindings for Visual Studio Code",
