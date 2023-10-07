@@ -175,11 +175,6 @@
         "when": "textInputFocus"
       },
       {
-        "key": "alt+right",
-        "command": "-cursorWordEndRight",
-        "when": "textInputFocus"
-      },
-      {
         "key": "ctrl+shift+d",
         "command": "editor.action.copyLinesDownAction",
         "when": "editorTextFocus && !editorReadonly"
@@ -508,23 +503,6 @@
         "key": "shift+cmd+right",
         "command": "-cursorEndSelect",
         "when": "textInputFocus"
-      },
-      {
-        "key": "alt+right",
-        "when": "editorTextFocus",
-        "command": "moveby.regex",
-        "args": {
-          "regex": "(\\s+|[\\w_]+\\b)"
-        }
-      },
-      {
-        "key": "alt+left",
-        "when": "editorTextFocus",
-        "command": "moveby.regex",
-        "args": {
-          "regex": "(\\s+|[\\w_]+\\b|)",
-          "properties": ["prev"]
-        }
       },
       {
         "key": "shift+alt+right",

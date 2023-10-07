@@ -5,6 +5,14 @@
     },
     "commands": [
       {
+        "title": "TextMate: moveWordRight",
+        "command": "vscode-textmate.moveWordRight"
+      },
+      {
+        "title": "TextMate: moveWordLeft",
+        "command": "vscode-textmate.moveWordLeft"
+      },
+      {
         "title": "TextMate: moveToBeginningOfBlock",
         "command": "vscode-textmate.moveToBeginningOfBlock"
       },
@@ -36,9 +44,23 @@
         "command": "vscode-textmate.moveToEndOfColumnAndModifySelection",
         "title": "Move to end of Column (and modify selection)"
       }
-
     ],
     "keybindings": [
+      {
+        "key": "alt+right",
+        "command": "-cursorWordEndRight",
+        "when": "textInputFocus"
+      },
+      {
+        "key": "alt+left",
+        "command": "-cursorWordEndLeft",
+        "when": "textInputFocus"
+      },
+      {
+        "key": "alt+right",
+        "command": "vscode-textmate.moveWordRight",
+        "when": "textInputFocus"
+      },
       {
         "key": "ctrl+up",
         "command": "vscode-textmate.moveToBeginningOfBlock"

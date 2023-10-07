@@ -48,6 +48,26 @@
     },
     "commands": [
       {
+        "title": "TextMate: closeOtherEditors",
+        "command": "vscode-textmate.closeOtherEditors"
+      },
+      {
+        "command": "vscode-textmate.jumpToSelection",
+        "title": "Jump to Selection"
+      },
+      {
+        "title": "TextMate: Open Recent Project",
+        "command": "vscode-textmate.openProject"
+      },
+      {
+        "title": "TextMate: moveWordRight",
+        "command": "vscode-textmate.moveWordRight"
+      },
+      {
+        "title": "TextMate: moveWordLeft",
+        "command": "vscode-textmate.moveWordLeft"
+      },
+      {
         "title": "TextMate: moveToBeginningOfBlock",
         "command": "vscode-textmate.moveToBeginningOfBlock"
       },
@@ -64,10 +84,6 @@
         "command": "vscode-textmate.moveToEndOfBlockAndModifySelection"
       },
       {
-        "title": "TextMate: closeOtherEditors",
-        "command": "vscode-textmate.closeOtherEditors"
-      },
-      {
         "command": "vscode-textmate.moveToBeginningOfColumn",
         "title": "Move to beginning of Column"
       },
@@ -82,33 +98,9 @@
       {
         "command": "vscode-textmate.moveToEndOfColumnAndModifySelection",
         "title": "Move to end of Column (and modify selection)"
-      },
-      {
-        "command": "vscode-textmate.jumpToSelection",
-        "title": "Jump to Selection"
-      },
-      {
-        "title": "TextMate: Open Recent Project",
-        "command": "vscode-textmate.openProject"
       }
     ],
     "keybindings": [
-      {
-        "key": "ctrl+up",
-        "command": "vscode-textmate.moveToBeginningOfBlock"
-      },
-      {
-        "key": "ctrl+down",
-        "command": "vscode-textmate.moveToEndOfBlock"
-      },
-      {
-        "key": "ctrl+shift+up",
-        "command": "vscode-textmate.moveToBeginningOfBlockAndModifySelection"
-      },
-      {
-        "key": "ctrl+shift+down",
-        "command": "vscode-textmate.moveToEndOfBlockAndModifySelection"
-      },
       {
         "key": "ctrl+cmd+w",
         "command": "vscode-textmate.closeOtherEditors"
@@ -116,30 +108,6 @@
       {
         "key": "ctrl+alt+cmd+w",
         "command": "vscode-textmate.closeEditorInAllGroups"
-      },
-      {
-        "command": "vscode-textmate.moveToBeginningOfColumn",
-        "key": "ctrl-up",
-        "mac": "alt-up",
-        "when": "editorTextFocus"
-      },
-      {
-        "command": "vscode-textmate.moveToEndOfColumn",
-        "key": "ctrl-down",
-        "mac": "alt-down",
-        "when": "editorTextFocus"
-      },
-      {
-        "command": "vscode-textmate.moveToBeginningOfColumnAndModifySelection",
-        "key": "ctrl-shift-up",
-        "mac": "alt-shift-up",
-        "when": "editorTextFocus"
-      },
-      {
-        "command": "vscode-textmate.moveToEndOfColumnAndModifySelection",
-        "key": "ctrl-shift-down",
-        "mac": "alt-shift-down",
-        "when": "editorTextFocus"
       },
       {
         "key": "cmd+j",
@@ -313,11 +281,6 @@
       {
         "key": "cmd+left",
         "command": "-cursorHome",
-        "when": "textInputFocus"
-      },
-      {
-        "key": "alt+right",
-        "command": "-cursorWordEndRight",
         "when": "textInputFocus"
       },
       {
@@ -651,25 +614,6 @@
         "when": "textInputFocus"
       },
       {
-        "key": "alt+right",
-        "when": "editorTextFocus",
-        "command": "moveby.regex",
-        "args": {
-          "regex": "(\\s+|[\\w_]+\\b)"
-        }
-      },
-      {
-        "key": "alt+left",
-        "when": "editorTextFocus",
-        "command": "moveby.regex",
-        "args": {
-          "regex": "(\\s+|[\\w_]+\\b|)",
-          "properties": [
-            "prev"
-          ]
-        }
-      },
-      {
         "key": "shift+alt+right",
         "command": "selectby.anchorAndActiveByRegex",
         "when": "editorTextFocus",
@@ -1001,6 +945,61 @@
       {
         "key": "cmd+shift+o",
         "command": "vscode-textmate.openProject"
+      },
+      {
+        "key": "alt+right",
+        "command": "-cursorWordEndRight",
+        "when": "textInputFocus"
+      },
+      {
+        "key": "alt+left",
+        "command": "-cursorWordEndLeft",
+        "when": "textInputFocus"
+      },
+      {
+        "key": "alt+right",
+        "command": "vscode-textmate.moveWordRight",
+        "when": "textInputFocus"
+      },
+      {
+        "key": "ctrl+up",
+        "command": "vscode-textmate.moveToBeginningOfBlock"
+      },
+      {
+        "key": "ctrl+down",
+        "command": "vscode-textmate.moveToEndOfBlock"
+      },
+      {
+        "key": "ctrl+shift+up",
+        "command": "vscode-textmate.moveToBeginningOfBlockAndModifySelection"
+      },
+      {
+        "key": "ctrl+shift+down",
+        "command": "vscode-textmate.moveToEndOfBlockAndModifySelection"
+      },
+      {
+        "command": "vscode-textmate.moveToBeginningOfColumn",
+        "key": "ctrl-up",
+        "mac": "alt-up",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "vscode-textmate.moveToEndOfColumn",
+        "key": "ctrl-down",
+        "mac": "alt-down",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "vscode-textmate.moveToBeginningOfColumnAndModifySelection",
+        "key": "ctrl-shift-up",
+        "mac": "alt-shift-up",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "vscode-textmate.moveToEndOfColumnAndModifySelection",
+        "key": "ctrl-shift-down",
+        "mac": "alt-shift-down",
+        "when": "editorTextFocus"
       }
     ]
   },

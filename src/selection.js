@@ -5,8 +5,73 @@ const BOUNDARY = /\S/
 const OPENING = ["(", "[", "{"]
 const CLOSING = [")", "]", "}"]
 
+const CharacterClassWord = "word"
+const CharacterClassSpace = "space"
+const CharacterClassOther = "other"
+const CharacterClassUnknown = "unknown"
+const characterClass = (char) => {
+  if (char.match(/[\s]/)) {
+    return CharacterClassSpace
+  } else if (char.match(/\w/)) {
+    return CharacterClassWord
+  } else if (char.match(/(^|$)/)) {
+    return CharacterClassUnknown
+  } else {
+    return CharacterClassOther
+  }
+}
 
 class Selection {
+  moveWordRight() {
+    let position = this.editor.selection.active
+
+    let line = this.editor.document.lineAt(position.line)
+    const lineCount = this.editor.document.lineCount
+
+    let char = position.character
+    let charType = characterClass(line.text.charAt(char))
+    let currentCharType = charType
+
+    while (currentCharType === charType) {
+      if (char === line.range.end.character) {
+        line = this.editor.document.lineAt(line.lineNumber + 1)
+        char = 0
+        if (line.lineNumber === lineCount - 1) break
+      } else {
+        char += 1
+      }
+      currentCharType = characterClass(line.text.charAt(char))
+      if (charType === CharacterClassUnknown) charType = currentCharType
+    }
+
+    this.moveTo(position.with({ line: line.lineNumber, character: char }))
+  }
+
+  moveWordLeft() {
+    let position = this.editor.selection.active
+
+    let line = this.editor.document.lineAt(position.line)
+    const lineCount = this.editor.document.lineCount
+
+    let char = position.character
+    let charType = characterClass(line.text.charAt(char))
+    let currentCharType = charType
+
+    while (currentCharType === charType) {
+      if (char === line.range.start.character) {
+        line = this.editor.document.lineAt(line.lineNumber - 1)
+        char = line.range.end.character
+        if (line.lineNumber === 0) break
+      } else {
+        char -= 1
+      }
+      currentCharType = characterClass(line.text.charAt(char))
+      if (charType === CharacterClassUnknown) charType = currentCharType
+    }
+
+    this.moveTo(position.with({ line: line.lineNumber, character: char }))
+  }
+
   moveToBeginningOfColumn() {
     const line = this.findPreviousLine(this.currentLine, this.currentIndent)
     this.moveTo(this.editor.selection.active.with({ line }))
@@ -173,6 +238,8 @@ class Selection {
 
 function activate(context) {
   ;[
+    "moveWordRight",
+    "moveWordLeft",
     "moveToBeginningOfColumn",
     "moveToEndOfColumn",
     "moveToBeginningOfColumnAndModifySelection",
