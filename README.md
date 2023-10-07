@@ -39,6 +39,10 @@ You can now navigate between brackets and blocks using `ctrl` with `up` and `dow
 
 _All commands are under the `vscode-textmate` namespace, e.g. `vscode-textmate.moveToEndOfColumn`._
 
+## Troubleshooting
+
+**VS Code plays a sound with some keybindings:** https://superuser.com/a/1530872
+
 ## License
 
 [MIT](LICENSE)
