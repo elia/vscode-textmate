@@ -23,53 +23,16 @@ const characterClass = (char) => {
 
 class Selection {
   moveWordRight() {
-    let position = this.editor.selection.active
-
-    let line = this.editor.document.lineAt(position.line)
-    const lineCount = this.editor.document.lineCount
-
-    let char = position.character
-    let charType = characterClass(line.text.charAt(char))
-    let currentCharType = charType
-
-    while (currentCharType === charType) {
-      if (char === line.range.end.character) {
-        line = this.editor.document.lineAt(line.lineNumber + 1)
-        char = 0
-        if (line.lineNumber === lineCount - 1) break
-      } else {
-        char += 1
-      }
-      currentCharType = characterClass(line.text.charAt(char))
-      if (charType === CharacterClassUnknown) charType = currentCharType
-    }
-
-    this.moveTo(position.with({ line: line.lineNumber, character: char }))
+    this.moveTo(this.findWordRight())
   }
-
   moveWordLeft() {
-    let position = this.editor.selection.active
-
-    let line = this.editor.document.lineAt(position.line)
-    const lineCount = this.editor.document.lineCount
-
-    let char = position.character
-    let charType = characterClass(line.text.charAt(char))
-    let currentCharType = charType
-
-    while (currentCharType === charType) {
-      if (char === line.range.start.character) {
-        line = this.editor.document.lineAt(line.lineNumber - 1)
-        char = line.range.end.character
-        if (line.lineNumber === 0) break
-      } else {
-        char -= 1
-      }
-      currentCharType = characterClass(line.text.charAt(char))
-      if (charType === CharacterClassUnknown) charType = currentCharType
-    }
-
-    this.moveTo(position.with({ line: line.lineNumber, character: char }))
+    this.moveTo(this.findWordLeft())
+  }
+  moveWordRightAndModifySelection() {
+    this.selectTo(this.findWordRight())
+  }
+  moveWordLeftAndModifySelection() {
+    this.selectTo(this.findWordLeft())
   }
 
   moveToBeginningOfColumn() {
@@ -120,6 +83,58 @@ class Selection {
     const anchor = this.editor.selection.anchor
     this.editor.selection = new vscode.Selection(anchor, position)
     this.editor.revealRange(new vscode.Range(position, position))
+  }
+
+  // word
+
+  findWordRight() {
+    let position = this.editor.selection.active
+
+    let line = this.editor.document.lineAt(position.line)
+    const lineCount = this.editor.document.lineCount
+
+    let char = position.character
+    let charType = characterClass(line.text.charAt(char))
+    let currentCharType = charType
+
+    while (currentCharType === charType) {
+      if (char === line.range.end.character) {
+        line = this.editor.document.lineAt(line.lineNumber + 1)
+        char = 0
+        if (line.lineNumber === lineCount - 1) break
+      } else {
+        char += 1
+      }
+      currentCharType = characterClass(line.text.charAt(char))
+      if (charType === CharacterClassUnknown) charType = currentCharType
+    }
+
+    return position.with({ line: line.lineNumber, character: char })
+  }
+
+  findWordLeft() {
+    let position = this.editor.selection.active
+
+    let line = this.editor.document.lineAt(position.line)
+    const lineCount = this.editor.document.lineCount
+
+    let char = position.character
+    let charType = characterClass(line.text.charAt(char))
+    let currentCharType = charType
+
+    while (currentCharType === charType) {
+      if (char === line.range.start.character) {
+        line = this.editor.document.lineAt(line.lineNumber - 1)
+        char = line.range.end.character
+        if (line.lineNumber === 0) break
+      } else {
+        char -= 1
+      }
+      currentCharType = characterClass(line.text.charAt(char))
+      if (charType === CharacterClassUnknown) charType = currentCharType
+    }
+
+    return position.with({ line: line.lineNumber, character: char })
   }
 
   // column
@@ -240,6 +255,8 @@ function activate(context) {
   ;[
     "moveWordRight",
     "moveWordLeft",
+    "moveWordRightAndModifySelection",
+    "moveWordLeftAndModifySelection",
     "moveToBeginningOfColumn",
     "moveToEndOfColumn",
     "moveToBeginningOfColumnAndModifySelection",

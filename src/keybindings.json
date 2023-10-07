@@ -466,15 +466,6 @@
         "when": "textInputFocus && !editorReadonly"
       },
       {
-        "key": "shift+alt+right",
-        "command": "cursorWordRightSelect"
-      },
-      {
-        "key": "shift+alt+right",
-        "command": "-cursorWordEndRightSelect",
-        "when": "textInputFocus"
-      },
-      {
         "key": "shift+cmd+left",
         "command": "-cursorHomeSelect",
         "when": "textInputFocus"
@@ -503,28 +494,6 @@
         "key": "shift+cmd+right",
         "command": "-cursorEndSelect",
         "when": "textInputFocus"
-      },
-      {
-        "key": "shift+alt+right",
-        "command": "selectby.anchorAndActiveByRegex",
-        "when": "editorTextFocus",
-        "args": {
-          "active": {
-            "regex": "(\\s+|[\\w_]+\\b)",
-            "direction": "next"
-          }
-        }
-      },
-      {
-        "key": "shift+alt+left",
-        "command": "selectby.anchorAndActiveByRegex",
-        "when": "editorTextFocus",
-        "args": {
-          "active": {
-            "regex": "(\\s+|[\\w_]+\\b)",
-            "direction": "prev"
-          }
-        }
       },
       {
         "key": "cmd+g",

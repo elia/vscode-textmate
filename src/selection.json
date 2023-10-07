@@ -62,6 +62,19 @@
         "when": "textInputFocus"
       },
       {
+        "key": "shift+alt+left",
+        "command": "vscode-textmate.moveWordLeftAndModifySelection"
+      },
+      {
+        "key": "shift+alt+right",
+        "command": "-cursorWordEndRightSelect",
+        "when": "textInputFocus"
+      },
+      {
+        "key": "shift+alt+right",
+        "command": "vscode-textmate.moveWordRightAndModifySelection"
+      },
+      {
         "key": "ctrl+up",
         "command": "vscode-textmate.moveToBeginningOfBlock"
       },
