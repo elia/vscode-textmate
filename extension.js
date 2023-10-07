@@ -1,9 +1,8 @@
 const features = [
-  require("./src/windowTitle"),
-  require("./src/blockMovements"),
-  require("./src/closeEditors"),
   require("./src/openProject"),
-  require("./src/columnMovements"),
+  require("./src/selection"),
+  require("./src/windowTitle"),
+  require("./src/closeEditors"),
   require("./src/jump"),
 ]
 

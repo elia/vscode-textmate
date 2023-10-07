@@ -5,6 +5,22 @@
     },
     "commands": [
       {
+        "title": "TextMate: moveToBeginningOfBlock",
+        "command": "vscode-textmate.moveToBeginningOfBlock"
+      },
+      {
+        "title": "TextMate: moveToEndOfBlock",
+        "command": "vscode-textmate.moveToEndOfBlock"
+      },
+      {
+        "title": "TextMate: moveToBeginningOfBlockAndModifySelection",
+        "command": "vscode-textmate.moveToBeginningOfBlockAndModifySelection"
+      },
+      {
+        "title": "TextMate: moveToEndOfBlockAndModifySelection",
+        "command": "vscode-textmate.moveToEndOfBlockAndModifySelection"
+      },
+      {
         "command": "vscode-textmate.moveToBeginningOfColumn",
         "title": "Move to beginning of Column"
       },
@@ -20,8 +36,25 @@
         "command": "vscode-textmate.moveToEndOfColumnAndModifySelection",
         "title": "Move to end of Column (and modify selection)"
       }
+
     ],
     "keybindings": [
+      {
+        "key": "ctrl+up",
+        "command": "vscode-textmate.moveToBeginningOfBlock"
+      },
+      {
+        "key": "ctrl+down",
+        "command": "vscode-textmate.moveToEndOfBlock"
+      },
+      {
+        "key": "ctrl+shift+up",
+        "command": "vscode-textmate.moveToBeginningOfBlockAndModifySelection"
+      },
+      {
+        "key": "ctrl+shift+down",
+        "command": "vscode-textmate.moveToEndOfBlockAndModifySelection"
+      },
       {
         "command": "vscode-textmate.moveToBeginningOfColumn",
         "key": "ctrl-up",
