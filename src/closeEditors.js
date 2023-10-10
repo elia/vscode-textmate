@@ -10,7 +10,10 @@ const activate = (context) => {
           vscode.window.tabGroups.close(tab, preserveFocus)
         })
       })
-    }),
+    })
+  )
+
+  context.subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-textmate.closeEditorInAllGroups",
       () => {
