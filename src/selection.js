@@ -12,45 +12,40 @@ const CharacterClassUnknown = "unknown"
 
 class Selection {
   moveWordRight() {
-    this.moveTo(this.findWordRight())
+    this.moveTo((position) => this.findWordRight(position))
   }
   moveWordLeft() {
-    this.moveTo(this.findWordLeft())
+    this.moveTo((position) => this.findWordLeft(position))
   }
   moveWordRightAndModifySelection() {
-    this.selectTo(this.findWordRight())
+    this.selectTo((position) => this.findWordRight(position))
   }
   moveWordLeftAndModifySelection() {
-    this.selectTo(this.findWordLeft())
+    this.selectTo((position) => this.findWordLeft(position))
   }
-
   moveToBeginningOfColumn() {
-    const line = this.findPreviousLine(this.currentLine, this.currentIndent)
-    this.moveTo(this.editor.selection.active.with({ line }))
+    this.moveTo((position) => this.findPreviousLine(position))
   }
   moveToEndOfColumn() {
-    const line = this.findNextLine(this.currentLine, this.currentIndent)
-    this.moveTo(this.editor.selection.active.with({ line }))
+    this.moveTo((position) => this.findNextLine(position))
   }
   moveToBeginningOfColumnAndModifySelection() {
-    const line = this.findPreviousLine(this.currentLine, this.currentIndent)
-    this.selectTo(this.editor.selection.active.with({ line }))
+    this.selectTo((position) => this.findPreviousLine(position))
   }
   moveToEndOfColumnAndModifySelection() {
-    const line = this.findNextLine(this.currentLine, this.currentIndent)
-    this.selectTo(this.editor.selection.active.with({ line }))
+    this.selectTo((position) => this.findNextLine(position))
   }
   moveToBeginningOfBlock() {
-    this.moveTo(this.findNextOpenBracketPosition())
+    this.moveTo((position) => this.findNextOpenBracketPosition(position))
   }
   moveToEndOfBlock() {
-    this.moveTo(this.findNextClosedBracketPosition())
+    this.moveTo((position) => this.findNextClosedBracketPosition(position))
   }
   moveToBeginningOfBlockAndModifySelection() {
-    this.selectTo(this.findNextOpenBracketPosition())
+    this.selectTo((position) => this.findNextOpenBracketPosition(position))
   }
   moveToEndOfBlockAndModifySelection() {
-    this.selectTo(this.findNextClosedBracketPosition())
+    this.selectTo((position) => this.findNextClosedBracketPosition(position))
   }
 
   // private
@@ -59,19 +54,30 @@ class Selection {
     this.editor = editor
   }
 
-  moveTo(position) {
-    if (!position) return
+  moveTo(updatePosition) {
+    this.editor.selections = this.editor.selections.map((selection) => {
+      const position = updatePosition(selection.active)
+      return new vscode.Selection(position, position)
+    })
 
-    this.editor.selection = new vscode.Selection(position, position)
-    this.editor.revealRange(new vscode.Range(position, position))
+    if (this.selection)
+      this.editor.revealRange(
+        new vscode.Range(this.selection.active, this.selection.active),
+      )
   }
 
-  selectTo(position) {
-    if (!position) return
+  selectTo(updatePosition) {
+    this.editor.selections = this.editor.selections.map((selection) => {
+      return new vscode.Selection(
+        selection.anchor,
+        updatePosition(selection.active),
+      )
+    })
 
-    const anchor = this.editor.selection.anchor
-    this.editor.selection = new vscode.Selection(anchor, position)
-    this.editor.revealRange(new vscode.Range(position, position))
+    if (this.selection)
+      this.editor.revealRange(
+        new vscode.Range(this.selection.active, this.selection.active),
+      )
   }
 
   characterClass(char) {
@@ -106,7 +112,9 @@ class Selection {
 
   nextPosition(position) {
     const line = this.editor.document.lineAt(position.line)
-    const lastLine = this.editor.document.lineAt(this.editor.document.lineCount - 1)
+    const lastLine = this.editor.document.lineAt(
+      this.editor.document.lineCount - 1,
+    )
 
     if (position.isBefore(line.range.end))
       return position.translate({ characterDelta: 1 })
@@ -119,8 +127,7 @@ class Selection {
 
   // word
 
-  findWordRight() {
-    let position = this.editor.selection.active
+  findWordRight(position) {
     let charType = this.characterClass(this.charAt(position))
     if (charType === CharacterClassUnknown) charType = null
     let currentCharType = charType
@@ -134,8 +141,8 @@ class Selection {
     return position
   }
 
-  findWordLeft() {
-    let position = this.previousPosition(this.editor.selection.active)
+  findWordLeft(position) {
+    position = this.previousPosition(position)
     let charType = this.characterClass(this.charAt(position))
     if (charType === CharacterClassUnknown) charType = null
     let currentCharType = charType
@@ -159,52 +166,56 @@ class Selection {
     )
   }
 
-  findNextLine() {
-    const currentLine = this.editor.selection.active.line
-    const currentIndent = this.editor.selection.active.character
+  findNextLine(position) {
+    const currentLine = position.line
+    const currentIndent = position.character
     const endLine = this.editor.document.lineCount - 1 // from 1-based to 0-based
 
-    if (currentLine === endLine) return
+    if (currentLine === endLine) return position
 
     if (this.hasBoundary(currentLine + 1, currentIndent)) {
       // find the last line with a boundary
       for (let line = currentLine + 1; line <= endLine; line++) {
-        if (!this.hasBoundary(line, currentIndent)) return line - 1
+        if (!this.hasBoundary(line, currentIndent))
+          return position.with({ line: line - 1 })
       }
     } else {
       // find next line with a boundary
       for (let line = currentLine + 1; line <= endLine; line++) {
-        if (this.hasBoundary(line, currentIndent)) return line
+        if (this.hasBoundary(line, currentIndent))
+          return position.with({ line: line })
       }
     }
-    return endLine
+
+    return position.with({ line: endLine })
   }
 
-  findPreviousLine() {
-    const currentLine = this.editor.selection.active.line
-    const currentIndent = this.editor.selection.active.character
+  findPreviousLine(position) {
+    const currentLine = position.line
+    const currentIndent = position.character
     const firstLine = 0 // 0-based
 
-    if (currentLine === firstLine) return
+    if (currentLine === firstLine) return position
 
     if (this.hasBoundary(currentLine - 1, currentIndent)) {
       // find the last line with a boundary going up
       for (let line = currentLine - 1; line >= firstLine; line--) {
-        if (!this.hasBoundary(line, currentIndent)) return line + 1
+        if (!this.hasBoundary(line, currentIndent))
+          return position.with({ line: line + 1 })
       }
     } else {
       // find the first line with a boundary going up
       for (let line = currentLine - 1; line >= firstLine; line--) {
-        if (this.hasBoundary(line, currentIndent)) return line
+        if (this.hasBoundary(line, currentIndent))
+          return position.with({ line: line })
       }
     }
-    return firstLine
+    return position.with({ line: firstLine })
   }
 
   // block
 
-  findNextOpenBracketPosition() {
-    let pos = this.editor.selection.active
+  findNextOpenBracketPosition(pos) {
     let doc = this.editor.document
     let bracketsStack = []
     let offset = doc.offsetAt(pos)
@@ -230,10 +241,10 @@ class Selection {
 
       offset--
     }
+    return pos
   }
 
-  findNextClosedBracketPosition() {
-    let pos = this.editor.selection.active
+  findNextClosedBracketPosition(pos) {
     let doc = this.editor.document
     let bracketsStack = []
     let offset = doc.offsetAt(pos)
@@ -260,6 +271,7 @@ class Selection {
 
       offset++
     }
+    return pos
   }
 }
 
