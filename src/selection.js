@@ -9,17 +9,6 @@ const CharacterClassWord = "word"
 const CharacterClassSpace = "space"
 const CharacterClassOther = "other"
 const CharacterClassUnknown = "unknown"
-const characterClass = (char) => {
-  if (char.match(/[\s]/)) {
-    return CharacterClassSpace
-  } else if (char.match(/\w/)) {
-    return CharacterClassWord
-  } else if (char.match(/(^|$)/)) {
-    return CharacterClassUnknown
-  } else {
-    return CharacterClassOther
-  }
-}
 
 class Selection {
   moveWordRight() {
@@ -85,56 +74,79 @@ class Selection {
     this.editor.revealRange(new vscode.Range(position, position))
   }
 
+  characterClass(char) {
+    if (char.match(/[\s]/)) {
+      return CharacterClassSpace
+    } else if (char.match(/\w/)) {
+      return CharacterClassWord
+    } else if (char.match(/(^|$)/)) {
+      return CharacterClassUnknown
+    } else {
+      return CharacterClassOther
+    }
+  }
+
+  // position
+
+  charAt(position) {
+    return this.editor.document
+      .lineAt(position.line)
+      .text.charAt(position.character)
+  }
+
+  previousPosition(position) {
+    if (position.character > 1)
+      return position.translate({ characterDelta: -1 })
+    else if (position.line > 0) {
+      return this.editor.document.lineAt(position.line - 1).range.end
+    } else {
+      return position
+    }
+  }
+
+  nextPosition(position) {
+    const line = this.editor.document.lineAt(position.line)
+    const lastLine = this.editor.document.lineAt(this.editor.document.lineCount - 1)
+
+    if (position.isBefore(line.range.end))
+      return position.translate({ characterDelta: 1 })
+    else if (position.isBefore(lastLine.range.start)) {
+      return this.editor.document.lineAt(position.line + 1).range.start
+    } else {
+      return lastLine.range.end
+    }
+  }
+
   // word
 
   findWordRight() {
     let position = this.editor.selection.active
-
-    let line = this.editor.document.lineAt(position.line)
-    const lineCount = this.editor.document.lineCount
-
-    let char = position.character
-    let charType = characterClass(line.text.charAt(char))
+    let charType = this.characterClass(this.charAt(position))
+    if (charType === CharacterClassUnknown) charType = null
     let currentCharType = charType
 
     while (currentCharType === charType) {
-      if (char === line.range.end.character) {
-        line = this.editor.document.lineAt(line.lineNumber + 1)
-        char = 0
-        if (line.lineNumber === lineCount - 1) break
-      } else {
-        char += 1
-      }
-      currentCharType = characterClass(line.text.charAt(char))
-      if (charType === CharacterClassUnknown) charType = currentCharType
+      position = this.nextPosition(position)
+      currentCharType = this.characterClass(this.charAt(position))
+      if (!charType) charType = currentCharType
     }
 
-    return position.with({ line: line.lineNumber, character: char })
+    return position
   }
 
   findWordLeft() {
-    let position = this.editor.selection.active
-
-    let line = this.editor.document.lineAt(position.line)
-    const lineCount = this.editor.document.lineCount
-
-    let char = position.character
-    let charType = characterClass(line.text.charAt(char))
+    let position = this.previousPosition(this.editor.selection.active)
+    let charType = this.characterClass(this.charAt(position))
+    if (charType === CharacterClassUnknown) charType = null
     let currentCharType = charType
 
     while (currentCharType === charType) {
-      if (char === line.range.start.character) {
-        line = this.editor.document.lineAt(line.lineNumber - 1)
-        char = line.range.end.character
-        if (line.lineNumber === 0) break
-      } else {
-        char -= 1
-      }
-      currentCharType = characterClass(line.text.charAt(char))
-      if (charType === CharacterClassUnknown) charType = currentCharType
+      position = this.previousPosition(position)
+      currentCharType = this.characterClass(this.charAt(position))
+      if (!charType) charType = currentCharType
     }
 
-    return position.with({ line: line.lineNumber, character: char })
+    return this.nextPosition(position)
   }
 
   // column
