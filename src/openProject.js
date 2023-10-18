@@ -4,15 +4,24 @@ const fs = require("fs/promises")
 const path = require("path")
 const vscode = require("vscode")
 
-const ADD = "$(add) Add Project Folder"
+const ADD_CONTAINING_FOLDER = "$(add) Add Projects Containing Folder"
+const ADD_FOLDER = "$(add) Add Project Folder"
 
-const expandFolders = async (folders) => {
+const expandDirEntries = async (folders) => {
   const expanded = await Promise.all(
     folders.map(async (folder) => {
-      if ((await fs.stat(folder)).isDirectory()) {
-        let files = await fs.readdir(folder, { withFileTypes: true })
-        files = files.filter((file) => file.isDirectory())
-        return files.map((file) => path.join(folder, file.name))
+      if (folder.startsWith("[DIR] ")) {
+        folder = folder.slice(6) // remove "[DIR] "
+        try {
+          const stat = await fs.stat(folder)
+          if (stat.isDirectory()) {
+            let files = await fs.readdir(folder, { withFileTypes: true })
+            files = files.filter((file) => !file.name.startsWith("."))
+            return files.map((file) => path.join(folder, file.name))
+          }
+        } catch(e) {
+          console.error(e)
+        }
       }
       return folder
     }),
@@ -27,14 +36,15 @@ const activate = (context) => {
 
       const currentFolders =
         vscode.workspace?.workspaceFolders?.map((f) => f.uri?.path) || []
-      let recentFolders = (
-        context.globalState.get("recentFolders") || []
-      ).filter((p) => !currentFolders.includes(p)).reverse()
+      currentFolders.concat(settings.get("favorites") || [])
+      let recentFolders = (context.globalState.get("recentFolders") || [])
+        .filter((p) => !currentFolders.includes(p))
+        .reverse()
 
       const iconPath = new vscode.ThemeIcon("folder")
 
-      const favoritesFolders = (
-        await expandFolders(settings.get("projectFolders") || [])
+      const favorites = (
+        await expandDirEntries(settings.get("favorites") || [])
       )
         .flat()
         .filter((p) => !recentFolders.includes(p))
@@ -61,11 +71,12 @@ const activate = (context) => {
       }
 
       addItems("Recent", recentFolders)
-      addItems("Favorites", favoritesFolders)
+      addItems("Favorites", favorites)
       addItems("Current", currentFolders)
 
-      items.push({ label: ADD })
-      console.debug({ recentFolders, favoritesFolders, currentFolders })
+      items.push({ label: ADD_CONTAINING_FOLDER })
+      items.push({ label: ADD_FOLDER })
+      console.debug({ recentFolders, favorites, currentFolders })
 
       const pick = await vscode.window.showQuickPick(items, {
         title: "Open Recent Project",
@@ -78,30 +89,41 @@ const activate = (context) => {
 
       console.debug({ pick })
 
-      if (pick.label === ADD) {
+      if (pick.label === ADD_CONTAINING_FOLDER || pick.label === ADD_FOLDER) {
         const newFolder = await vscode.window.showOpenDialog({
-          canSelectFiles: false,
+          canSelectFiles: true,
           canSelectFolders: true,
           canSelectMany: false,
           openLabel: "Add",
-          title: "Add a project folder",
+          title: "Add folder",
           placeholder: "Search",
         })
         if (newFolder) {
-          folders.push(newFolder[0].fsPath)
-          settings.update("projectFolders", folders, true)
+          const fsPath = newFolder[0].fsPath
+          settings.update(
+            "favorites",
+            (settings.get("favorites") || []).concat(
+              pick.label === ADD_FOLDER ? fsPath : `[DIR] ${fsPath}`,
+            ),
+            true,
+          )
         }
       } else if (pick.pathname) {
-        const pathname = pick.pathname //path.join(pick.detail, pick.label)
+        const pathname = pick.pathname
         recentFolders = recentFolders.filter((x, i) => x !== pathname && i < 10)
         recentFolders.push(pathname)
         context.globalState.update("recentFolders", recentFolders)
 
         const uri = vscode.Uri.file(pathname)
-        vscode.commands.executeCommand("vscode.openFolder", uri, {
-          // open in new window if workspace has folders
-          forceNewWindow: vscode.workspace.workspaceFolders,
-        })
+
+        if ((await fs.stat(pathname)).isDirectory()) {
+          vscode.commands.executeCommand("vscode.openFolder", uri, {
+            // open in new window if workspace has folders
+            forceNewWindow: vscode.workspace.workspaceFolders,
+          })
+        } else {
+          vscode.commands.executeCommand("vscode.open", uri)
+        }
       }
     }),
   )

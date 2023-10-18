@@ -30,7 +30,7 @@
       "type": "object",
       "title": "TextMate Settings",
       "properties": {
-        "vscode-textmate.projectFolders": {
+        "vscode-textmate.favorites": {
           "type": "array",
           "default": [
 
