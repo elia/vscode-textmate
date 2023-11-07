@@ -57,30 +57,32 @@
       {
         "key": "alt+right",
         "command": "-cursorWordEndRight",
-        "when": "textInputFocus"
+        "when": "textInputFocus && editorFocus"
       },
       {
         "key": "alt+left",
         "command": "-cursorWordLeft",
-        "when": "textInputFocus"
+        "when": "textInputFocus && editorFocus"
       },
       {
         "key": "alt+right",
         "command": "vscode-textmate.moveWordRight",
-        "when": "textInputFocus"
+        "when": "textInputFocus && editorFocus"
       },
       {
         "key": "alt+left",
-        "command": "vscode-textmate.moveWordLeft"
+        "command": "vscode-textmate.moveWordLeft",
+        "when": "textInputFocus && editorFocus"
       },
       {
         "key": "shift+alt+left",
-        "command": "vscode-textmate.moveWordLeftAndModifySelection"
+        "command": "vscode-textmate.moveWordLeftAndModifySelection",
+        "when": "textInputFocus && editorFocus"
       },
       {
         "key": "shift+alt+right",
         "command": "-cursorWordEndRightSelect",
-        "when": "textInputFocus"
+        "when": "textInputFocus && editorFocus"
       },
       {
         "key": "shift+alt+right",
