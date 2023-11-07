@@ -14,8 +14,7 @@
   "categories": ["Keymaps"],
   "capabilities": {
     "virtualWorkspaces": {
-      "supported": "limited",
-      "description": "In virtual workspaces, storing and opening favorites is not supported."
+      "supported": true
     }
   },
   "activationEvents": ["onStartupFinished"],
