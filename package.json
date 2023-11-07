@@ -1,8 +1,8 @@
 {
-  "version": "0.11.0",
+  "version": "0.12.0",
   "name": "vscode-textmate",
-  "displayName": "TextMate (keymap and features, 🚧 work in progress! 🚧)",
-  "description": "TextMate features and keybindings for Visual Studio Code",
+  "displayName": "TextMate · Keymap and Features",
+  "description": "TextMate features and keybindings for Visual Studio Code (beta)",
   "repository": {
     "type": "git",
     "url": "https://github.com/elia/vscode-textmate.git"
@@ -18,7 +18,7 @@
   "capabilities": {
     "virtualWorkspaces": {
       "supported": "limited",
-      "description": "Some features might be limited."
+      "description": "In virtual workspaces, storing and opening favorites is not supported."
     }
   },
   "activationEvents": [
@@ -926,30 +926,32 @@
       {
         "key": "alt+right",
         "command": "-cursorWordEndRight",
-        "when": "textInputFocus"
+        "when": "textInputFocus && editorFocus"
       },
       {
         "key": "alt+left",
         "command": "-cursorWordLeft",
-        "when": "textInputFocus"
+        "when": "textInputFocus && editorFocus"
       },
       {
         "key": "alt+right",
         "command": "vscode-textmate.moveWordRight",
-        "when": "textInputFocus"
+        "when": "textInputFocus && editorFocus"
       },
       {
         "key": "alt+left",
-        "command": "vscode-textmate.moveWordLeft"
+        "command": "vscode-textmate.moveWordLeft",
+        "when": "textInputFocus && editorFocus"
       },
       {
         "key": "shift+alt+left",
-        "command": "vscode-textmate.moveWordLeftAndModifySelection"
+        "command": "vscode-textmate.moveWordLeftAndModifySelection",
+        "when": "textInputFocus && editorFocus"
       },
       {
         "key": "shift+alt+right",
         "command": "-cursorWordEndRightSelect",
-        "when": "textInputFocus"
+        "when": "textInputFocus && editorFocus"
       },
       {
         "key": "shift+alt+right",
