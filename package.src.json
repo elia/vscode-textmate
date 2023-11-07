@@ -15,7 +15,7 @@
   "capabilities": {
     "virtualWorkspaces": {
       "supported": "limited",
-      "description": "Some features might be limited."
+      "description": "In virtual workspaces, storing and opening favorites is not supported."
     }
   },
   "activationEvents": ["onStartupFinished"],

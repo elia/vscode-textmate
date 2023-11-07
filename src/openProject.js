@@ -1,8 +1,9 @@
 // See https://github.com/zigapeda/open-project-folder for more information and LICENSING.
 
-const fs = require("fs/promises")
 const path = require("path")
 const vscode = require("vscode")
+
+const fs = vscode.workspace.fs
 
 const ADD_CONTAINING_FOLDER = "$(add) Add Projects Containing Folder"
 const ADD_FOLDER = "$(add) Add Project Folder"
@@ -12,14 +13,16 @@ const expandDirEntries = async (folders) => {
     folders.map(async (folder) => {
       if (folder.startsWith("[DIR] ")) {
         folder = folder.slice(6) // remove "[DIR] "
+        folder = vscode.Uri.file(folder)
+        const stat = await fs.stat(folder)
         try {
-          const stat = await fs.stat(folder)
-          if (stat.isDirectory()) {
-            let files = await fs.readdir(folder, { withFileTypes: true })
-            files = files.filter((file) => !file.name.startsWith("."))
-            return files.map((file) => path.join(folder, file.name))
+          if (stat.type === vscode.FileType.Directory) {
+            let files = await fs.readDirectory(folder)
+            files = files.filter(([fileName, _]) => !fileName.startsWith("."))
+            return files.map(([fileName, _]) => path.join(folder.fsPath, fileName))
           }
         } catch(e) {
+          console.error(folder)
           console.error(e)
         }
       }
@@ -98,7 +101,7 @@ const activate = (context) => {
           title: "Add folder",
           placeholder: "Search",
         })
-        if (newFolder) {
+        if (newFolder && newFolder[0].scheme === "file") {
           const fsPath = newFolder[0].fsPath
           settings.update(
             "favorites",
@@ -115,8 +118,7 @@ const activate = (context) => {
         context.globalState.update("recentFolders", recentFolders)
 
         const uri = vscode.Uri.file(pathname)
-
-        if ((await fs.stat(pathname)).isDirectory()) {
+        if ((await fs.stat(uri)).type === vscode.FileType.Directory) {
           vscode.commands.executeCommand("vscode.openFolder", uri, {
             // open in new window if workspace has folders
             forceNewWindow: vscode.workspace.workspaceFolders,
