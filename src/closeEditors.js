@@ -5,7 +5,7 @@ const activate = (context) => {
     vscode.commands.registerCommand("vscode-textmate.closeOtherEditors", () => {
       vscode.window.tabGroups.all.forEach((group) => {
         group.tabs.forEach((tab) => {
-          if (tab.isActive || tab.isDirty || tab.isPinned) return
+          if (tab.group.isActive && (tab.isActive || tab.isDirty || tab.isPinned)) return
           const preserveFocus = true
           vscode.window.tabGroups.close(tab, preserveFocus)
         })
