@@ -1,5 +1,5 @@
 {
-  "version": "0.12.2",
+  "version": "0.12.3",
   "name": "vscode-textmate",
   "displayName": "TextMate · Keymap and Features",
   "description": "TextMate features and keybindings for Visual Studio Code (beta)",
@@ -917,6 +917,11 @@
       {
         "key": "ctrl+shift+p",
         "command": "editor.action.inspectTMScopes"
+      },
+      {
+        "key": "cmd+up",
+        "command": "-editor.action.goToTopHover",
+        "when": "editorHoverFocused"
       },
       {
         "key": "cmd+shift+o",
