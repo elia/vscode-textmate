@@ -801,6 +801,11 @@
       {
         "key": "ctrl+shift+p",
         "command": "editor.action.inspectTMScopes"
+      },
+      {
+        "key": "cmd+up",
+        "command": "-editor.action.goToTopHover",
+        "when": "editorHoverFocused"
       }
     ]
   }
