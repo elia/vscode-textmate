@@ -36,6 +36,13 @@ You can now navigate between brackets and blocks using `ctrl` with `up` and `dow
 | Move to end of Column | `moveToEndOfColumn` | <kbd>⌥⭣</kbd> |
 | Select to beginning of Column | `moveToBeginningOfColumnAndModifySelection` | <kbd>⌥⇧⭡</kbd> |
 | Select to end of Column | `moveToEndOfColumnAndModifySelection` | <kbd>⌥⇧⭣</kbd> |
+| Jump to Selection | `jumpToSelection` | <kbd>⌘J</kbd> |
+
+### Editing
+
+| Name | Command | Keybinding |
+| ---- | ------- | ---------- |
+| Join Lines | `joinLines` | <kbd>⌃⇧J</kbd> |
 
 _All commands are under the `vscode-textmate` namespace, e.g. `vscode-textmate.moveToEndOfColumn`._
 

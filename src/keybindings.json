@@ -32,11 +32,6 @@
         "when": "inFilesPicker && inQuickOpen"
       },
       {
-        "key": "ctrl+shift+j",
-        "command": "editor.action.joinLines",
-        "when": "editorTextFocus && !editorReadonly"
-      },
-      {
         "key": "ctrl+j",
         "command": "-editor.action.joinLines",
         "when": "editorTextFocus && !editorReadonly"

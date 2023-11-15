@@ -1,0 +1,20 @@
+{
+  "contributes": {
+    "configuration": {
+      "properties": {}
+    },
+    "commands": [
+      {
+        "title": "TextMate: join lines",
+        "command": "vscode-textmate.joinLines"
+      }
+    ],
+    "keybindings": [
+      {
+        "key": "ctrl+shift+j",
+        "command": "vscode-textmate.joinLines",
+        "when": "editorTextFocus && !editorReadonly"
+      }
+    ]
+  }
+}

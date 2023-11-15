@@ -51,6 +51,10 @@
         "command": "vscode-textmate.closeOtherEditors"
       },
       {
+        "title": "TextMate: join lines",
+        "command": "vscode-textmate.joinLines"
+      },
+      {
         "command": "vscode-textmate.jumpToSelection",
         "title": "Jump to Selection"
       },
@@ -117,6 +121,11 @@
         "command": "vscode-textmate.closeEditorInAllGroups"
       },
       {
+        "key": "ctrl+shift+j",
+        "command": "vscode-textmate.joinLines",
+        "when": "editorTextFocus && !editorReadonly"
+      },
+      {
         "key": "cmd+j",
         "command": "vscode-textmate.jumpToSelection",
         "when": "editorTextFocus"
@@ -146,11 +155,6 @@
         "key": "cmd+p",
         "command": "-workbench.action.quickOpenNavigateNextInFilePicker",
         "when": "inFilesPicker && inQuickOpen"
-      },
-      {
-        "key": "ctrl+shift+j",
-        "command": "editor.action.joinLines",
-        "when": "editorTextFocus && !editorReadonly"
       },
       {
         "key": "ctrl+j",
