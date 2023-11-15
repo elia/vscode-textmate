@@ -1,5 +1,5 @@
 {
-  "version": "0.13.0",
+  "version": "0.13.1",
   "name": "vscode-textmate",
   "displayName": "TextMate · Keymap and Features",
   "description": "TextMate features and keybindings for Visual Studio Code (beta)",
@@ -296,7 +296,7 @@
       },
       {
         "key": "ctrl+shift+d",
-        "command": "editor.action.copyLinesDownAction",
+        "command": "editor.action.duplicateSelection",
         "when": "editorTextFocus && !editorReadonly"
       },
       {
