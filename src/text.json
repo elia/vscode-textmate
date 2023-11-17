@@ -1,0 +1,16 @@
+{
+  "contributes": {
+    "commands": [
+      {
+        "title": "TextMate: Toggle camelCase / snake_case / PascalCase",
+        "command": "vscode-textmate.toggleCase"
+      }
+    ],
+    "keybindings": [
+      {
+        "key": "ctrl+shift+-",
+        "command": "vscode-textmate.toggleCase"
+      }
+    ]
+  }
+}

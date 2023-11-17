@@ -109,6 +109,10 @@
       {
         "command": "vscode-textmate.moveToEndOfColumnAndModifySelection",
         "title": "Move to end of Column (and modify selection)"
+      },
+      {
+        "title": "TextMate: Toggle camelCase / snake_case / PascalCase",
+        "command": "vscode-textmate.toggleCase"
       }
     ],
     "keybindings": [
@@ -877,14 +881,6 @@
         "command": "editor.action.transformToLowercase"
       },
       {
-        "key": "ctrl+shift+-",
-        "command": "editor.togglecase"
-      },
-      {
-        "key": "cmd+;",
-        "command": "-editor.togglecase"
-      },
-      {
         "key": "alt+cmd+o",
         "command": "workbench.action.tasks.runTask",
         "args": "Bundle open"
@@ -1004,6 +1000,10 @@
         "key": "ctrl-shift-down",
         "mac": "alt-shift-down",
         "when": "editorTextFocus"
+      },
+      {
+        "key": "ctrl+shift+-",
+        "command": "vscode-textmate.toggleCase"
       }
     ]
   },

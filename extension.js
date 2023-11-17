@@ -5,6 +5,7 @@ const features = [
   require("./src/closeEditors"),
   require("./src/jump"),
   require("./src/joinLines"),
+  require("./src/text"),
 ]
 
 function activate(context) {

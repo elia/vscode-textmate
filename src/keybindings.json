@@ -752,14 +752,6 @@
         "command": "editor.action.transformToLowercase"
       },
       {
-        "key": "ctrl+shift+-",
-        "command": "editor.togglecase"
-      },
-      {
-        "key": "cmd+;",
-        "command": "-editor.togglecase"
-      },
-      {
         "key": "alt+cmd+o",
         "command": "workbench.action.tasks.runTask",
         "args": "Bundle open"
