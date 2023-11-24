@@ -43,7 +43,7 @@ You can now navigate between brackets and blocks using `ctrl` with `up` and `dow
 | Name | Command | Keybinding |
 | ---- | ------- | ---------- |
 | Join Lines | `joinLines` | <kbd>⌃⇧J</kbd> |
-| Toggle Case | `toggleCase` | <kbd>⌃⇧-</kbd> |
+| Toggle Case | `toggleCase` | <kbd>⌃_</kbd> |
 | Transpose | `transpose` | <kbd>⌃T</kbd> |
 
 _All commands are under the `vscode-textmate` namespace, e.g. `vscode-textmate.moveToEndOfColumn`._
