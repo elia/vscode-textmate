@@ -1,5 +1,5 @@
 {
-  "version": "0.14.0",
+  "version": "0.15.0",
   "name": "vscode-textmate",
   "displayName": "TextMate · Keymap and Features",
   "description": "TextMate features and keybindings for Visual Studio Code (beta)",
@@ -113,6 +113,10 @@
       {
         "title": "TextMate: Toggle camelCase / snake_case / PascalCase",
         "command": "vscode-textmate.toggleCase"
+      },
+      {
+        "title": "TextMate: Transpose chars, lines, and words, or swap selections and sides of assignments",
+        "command": "vscode-textmate.transposeWords"
       }
     ],
     "keybindings": [
