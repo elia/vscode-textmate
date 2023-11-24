@@ -1004,6 +1004,10 @@
       {
         "key": "ctrl+shift+-",
         "command": "vscode-textmate.toggleCase"
+      },
+      {
+        "key": "ctrl+t",
+        "command": "vscode-textmate.transposeWords"
       }
     ]
   },

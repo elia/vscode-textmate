@@ -1,0 +1,16 @@
+{
+  "contributes": {
+    "commands": [
+      {
+        "title": "TextMate: Transpose chars, lines, and words, or swap selections and sides of assignments",
+        "command": "vscode-textmate.transposeWords"
+      }
+    ],
+    "keybindings": [
+      {
+        "key": "ctrl+t",
+        "command": "vscode-textmate.transposeWords"
+      }
+    ]
+  }
+}
