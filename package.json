@@ -1,5 +1,5 @@
 {
-  "version": "0.15.1",
+  "version": "0.15.2",
   "name": "vscode-textmate",
   "displayName": "TextMate · Keymap and Features",
   "description": "TextMate features and keybindings for Visual Studio Code (beta)",
@@ -868,13 +868,25 @@
       },
       {
         "key": "up",
-        "command": "removeSecondaryCursors",
-        "when": "editorHasMultipleSelections && textInputFocus"
+        "command": "runCommands",
+        "when": "editorHasMultipleSelections && textInputFocus",
+        "args": {
+          "commands": [
+            "removeSecondaryCursors",
+            "cursorUp"
+          ]
+        }
       },
       {
         "key": "down",
-        "command": "removeSecondaryCursors",
-        "when": "editorHasMultipleSelections && textInputFocus"
+        "command": "runCommands",
+        "when": "editorHasMultipleSelections && textInputFocus",
+        "args": {
+          "commands": [
+            "removeSecondaryCursors",
+            "cursorDown"
+          ]
+        }
       },
       {
         "key": "ctrl+alt+u",
