@@ -735,13 +735,19 @@
       },
       {
         "key": "up",
-        "command": "removeSecondaryCursors",
-        "when": "editorHasMultipleSelections && textInputFocus"
+        "command": "runCommands",
+        "when": "editorHasMultipleSelections && textInputFocus",
+        "args": {
+          "commands": ["removeSecondaryCursors", "cursorUp"]
+        }
       },
       {
         "key": "down",
-        "command": "removeSecondaryCursors",
-        "when": "editorHasMultipleSelections && textInputFocus"
+        "command": "runCommands",
+        "when": "editorHasMultipleSelections && textInputFocus",
+        "args": {
+          "commands": ["removeSecondaryCursors", "cursorDown"]
+        }
       },
       {
         "key": "ctrl+alt+u",
