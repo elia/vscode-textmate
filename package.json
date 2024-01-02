@@ -1,5 +1,5 @@
 {
-  "version": "0.15.2",
+  "version": "0.16.0",
   "name": "vscode-textmate",
   "displayName": "TextMate · Keymap and Features",
   "description": "TextMate features and keybindings for Visual Studio Code (beta)",
@@ -127,6 +127,37 @@
       {
         "key": "ctrl+alt+cmd+w",
         "command": "vscode-textmate.closeEditorInAllGroups"
+      },
+      {
+        "key": "cmd+g",
+        "command": "search.action.focusNextSearchResult",
+        "when": "(hasSearchResult || inSearchEditor) && !findWidgetVisible"
+      },
+      {
+        "key": "shift+cmd+g",
+        "command": "search.action.focusPreviousSearchResult",
+        "when": "(hasSearchResult || inSearchEditor) && !findWidgetVisible"
+      },
+      {
+        "key": "shift+cmd+f",
+        "command": "runCommands",
+        "args": {
+          "commands": [
+            "workbench.action.closePanel",
+            "closeFindWidget",
+            "workbench.view.search.focus"
+          ]
+        }
+      },
+      {
+        "key": "cmd+f",
+        "command": "runCommands",
+        "args": {
+          "commands": [
+            "workbench.action.closePanel",
+            "actions.find"
+          ]
+        }
       },
       {
         "key": "ctrl+shift+j",
@@ -624,11 +655,6 @@
         "when": "textInputFocus"
       },
       {
-        "key": "cmd+g",
-        "command": "search.action.focusNextSearchResult",
-        "when": "(hasSearchResult || inSearchEditor) && !findWidgetVisible"
-      },
-      {
         "key": "f4",
         "command": "-search.action.focusNextSearchResult",
         "when": "hasSearchResult || inSearchEditor"
@@ -686,11 +712,6 @@
       {
         "key": "cmd+'",
         "command": "-editor.togglequotes"
-      },
-      {
-        "key": "shift+cmd+g",
-        "command": "search.action.focusPreviousSearchResult",
-        "when": "(hasSearchResult || inSearchEditor) && !findWidgetVisible"
       },
       {
         "key": "shift+f4",
@@ -946,52 +967,57 @@
       {
         "key": "alt+right",
         "command": "-cursorWordEndRight",
-        "when": "textInputFocus && editorFocus"
+        "when": "editorTextFocus"
       },
       {
         "key": "alt+left",
         "command": "-cursorWordLeft",
-        "when": "textInputFocus && editorFocus"
+        "when": "editorTextFocus"
       },
       {
         "key": "alt+right",
         "command": "vscode-textmate.moveWordRight",
-        "when": "textInputFocus && editorFocus"
+        "when": "editorTextFocus"
       },
       {
         "key": "alt+left",
         "command": "vscode-textmate.moveWordLeft",
-        "when": "textInputFocus && editorFocus"
+        "when": "editorTextFocus"
       },
       {
         "key": "shift+alt+left",
         "command": "vscode-textmate.moveWordLeftAndModifySelection",
-        "when": "textInputFocus && editorFocus"
+        "when": "editorTextFocus"
       },
       {
         "key": "shift+alt+right",
         "command": "-cursorWordEndRightSelect",
-        "when": "textInputFocus && editorFocus"
+        "when": "editorTextFocus"
       },
       {
         "key": "shift+alt+right",
-        "command": "vscode-textmate.moveWordRightAndModifySelection"
+        "command": "vscode-textmate.moveWordRightAndModifySelection",
+        "when": "editorTextFocus"
       },
       {
         "key": "ctrl+up",
-        "command": "vscode-textmate.moveToBeginningOfBlock"
+        "command": "vscode-textmate.moveToBeginningOfBlock",
+        "when": "editorTextFocus"
       },
       {
         "key": "ctrl+down",
-        "command": "vscode-textmate.moveToEndOfBlock"
+        "command": "vscode-textmate.moveToEndOfBlock",
+        "when": "editorTextFocus"
       },
       {
         "key": "ctrl+shift+up",
-        "command": "vscode-textmate.moveToBeginningOfBlockAndModifySelection"
+        "command": "vscode-textmate.moveToBeginningOfBlockAndModifySelection",
+        "when": "editorTextFocus"
       },
       {
         "key": "ctrl+shift+down",
-        "command": "vscode-textmate.moveToEndOfBlockAndModifySelection"
+        "command": "vscode-textmate.moveToEndOfBlockAndModifySelection",
+        "when": "editorTextFocus"
       },
       {
         "command": "vscode-textmate.moveToBeginningOfColumn",
