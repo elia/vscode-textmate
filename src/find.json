@@ -14,6 +14,24 @@
         "key": "shift+cmd+g",
         "command": "search.action.focusPreviousSearchResult",
         "when": "(hasSearchResult || inSearchEditor) && !findWidgetVisible"
+      },
+      {
+        "key": "shift+cmd+f",
+        "command": "runCommands",
+        "args": {
+          "commands": [
+            "workbench.action.closePanel",
+            "closeFindWidget",
+            "workbench.view.search.focus"
+          ]
+        }
+      },
+      {
+        "key": "cmd+f",
+        "command": "runCommands",
+        "args": {
+          "commands": ["workbench.action.closePanel", "actions.find"]
+        }
       }
     ]
   }
