@@ -60,9 +60,9 @@ class Selection {
       return new vscode.Selection(position, position)
     })
 
-    if (this.selection)
+    if (this.editor.selection)
       this.editor.revealRange(
-        new vscode.Range(this.selection.active, this.selection.active),
+        new vscode.Range(this.editor.selection.active, this.editor.selection.active),
       )
   }
 
@@ -74,9 +74,9 @@ class Selection {
       )
     })
 
-    if (this.selection)
+    if (this.editor.selection)
       this.editor.revealRange(
-        new vscode.Range(this.selection.active, this.selection.active),
+        new vscode.Range(this.editor.selection.active, this.editor.selection.active),
       )
   }
 
