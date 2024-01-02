@@ -491,11 +491,6 @@
         "when": "textInputFocus"
       },
       {
-        "key": "cmd+g",
-        "command": "search.action.focusNextSearchResult",
-        "when": "(hasSearchResult || inSearchEditor) && !findWidgetVisible"
-      },
-      {
         "key": "f4",
         "command": "-search.action.focusNextSearchResult",
         "when": "hasSearchResult || inSearchEditor"
@@ -553,11 +548,6 @@
       {
         "key": "cmd+'",
         "command": "-editor.togglequotes"
-      },
-      {
-        "key": "shift+cmd+g",
-        "command": "search.action.focusPreviousSearchResult",
-        "when": "(hasSearchResult || inSearchEditor) && !findWidgetVisible"
       },
       {
         "key": "shift+f4",
