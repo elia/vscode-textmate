@@ -246,14 +246,6 @@
         "when": "workbench.scm.active"
       },
       {
-        "key": "ctrl+shift+[",
-        "command": "extension.rubyBlockToggle"
-      },
-      {
-        "key": "ctrl+cmd+b",
-        "command": "-extension.rubyBlockToggle"
-      },
-      {
         "key": "shift+cmd+t",
         "command": "workbench.action.gotoSymbol"
       },
