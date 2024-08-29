@@ -15,6 +15,9 @@
   "capabilities": {
     "virtualWorkspaces": {
       "supported": true
+    },
+    "untrustedWorkspaces": {
+      "supported": true
     }
   },
   "activationEvents": ["onStartupFinished"],
