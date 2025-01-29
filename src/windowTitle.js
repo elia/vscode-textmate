@@ -18,6 +18,8 @@ class WindowTitleUpdater {
       .getConfiguration("window", workspace.uri)
       .get("title")
 
+    if (!windowTitle) return
+
     windowTitle = titleMarker + windowTitle
     if (windowTitle.includes("${scmBranch}"))
       try {
