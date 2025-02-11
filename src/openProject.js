@@ -1,20 +1,20 @@
 // See https://github.com/zigapeda/open-project-folder for more information and LICENSING.
 
-const path = require("path")
-const vscode = require("vscode")
+let path = require("path")
+let vscode = require("vscode")
 
-const fs = vscode.workspace.fs
+let fs = vscode.workspace.fs
 
-const ADD_CONTAINING_FOLDER = "$(add) Add Projects Containing Folder"
-const ADD_FOLDER = "$(add) Add Project Folder"
+let ADD_CONTAINING_FOLDER = "$(add) Add Projects Containing Folder"
+let ADD_FOLDER = "$(add) Add Project Folder"
 
-const expandDirEntries = async (folders) => {
-  const expanded = await Promise.all(
+let expandDirEntries = async (folders) => {
+  let expanded = await Promise.all(
     folders.map(async (folder) => {
       if (folder.startsWith("[DIR] ")) {
         folder = folder.slice(6) // remove "[DIR] "
         folder = vscode.Uri.file(folder)
-        const stat = await fs.stat(folder)
+        let stat = await fs.stat(folder)
         try {
           if (stat.type === vscode.FileType.Directory) {
             let files = await fs.readDirectory(folder)
@@ -32,21 +32,21 @@ const expandDirEntries = async (folders) => {
   return expanded.flat()
 }
 
-const activate = (context) => {
+let activate = (context) => {
   context.subscriptions.push(
     vscode.commands.registerCommand("vscode-textmate.openProject", async () => {
-      const settings = vscode.workspace.getConfiguration("vscode-textmate")
+      let settings = vscode.workspace.getConfiguration("vscode-textmate")
 
-      const currentFolders =
+      let currentFolders =
         vscode.workspace?.workspaceFolders?.map((f) => f.uri?.path) || []
       currentFolders.concat(settings.get("favorites") || [])
       let recentFolders = (context.globalState.get("recentFolders") || [])
         .filter((p) => !currentFolders.includes(p))
         .reverse()
 
-      const iconPath = new vscode.ThemeIcon("folder")
+      let iconPath = new vscode.ThemeIcon("folder")
 
-      const favorites = (
+      let favorites = (
         await expandDirEntries(settings.get("favorites") || [])
       )
         .flat()
@@ -59,8 +59,8 @@ const activate = (context) => {
             .localeCompare(path.basename(b).toLowerCase()),
         )
 
-      const items = []
-      const addItems = (label, pathnames) => {
+      let items = []
+      let addItems = (label, pathnames) => {
         if (pathnames.length === 0) return
         items.push({ label, kind: vscode.QuickPickItemKind.Separator })
         pathnames.forEach((pathname) =>
@@ -81,7 +81,7 @@ const activate = (context) => {
       items.push({ label: ADD_FOLDER })
       console.debug({ recentFolders, favorites, currentFolders })
 
-      const pick = await vscode.window.showQuickPick(items, {
+      let pick = await vscode.window.showQuickPick(items, {
         title: "Open Recent Project",
         matchOnDescription: true,
         matchOnDetail: true,
@@ -93,7 +93,7 @@ const activate = (context) => {
       console.debug({ pick })
 
       if (pick.label === ADD_CONTAINING_FOLDER || pick.label === ADD_FOLDER) {
-        const newFolder = await vscode.window.showOpenDialog({
+        let newFolder = await vscode.window.showOpenDialog({
           canSelectFiles: true,
           canSelectFolders: true,
           canSelectMany: false,
@@ -102,7 +102,7 @@ const activate = (context) => {
           placeholder: "Search",
         })
         if (newFolder && newFolder[0].scheme === "file") {
-          const fsPath = newFolder[0].fsPath
+          let fsPath = newFolder[0].fsPath
           settings.update(
             "favorites",
             (settings.get("favorites") || []).concat(
@@ -112,13 +112,23 @@ const activate = (context) => {
           )
         }
       } else if (pick.pathname) {
-        const pathname = pick.pathname
+        let pathname = pick.pathname
         recentFolders = recentFolders.filter((x, i) => x !== pathname && i < 10)
-        recentFolders.push(pathname)
+        recentFolders = [...recentFolders, pathname]
+
         context.globalState.update("recentFolders", recentFolders)
 
-        const uri = vscode.Uri.file(pathname)
+        let uri = vscode.Uri.file(pathname)
         if ((await fs.stat(uri)).type === vscode.FileType.Directory) {
+
+          // Prefer a workspace file if present
+          let workspaceFiles = (await fs.readDirectory(uri)).filter(
+            ([name, _]) => name.endsWith(".code-workspace"),
+          )
+          if (workspaceFiles.length === 1) {
+            uri = uri.with({ path: path.join(uri.path, workspaceFiles[0][0]) })
+          }
+
           vscode.commands.executeCommand("vscode.openFolder", uri, {
             // open in new window if workspace has folders
             forceNewWindow: vscode.workspace.workspaceFolders,
