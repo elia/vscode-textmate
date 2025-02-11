@@ -6,10 +6,11 @@ version="$1"
 if [ -z "$version" ]; then
   echo "Usage: bin/release <version>"
   echo "Example: bin/release v1.2.3"
+  echo "The latest version is $(cat VERSION)"
   exit 1
 fi
 
-echo "$version" > VERSION
+echo "$version" >VERSION
 
 yarn install
 bin/build
