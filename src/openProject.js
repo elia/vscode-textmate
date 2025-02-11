@@ -86,6 +86,7 @@ let activate = (context) => {
         matchOnDescription: true,
         matchOnDetail: true,
         canSelectMany: true,
+        ignoreFocusOut: true,
       })
 
       if (!pick) return
