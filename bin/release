@@ -10,12 +10,17 @@ if [ -z "$version" ]; then
   exit 1
 fi
 
-echo "$version" >VERSION
+# if version file is not up to date, update it
+if [ "$version" != "$(cat VERSION)" ]; then
+  echo "Version file is not up to date. Updating it..."
+  echo "$version" >VERSION
 
-npm install
-bin/build
-git add VERSION package.json
-git commit -m "Release $version"
+  yarn install
+  bin/build
+  git add VERSION package.json yarn.lock
+  git commit -m "Release $version"
+fi
+
 git diff --exit-code
 git tag -m "" "v$(cat package.json | ruby -rjson -e 'puts JSON[$<.read][%{version}]')"
 git push --tags

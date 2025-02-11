@@ -1,5 +1,5 @@
 {
-  "version": "0.16.2",
+  "version": "0.17.0",
   "name": "vscode-textmate",
   "displayName": "TextMate · Keymap and Features",
   "description": "TextMate features and keybindings for Visual Studio Code (beta)",
@@ -34,9 +34,7 @@
       "properties": {
         "vscode-textmate.favorites": {
           "type": "array",
-          "default": [
-
-          ],
+          "default": [],
           "description": "The folders containing projects.",
           "scope": "machine"
         },
@@ -1065,7 +1063,5 @@
     "mocha": "^10.2.0",
     "typescript": "^4.9.5"
   },
-  "extensionDependencies": [
-
-  ]
+  "extensionDependencies": []
 }
