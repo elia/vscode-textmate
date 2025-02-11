@@ -12,7 +12,7 @@ fi
 
 echo "$version" >VERSION
 
-yarn install
+npm install
 bin/build
 git add VERSION package.json
 git commit -m "Release $version"
@@ -20,4 +20,4 @@ git diff --exit-code
 git tag -m "" "v$(cat package.json | ruby -rjson -e 'puts JSON[$<.read][%{version}]')"
 git push --tags
 git push
-yarn run vsce publish
+npx vsce publish || echo "Use 'npx vsce login' to update the personal-access-token"

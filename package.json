@@ -1050,7 +1050,7 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "pretest": "yarn run lint",
+    "pretest": "npm run lint",
     "test": "node ./test/runTest.js"
   },
   "devDependencies": {
@@ -1059,7 +1059,7 @@
     "@types/node": "16.x",
     "@types/vscode": "^1.77.0",
     "@vscode/test-electron": "^2.3.0",
-    "@vscode/vsce": "^2.19.0",
+    "@vscode/vsce": "latest",
     "eslint": "^8.36.0",
     "glob": "^8.1.0",
     "mocha": "^10.2.0",
