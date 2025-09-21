@@ -10,7 +10,7 @@ const activate = (context) => {
 
       editor.selections = editor.selections.map((selection) => {
         const offset = document.offsetAt(selection.end)
-        subset = text.slice(offset)
+        let subset = text.slice(offset)
         const match = whitespace.exec(subset)
         if (!match) return new vscode.Selection(end, end)
 
