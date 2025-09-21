@@ -1,5 +1,5 @@
 {
-  "version": "0.17.1",
+  "version": "0.18.0",
   "name": "vscode-textmate",
   "displayName": "TextMate · Keymap and Features",
   "description": "TextMate features and keybindings for Visual Studio Code (beta)",
@@ -32,6 +32,12 @@
       "type": "object",
       "title": "TextMate Settings",
       "properties": {
+        "vscode-textmate.openProject.useQuickPick": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use the built-in Quick Pick UI instead of the custom sidebar UI for selecting projects.",
+          "scope": "machine"
+        },
         "vscode-textmate.favorites": {
           "type": "array",
           "default": [],
