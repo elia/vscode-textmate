@@ -1,0 +1,14 @@
+{
+  "contributes": {
+    "commands": [
+      {
+        "title": "TextMate: Select From List",
+        "command": "vscode-textmate.selectFromList"
+      },
+      {
+        "title": "TextMate: Show Select From List (Sidebar)",
+        "command": "vscode-textmate.showSelectFromList"
+      }
+    ]
+  }
+}

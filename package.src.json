@@ -29,7 +29,26 @@
       "properties": {}
     },
     "commands": [],
-    "keybindings": []
+    "keybindings": [],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "vscodeTextmate",
+          "title": "TextMate",
+          "icon": "icon.png"
+        }
+      ]
+    },
+    "views": {
+      "vscodeTextmate": [
+        {
+          "type": "webview",
+          "id": "vscode-textmate.selectFromListView",
+          "name": "Select From List",
+          "contextualTitle": "Select From List"
+        }
+      ]
+    }
   },
   "scripts": {
     "lint": "eslint .",

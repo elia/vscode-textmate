@@ -7,6 +7,7 @@ const features = [
   require("./src/joinLines"),
   require("./src/toggleCase"),
   require("./src/transposeWords"),
+  require("./src/selectFromList"),
 ]
 
 function activate(context) {

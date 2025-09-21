@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'none'; img-src {{cspSource}} https:; style-src 'nonce-{{nonce}}'; script-src 'nonce-{{nonce}}' {{cspSource}};" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Select From List</title>
+  <style nonce="{{nonce}}">
+    :root {
+      color-scheme: light dark;
+      --window-background: #f6f7f6;
+    }
+
+    /* dark mode */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --window-background: #272b2d;
+        --input-background: #323638;
+      }
+    }
+
+    body {
+      font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, sans-serif);
+      padding: 0;
+      margin: 0;
+      line-height: 1.4;
+      color: var(--vscode-foreground);
+      background: var(--window-background);
+    }
+
+    header {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--vscode-editorWidget-border, #0001);
+      position: sticky;
+      top: 0;
+      background: var(--window-background);
+      z-index: 1;
+    }
+
+    main {
+      padding: 10px 12px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      /* max-height: 50vh; */
+      overflow: auto;
+      outline: none;
+      user-select: none;
+    }
+
+    li {
+      padding: 6px 6px;
+      border-radius: 0;
+    }
+
+    li.selected {
+      border-radius: 4px;
+    }
+
+    li.selected+li.selected {
+      border-top: 4px solid var(--vscode-list-activeSelectionBackground);
+      margin-top: -4px;
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
+
+    li.selected {
+      background: var(--vscode-list-activeSelectionBackground);
+      color: var(--vscode-list-activeSelectionForeground);
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    li.selected input[type="checkbox"] {
+      filter: brightness(1.2);
+    }
+
+    .grow {
+      flex: 1;
+    }
+
+    label {
+      position: relative;
+
+      svg {
+        width: 14px;
+        height: 14px;
+        flex-shrink: 0;
+        position: absolute;
+        left: 4px;
+      }
+
+      input[type="search"] {
+        width: 100%;
+        padding: 2px 4px;
+        background: var(--input-background);
+        border: 1px solid var(--vscode-input-border);
+        color: var(--vscode-foreground);
+        appearance: searchfield;
+        border-radius: 8px;
+        padding-left: 22px;
+      }
+    }
+
+    .muted {
+      opacity: 0.7;
+    }
+  </style>
+  <link nonce="{{nonce}}" rel="stylesheet" href="{{codiconsUri}}">
+</head>
+
+<body>
+  <header>
+    <label>
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+        viewBox="0 0 12.5841 12.2922">
+        <g>
+          <rect height="12.2922" opacity="0" width="12.5841" x="0" y="0" />
+          <path
+            d="M0 5.05875C0 7.85156 2.26594 10.1111 5.05875 10.1111C6.06844 10.1111 6.99922 9.81109 7.78281 9.29499L10.4922 12.0108C10.69 12.2022 10.9438 12.2908 11.2053 12.2908C11.7653 12.2908 12.1778 11.8641 12.1778 11.3055C12.1778 11.0403 12.0778 10.7958 11.9028 10.608L9.21186 7.91063C9.78124 7.10219 10.1111 6.12312 10.1111 5.05875C10.1111 2.26594 7.85156 0 5.05875 0C2.26594 0 0 2.26594 0 5.05875ZM1.41827 5.05875C1.41827 3.04452 3.04452 1.41827 5.05875 1.41827C7.06797 1.41827 8.69922 3.04452 8.69922 5.05875C8.69922 7.06656 7.06797 8.69922 5.05875 8.69922C3.04452 8.69922 1.41827 7.06656 1.41827 5.05875Z"
+            fill="currentColor" fill-opacity="0.85" />
+        </g>
+      </svg>
+
+      <input id="filter" type="search" placeholder="Search" aria-label="Search" />
+    </label>
+  </header>
+  <main>
+    <ul id="list" aria-label="Items" role="listbox" aria-multiselectable="true" tabindex="0"></ul>
+  </main>
+
+  <script nonce="{{nonce}}" src="{{script}}"></script>
+</body>
+
+</html>
