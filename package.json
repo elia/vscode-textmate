@@ -64,6 +64,14 @@
         "command": "vscode-textmate.openProject"
       },
       {
+        "title": "TextMate: Select From List",
+        "command": "vscode-textmate.selectFromList"
+      },
+      {
+        "title": "TextMate: Show Select From List (Sidebar)",
+        "command": "vscode-textmate.showSelectFromList"
+      },
+      {
         "title": "TextMate: moveWordRight",
         "command": "vscode-textmate.moveWordRight"
       },
@@ -1044,7 +1052,26 @@
         "key": "ctrl+t",
         "command": "vscode-textmate.transposeWords"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "vscodeTextmate",
+          "title": "TextMate",
+          "icon": "icon.png"
+        }
+      ]
+    },
+    "views": {
+      "vscodeTextmate": [
+        {
+          "type": "webview",
+          "id": "vscode-textmate.selectFromListView",
+          "name": "Select From List",
+          "contextualTitle": "Select From List"
+        }
+      ]
+    }
   },
   "scripts": {
     "lint": "eslint .",

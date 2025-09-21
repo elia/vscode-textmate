@@ -1,0 +1,249 @@
+// REF: https://code.visualstudio.com/api/extension-guides/webview
+/* global acquireVsCodeApi, document, addEventListener */
+
+// Webview script for Select From List (macOS-like multi-select)
+;(() => {
+  const vscode = acquireVsCodeApi()
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+  }
+
+  /** @type {any[]} */
+  let items = []
+  let filterText = ""
+  let selectedIndexes = new Set()
+  selectedIndexes.add(0) // Initially select first item
+  let visibleItems = [] // [{ idx, label }]
+  let currentRow = 0
+  let anchorIndex = 0
+
+  const listElement = document.getElementById("list")
+
+  function computeVisible() {
+    visibleItems = []
+    const filter = (filterText || "").trim().toLowerCase()
+    for (let index = 0; index < items.length; index++) {
+      let item = items[index]
+      let label = String(item.label || item.name || item.title || item.id)
+      if (filter && !label.toLowerCase().includes(filter)) continue
+      // if (item.kind == vscode.QuickPickItemKind.Separator) continue
+      visibleItems.push({ idx: index, label })
+    }
+    if (currentRow >= visibleItems.length)
+      currentRow = Math.max(0, visibleItems.length - 1)
+    if (currentRow < 0) currentRow = 0
+  }
+
+  function render() {
+    const fragment = document.createDocumentFragment()
+    for (let row = 0; row < visibleItems.length; row++) {
+      const { idx: itemIndex, label } = visibleItems[row]
+      const listItem = document.createElement("li")
+      listItem.className =
+        "row" +
+        (selectedIndexes.has(itemIndex) ? " selected" : "") +
+        (row === currentRow ? " focused" : "")
+      listItem.dataset.row = String(row)
+      listItem.dataset.idx = String(itemIndex)
+      listItem.id = "row-" + row
+      listItem.setAttribute("role", "option")
+      listItem.setAttribute(
+        "aria-selected",
+        selectedIndexes.has(itemIndex) ? "true" : "false",
+      )
+      listItem.innerHTML = `
+        <label class="${""}">
+          <input hidden type="checkbox" value="${itemIndex}" ${
+        selectedIndexes.has(itemIndex) ? "checked" : ""
+      }>
+          <span>${escapeHtml(label)}</span>
+        </label>
+      `
+      fragment.appendChild(listItem)
+    }
+    listElement.innerHTML = ""
+    listElement.appendChild(fragment)
+    if (visibleItems.length > 0)
+      listElement.setAttribute("aria-activedescendant", "row-" + currentRow)
+    else listElement.removeAttribute("aria-activedescendant")
+  }
+
+  function getIndexFromRow(row) {
+    const visibleItem = visibleItems[row]
+    return visibleItem ? visibleItem.idx : -1
+  }
+  function getRowFromIndex(idx) {
+    return visibleItems.findIndex((visibleItem) => visibleItem.idx === idx)
+  }
+  function ensureRowVisible(row) {
+    const listItem = listElement.querySelector('li[data-row="' + row + '"]')
+    if (listItem) listItem.scrollIntoView({ block: "nearest" })
+  }
+  function setFocusRow(row, shouldScroll = true) {
+    if (visibleItems.length === 0) return
+    row = Math.max(0, Math.min(row, visibleItems.length - 1))
+    currentRow = row
+    render()
+    if (shouldScroll) ensureRowVisible(currentRow)
+  }
+  function selectOnlyRow(row) {
+    const itemIndex = getIndexFromRow(row)
+    selectedIndexes = new Set()
+    if (itemIndex >= 0) selectedIndexes.add(itemIndex)
+    anchorIndex = itemIndex
+    setFocusRow(row)
+  }
+  function rangeSelectToRow(row) {
+    if (visibleItems.length === 0) return
+    if (anchorIndex == null) return selectOnlyRow(row)
+    const anchorRow = (() => {
+      const foundRow = getRowFromIndex(anchorIndex)
+      return foundRow >= 0 ? foundRow : row
+    })()
+    const start = Math.min(anchorRow, row)
+    const end = Math.max(anchorRow, row)
+    selectedIndexes = new Set()
+    for (let rowIndex = start; rowIndex <= end; rowIndex++)
+      selectedIndexes.add(getIndexFromRow(rowIndex))
+    setFocusRow(row)
+  }
+  function toggleRow(row) {
+    const itemIndex = getIndexFromRow(row)
+    if (itemIndex < 0) return
+    if (selectedIndexes.has(itemIndex)) selectedIndexes.delete(itemIndex)
+    else selectedIndexes.add(itemIndex)
+    anchorIndex = itemIndex
+    setFocusRow(row, false)
+    ensureRowVisible(row)
+  }
+
+  addEventListener("message", (event) => {
+    const message = event.data
+    if (!message || typeof message !== "object") return
+    if (message.type === "init") {
+      items = Array.isArray(message.items) ? message.items : []
+      filterText = ""
+      selectedIndexes = new Set()
+      if (items.length > 0) selectedIndexes.add(0)
+      currentRow = 0
+      anchorIndex = 0
+      computeVisible()
+      render()
+      setTimeout(() => {
+        const filterElement = document.getElementById("filter")
+        filterElement && filterElement.focus()
+      }, 0)
+    }
+  })
+
+  document.getElementById("filter").addEventListener("input", (event) => {
+    filterText = event.target.value || ""
+    computeVisible()
+    render()
+  })
+
+  this._lastClickTime = 0
+
+  listElement.addEventListener("click", (event) => {
+    let listItem = event.target.closest("li")
+    if (!listItem) return
+    let row = parseInt(listItem.dataset.row, 10)
+
+    if (event.timeStamp - this._lastClickTime < 250) {
+      if (!listItem) return
+      selectOnlyRow(row)
+      submit()
+      return
+    }
+
+    this._lastClickTime = event.timeStamp
+    if (
+      event.target.tagName &&
+      event.target.tagName.toLowerCase() === "input"
+    ) {
+      event.preventDefault()
+    }
+    if (event.shiftKey) rangeSelectToRow(row)
+    else if (event.metaKey) toggleRow(row)
+    else selectOnlyRow(row)
+  })
+
+  listElement.addEventListener("double-click", (event) => {
+    console.log("double-click!", event)
+  })
+  listElement.addEventListener("dblclick", (event) => {
+    console.log("dblclick!", event)
+    // const listItem = event.target.closest("li")
+    // if (!listItem) return
+    // const row = parseInt(listItem.dataset.row, 10)
+    // selectOnlyRow(row)
+    // submit()
+  })
+
+  document.addEventListener("keydown", (event) => {
+    let {
+      key,
+      code,
+      shiftKey: shift,
+      metaKey: meta,
+      ctrlKey: ctrl,
+      altKey: alt,
+    } = event
+    let down = key === "ArrowDown"
+    let up = key === "ArrowUp"
+    let space = key === " " || code === "Space"
+    let enter = key === "Enter"
+    let esc = key === "Escape"
+
+    if (visibleItems.length === 0) return
+
+    if (down) {
+      event.preventDefault()
+      let next = Math.min(currentRow + 1, visibleItems.length - 1)
+      if (alt) next = items.length - 1
+      if (shift) rangeSelectToRow(next)
+      else selectOnlyRow(next)
+    } else if (up) {
+      event.preventDefault()
+      let prev = Math.max(currentRow - 1, 0)
+      if (alt) prev = 0
+      if (shift) rangeSelectToRow(prev)
+      else selectOnlyRow(prev)
+    } else if (space) {
+      event.preventDefault()
+      toggleRow(currentRow)
+    } else if (meta && code === "KeyA") {
+      event.preventDefault()
+      selectedIndexes = new Set(
+        visibleItems.map((visibleItem) => visibleItem.idx),
+      )
+      render()
+    } else if (enter) {
+      event.preventDefault()
+      submit()
+    } else if (esc) {
+      event.preventDefault()
+      cancel()
+    }
+  })
+
+  function submit() {
+    const indexes = Array.from(selectedIndexes)
+      .filter(Number.isInteger)
+      .sort((a, b) => a - b)
+    vscode.postMessage({ type: "submit", indexes })
+  }
+
+  function cancel() {
+    vscode.postMessage({ type: "cancel" })
+  }
+
+  // document.getElementById("submit").addEventListener("click", submit)
+  // document.getElementById("cancel").addEventListener("click", cancel)
+
+  // Notify extension we're ready to receive items
+  vscode.postMessage({ type: "ready" })
+})()
