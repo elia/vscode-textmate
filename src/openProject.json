@@ -2,6 +2,12 @@
   "contributes": {
     "configuration": {
       "properties": {
+        "vscode-textmate.openProject.useQuickPick": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use the built-in Quick Pick UI instead of the custom sidebar UI for selecting projects.",
+          "scope": "machine"
+        },
         "vscode-textmate.favorites": {
           "type": "array",
           "default": [],
