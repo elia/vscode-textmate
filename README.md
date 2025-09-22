@@ -25,14 +25,56 @@ Open a project in a new window, selecting from subfolders of the folders listed 
 
 ### `selectFromList` (internal)
 
-Provides a flexible UI for selecting items from a list. Shows a webview-based selection interface in the sidebar that allows for multi-selection from a provided array of items.
+Provides a flexible UI for selecting items from a list. Shows a webview-based selection interface that allows for multi-selection from a provided array of items.
 Can be used by other extensions as a nearly drop-in replacement for `showQuickPick`.
+
+#### Command Usage
 
 ```js
 picks = await vscode.commands.executeCommand(
   "vscode-textmate.showSelectFromList",
   items,
-  { title: "Open Recent Project" },
+  options
+)
+```
+
+#### Parameters
+
+- **`items`** (array, required): Array of items to select from. Items can be:
+  - Strings: `"Item 1"`
+  - Numbers/Booleans: `42`, `true`
+  - Objects: `{ label: "Custom Item", description: "Optional description" }`
+
+- **`options`** (object, optional): Configuration options
+  - **`title`** (string): Title displayed in the selection interface (default: `"Select From List"`)
+  - **`renderAs`** (string): Where to show the interface:
+    - `"sidebar"`: Shows in dedicated sidebar view
+    - `"panel"`: Opens in webview panel
+    - Defaults to user's `vscode-textmate.selectFromList.renderAs` setting
+
+#### Examples
+
+```js
+// Simple string selection
+const picks = await vscode.commands.executeCommand(
+  "vscode-textmate.showSelectFromList",
+  ["Option 1", "Option 2", "Option 3"],
+  { title: "Choose Options" }
+)
+
+// Mixed item types with custom rendering
+const picks = await vscode.commands.executeCommand(
+  "vscode-textmate.showSelectFromList",
+  [
+    "Simple string",
+    { label: "Complex Item", description: "With description" },
+    42,
+    true
+  ],
+  {
+    title: "Mixed Selection",
+    renderAs: "panel"
+  }
 )
 ```
 
