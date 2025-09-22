@@ -44,6 +44,15 @@
           "description": "The folders containing projects.",
           "scope": "machine"
         },
+        "vscode-textmate.selectFromList.renderAs": {
+          "type": "string",
+          "enum": [
+            "sidebar",
+            "panel"
+          ],
+          "default": "sidebar",
+          "description": "Default render mode for Select From List interface (can be overridden by command callers)"
+        },
         "vscode-textmate.windowTitle": {
           "type": "string",
           "default": null,
@@ -74,7 +83,15 @@
         "command": "vscode-textmate.selectFromList"
       },
       {
-        "title": "TextMate: Show Select From List (Sidebar)",
+        "title": "TextMate: Select From List (Panel)",
+        "command": "vscode-textmate.selectFromListPanel"
+      },
+      {
+        "title": "TextMate: Select From List (Sidebar)",
+        "command": "vscode-textmate.selectFromListSidebar"
+      },
+      {
+        "title": "TextMate: Show Select From List",
         "command": "vscode-textmate.showSelectFromList"
       },
       {

@@ -40,6 +40,11 @@
     if (currentRow < 0) currentRow = 0
     if (selectedIndexes.size === 0 && visibleItems[0])
       selectedIndexes.add(visibleItems[0].idx || 0)
+
+    // Reset anchor to current focused item if anchor is no longer visible
+    if (getRowFromIndex(anchorIndex) < 0 && visibleItems[currentRow]) {
+      anchorIndex = visibleItems[currentRow].idx
+    }
   }
 
   function render() {
@@ -146,6 +151,7 @@
 
   document.getElementById("filter").addEventListener("input", (event) => {
     filterText = event.target.value || ""
+    selectedIndexes = new Set()
     computeVisible()
     render()
   })
@@ -198,7 +204,7 @@
     if (down) {
       event.preventDefault()
       let next = Math.min(currentRow + 1, visibleItems.length - 1)
-      if (alt) next = items.length - 1
+      if (alt) next = visibleItems.length - 1
       if (shift) rangeSelectToRow(next)
       else selectOnlyRow(next)
     } else if (up) {

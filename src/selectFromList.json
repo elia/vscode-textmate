@@ -1,14 +1,52 @@
 {
   "contributes": {
+    "configuration": {
+      "properties": {
+        "vscode-textmate.selectFromList.renderAs": {
+          "type": "string",
+          "enum": ["sidebar", "panel"],
+          "default": "sidebar",
+          "description": "Default render mode for Select From List interface (can be overridden by command callers)"
+        }
+      }
+    },
     "commands": [
       {
         "title": "TextMate: Select From List",
         "command": "vscode-textmate.selectFromList"
       },
       {
-        "title": "TextMate: Show Select From List (Sidebar)",
+        "title": "TextMate: Select From List (Panel)",
+        "command": "vscode-textmate.selectFromListPanel"
+      },
+      {
+        "title": "TextMate: Select From List (Sidebar)",
+        "command": "vscode-textmate.selectFromListSidebar"
+      },
+      {
+        "title": "TextMate: Show Select From List",
         "command": "vscode-textmate.showSelectFromList"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "vscodeTextmate",
+          "title": "TextMate",
+          "icon": "icon.png"
+        }
+      ]
+    },
+    "views": {
+      "vscodeTextmate": [
+        {
+          "type": "webview",
+          "id": "vscode-textmate.selectFromListView",
+          "name": "Select From List",
+          "contextualTitle": "Select From List",
+          "when": "vscode-textmate.selectFromListView.visible"
+        }
+      ]
+    }
   }
 }
