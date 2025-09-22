@@ -28,13 +28,18 @@
     for (let index = 0; index < items.length; index++) {
       let item = items[index]
       let label = String(item.label || item.name || item.title || item.id)
-      if (filter && !label.toLowerCase().includes(filter)) continue
+      if (filter && !label.toLowerCase().includes(filter)) {
+        selectedIndexes.delete(index)
+        continue
+      }
       // if (item.kind == vscode.QuickPickItemKind.Separator) continue
       visibleItems.push({ idx: index, label })
     }
     if (currentRow >= visibleItems.length)
       currentRow = Math.max(0, visibleItems.length - 1)
     if (currentRow < 0) currentRow = 0
+    if (selectedIndexes.size === 0 && visibleItems[0])
+      selectedIndexes.add(visibleItems[0].idx || 0)
   }
 
   function render() {
@@ -152,35 +157,25 @@
     if (!listItem) return
     let row = parseInt(listItem.dataset.row, 10)
 
+    // Handle double-click manually to work around vscode not firing dblclick event
+    // in webview for some reason.
     if (event.timeStamp - this._lastClickTime < 250) {
       if (!listItem) return
       selectOnlyRow(row)
       submit()
       return
+    } else {
+      this._lastClickTime = event.timeStamp
+      if (
+        event.target.tagName &&
+        event.target.tagName.toLowerCase() === "input"
+      ) {
+        event.preventDefault()
+      }
+      if (event.shiftKey) rangeSelectToRow(row)
+      else if (event.metaKey) toggleRow(row)
+      else selectOnlyRow(row)
     }
-
-    this._lastClickTime = event.timeStamp
-    if (
-      event.target.tagName &&
-      event.target.tagName.toLowerCase() === "input"
-    ) {
-      event.preventDefault()
-    }
-    if (event.shiftKey) rangeSelectToRow(row)
-    else if (event.metaKey) toggleRow(row)
-    else selectOnlyRow(row)
-  })
-
-  listElement.addEventListener("double-click", (event) => {
-    console.log("double-click!", event)
-  })
-  listElement.addEventListener("dblclick", (event) => {
-    console.log("dblclick!", event)
-    // const listItem = event.target.closest("li")
-    // if (!listItem) return
-    // const row = parseInt(listItem.dataset.row, 10)
-    // selectOnlyRow(row)
-    // submit()
   })
 
   document.addEventListener("keydown", (event) => {
