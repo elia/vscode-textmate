@@ -130,8 +130,7 @@ class SelectFromListViewProvider {
       this.items = items
       let title = options.title || "Select From List"
 
-      let renderAs = "panel" ||
-        options.renderAs ||
+      let renderAs = options.renderAs ||
         vscode.workspace
           .getConfiguration("vscode-textmate.selectFromList")
           .get("renderAs") ||
