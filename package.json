@@ -1,5 +1,5 @@
 {
-  "version": "0.18.3",
+  "version": "0.18.4",
   "name": "vscode-textmate",
   "displayName": "TextMate · Keymap and Features",
   "description": "TextMate features and keybindings for Visual Studio Code (beta)",
@@ -1107,7 +1107,7 @@
     "@types/node": "16.x",
     "@types/vscode": "^1.77.0",
     "@vscode/test-electron": "^2.3.0",
-    "@vscode/vsce": "^3.6.0",
+    "@vscode/vsce": "latest",
     "eslint": "^8.36.0",
     "glob": "^8.1.0",
     "mocha": "^10.2.0",
