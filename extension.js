@@ -1,5 +1,6 @@
 const features = [
   require("./src/openProject"),
+  require("./src/openQuickly"),
   require("./src/selection"),
   require("./src/windowTitle"),
   require("./src/closeEditors"),

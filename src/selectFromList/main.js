@@ -190,7 +190,7 @@
       code,
       shiftKey: shift,
       metaKey: meta,
-      ctrlKey: ctrl,
+      ctrlKey: _ctrl,
       altKey: alt,
     } = event
     let down = key === "ArrowDown"

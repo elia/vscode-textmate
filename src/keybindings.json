@@ -15,11 +15,11 @@
       },
       {
         "key": "cmd+t",
-        "command": "workbench.action.quickOpen"
+        "command": "-workbench.action.quickOpen"
       },
       {
         "key": "cmd+p",
-        "command": "-workbench.action.quickOpen"
+        "command": "workbench.action.quickOpen"
       },
       {
         "key": "cmd+t",
@@ -720,7 +720,10 @@
         "command": "runCommands",
         "when": "editorHasMultipleSelections && textInputFocus",
         "args": {
-          "commands": ["removeSecondaryCursors", "cursorUp"]
+          "commands": [
+            "removeSecondaryCursors",
+            "cursorUp"
+          ]
         }
       },
       {
@@ -728,7 +731,10 @@
         "command": "runCommands",
         "when": "editorHasMultipleSelections && textInputFocus",
         "args": {
-          "commands": ["removeSecondaryCursors", "cursorDown"]
+          "commands": [
+            "removeSecondaryCursors",
+            "cursorDown"
+          ]
         }
       },
       {

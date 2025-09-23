@@ -1,0 +1,16 @@
+{
+  "contributes": {
+    "commands": [
+      {
+        "title": "TextMate: Open Quickly…",
+        "command": "vscode-textmate.openQuickly"
+      }
+    ],
+    "keybindings": [
+      {
+        "key": "cmd+t",
+        "command": "vscode-textmate.openQuickly"
+      }
+    ]
+  }
+}

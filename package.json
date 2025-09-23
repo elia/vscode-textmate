@@ -79,6 +79,10 @@
         "command": "vscode-textmate.openProject"
       },
       {
+        "title": "TextMate: Open Quickly…",
+        "command": "vscode-textmate.openQuickly"
+      },
+      {
         "title": "TextMate: Select From List",
         "command": "vscode-textmate.selectFromList"
       },
@@ -211,11 +215,11 @@
       },
       {
         "key": "cmd+t",
-        "command": "workbench.action.quickOpen"
+        "command": "-workbench.action.quickOpen"
       },
       {
         "key": "cmd+p",
-        "command": "-workbench.action.quickOpen"
+        "command": "workbench.action.quickOpen"
       },
       {
         "key": "cmd+t",
@@ -987,6 +991,10 @@
       {
         "key": "cmd+shift+o",
         "command": "vscode-textmate.openProject"
+      },
+      {
+        "key": "cmd+t",
+        "command": "vscode-textmate.openQuickly"
       },
       {
         "key": "alt+right",

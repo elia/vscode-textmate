@@ -23,6 +23,10 @@ These commands will close specified editors except any "dirty" or "pinned" edito
 
 Open a project in a new window, selecting from subfolders of the folders listed in the `projectFolders` setting.
 
+### `openQuickly`
+
+Quick file opener that replaces VS Code's default "Open Quickly…" command with TextMate's behavior. Press <kbd>⌘T</kbd> to open a searchable list of all files in the workspace, filtered intelligently to exclude common build artifacts and dependencies. Uses the same selection interface as other TextMate commands for a consistent experience.
+
 ### `selectFromList` (internal)
 
 Provides a flexible UI for selecting items from a list. Shows a webview-based selection interface that allows for multi-selection from a provided array of items.
@@ -77,6 +81,12 @@ const picks = await vscode.commands.executeCommand(
   }
 )
 ```
+
+### File Operations
+
+| Name         | Command       | Keybinding    |
+| ------------ | ------------- | ------------- |
+| Open Quickly | `openQuickly` | <kbd>⌘T</kbd> |
 
 ### Navigation
 
