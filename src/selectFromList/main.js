@@ -28,12 +28,17 @@
     for (let index = 0; index < items.length; index++) {
       let item = items[index]
       let label = String(item.label || item.name || item.title || item.id)
-      if (filter && !label.toLowerCase().includes(filter)) {
+      let description = item.description || ""
+      if (
+        filter &&
+        !label.toLowerCase().includes(filter) &&
+        !description.toLowerCase().includes(filter)
+      ) {
         selectedIndexes.delete(index)
         continue
       }
       // if (item.kind == vscode.QuickPickItemKind.Separator) continue
-      visibleItems.push({ idx: index, label })
+      visibleItems.push({ idx: index, label, description })
     }
     if (currentRow >= visibleItems.length)
       currentRow = Math.max(0, visibleItems.length - 1)
@@ -47,31 +52,67 @@
     }
   }
 
-  function render() {
-    const fragment = document.createDocumentFragment()
-    for (let row = 0; row < visibleItems.length; row++) {
-      const { idx: itemIndex, label } = visibleItems[row]
-      const listItem = document.createElement("li")
-      listItem.className =
-        "row" +
-        (selectedIndexes.has(itemIndex) ? " selected" : "") +
-        (row === currentRow ? " focused" : "")
-      listItem.dataset.row = String(row)
-      listItem.dataset.idx = String(itemIndex)
-      listItem.id = "row-" + row
-      listItem.setAttribute("role", "option")
-      listItem.setAttribute(
-        "aria-selected",
-        selectedIndexes.has(itemIndex) ? "true" : "false",
-      )
-      listItem.innerHTML = `
+  function renderElement(item, row) {
+    const { idx: itemIndex, label, description } = item
+    const listItem = document.createElement("li")
+    listItem.className = "row"
+    listItem.dataset.row = String(row)
+    listItem.dataset.idx = String(itemIndex)
+    listItem.id = "row-" + row
+    listItem.setAttribute("role", "option")
+    listItem.setAttribute(
+      "aria-selected",
+      selectedIndexes.has(itemIndex) ? "true" : "false",
+    )
+
+    const descriptionHtml = description
+      ? `<div class="item-description">${escapeHtml(description)}</div>`
+      : ""
+
+    listItem.innerHTML = `
         <label class="${""}">
-          <input hidden type="checkbox" value="${itemIndex}" ${
-        selectedIndexes.has(itemIndex) ? "checked" : ""
-      }>
-          <span>${escapeHtml(label)}</span>
+          <input hidden type="checkbox" value="${itemIndex}">
+          <div class="item-content">
+            <div class="item-label">${escapeHtml(label)}</div>
+            ${descriptionHtml}
+          </div>
         </label>
       `
+    return listItem
+  }
+
+  function render() {
+    // Check if the rendered items have changed
+    let renderedVisibleItems = visibleItems.map((item) => item.idx).join(",")
+    // if (renderedVisibleItems === this._renderedVisibleItems) return
+    console.log("Rendering visible items:", renderedVisibleItems)
+    console.log("Changed?", renderedVisibleItems !== this._renderedVisibleItems)
+    this._renderedVisibleItems = renderedVisibleItems
+
+    this._itemElements = this._itemElements || {}
+
+    const fragment = document.createDocumentFragment()
+    for (let row = 0; row < visibleItems.length; row++) {
+      let item = visibleItems[row]
+      let listItem =
+        this._itemElements[item.idx] ||
+        (this._itemElements[item.idx] = renderElement(item, row))
+
+      if (selectedIndexes.has(item.idx)) {
+        listItem.classList.add("selected")
+        listItem.querySelector('input[type="checkbox"]').checked = true
+      } else {
+        listItem.classList.remove("selected")
+        listItem.querySelector('input[type="checkbox"]').checked = false
+      }
+      if (row === currentRow) {
+        listItem.classList.add("focused")
+        listItem.setAttribute("aria-current", "true")
+      } else {
+        listItem.classList.remove("focused")
+        listItem.removeAttribute("aria-current")
+      }
+
       fragment.appendChild(listItem)
     }
     listElement.innerHTML = ""
