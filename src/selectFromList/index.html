@@ -7,6 +7,7 @@
     content="default-src 'none'; img-src {{cspSource}} https:; style-src 'nonce-{{nonce}}'; script-src 'nonce-{{nonce}}' {{cspSource}};" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Select From List</title>
+
   <style nonce="{{nonce}}">
     :root {
       color-scheme: light dark;
@@ -152,7 +153,7 @@
         </g>
       </svg>
 
-      <input id="filter" type="search" placeholder="Search" aria-label="Search" />
+      <input id="filter" type="search" placeholder="Search" aria-label="Search" onload="this.focus()" />
     </label>
   </header>
   <main>

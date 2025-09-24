@@ -1,5 +1,5 @@
 // REF: https://code.visualstudio.com/api/extension-guides/webview
-/* global acquireVsCodeApi, document, addEventListener */
+/* global acquireVsCodeApi, document, addEventListener, window */
 
 // Webview script for Select From List (macOS-like multi-select)
 ;(() => {
@@ -22,24 +22,67 @@
 
   const listElement = document.getElementById("list")
 
+  function fuzzyScore(pattern, ...strings) {
+    pattern = pattern.trim().toLowerCase()
+    if (!pattern) return 0
+    let score = 0
+    for (let str of strings) {
+      str = String(str || "").toLowerCase()
+      let patternIdx = 0
+      let consecutive = 0
+      let maxConsecutive = 0
+      let firstMatchIdx = -1
+      for (let i = 0; i < str.length; i++) {
+        if (str[i] === pattern[patternIdx]) {
+          if (firstMatchIdx < 0) firstMatchIdx = i
+          patternIdx++
+          consecutive++
+          maxConsecutive = Math.max(maxConsecutive, consecutive)
+          if (patternIdx === pattern.length) break
+        } else {
+          consecutive = 0
+        }
+      }
+      if (patternIdx !== pattern.length) return 0 // not all chars matched
+      score += 1 + maxConsecutive * 5 + (str.length - firstMatchIdx) * 0.01
+    }
+    return score
+  }
+
   function computeVisible() {
     visibleItems = []
     const filter = (filterText || "").trim().toLowerCase()
+
     for (let index = 0; index < items.length; index++) {
       let item = items[index]
-      let label = String(item.label || item.name || item.title || item.id)
-      let description = item.description || ""
-      if (
-        filter &&
-        !label.toLowerCase().includes(filter) &&
-        !description.toLowerCase().includes(filter)
-      ) {
+      let matchOn =
+        item.matchOn ||
+        (item.matchOn = String(
+          item.matchOn || `${item.description} ${item.label}`,
+        )).toLowerCase()
+      if (!item.idx) item.idx = index
+
+      if (!filter) {
+        visibleItems.push(item)
+        continue
+      }
+
+      let score = fuzzyScore(filter, matchOn)
+
+      if (score > 0) {
+        visibleItems.push(item)
+        continue
+      }
+
+      // Simple substring match as fallback
+      if (filter && !matchOn.toLowerCase().includes(filter)) {
         selectedIndexes.delete(index)
         continue
       }
-      // if (item.kind == vscode.QuickPickItemKind.Separator) continue
-      visibleItems.push({ idx: index, label, description })
+
+      visibleItems.push(item)
     }
+
     if (currentRow >= visibleItems.length)
       currentRow = Math.max(0, visibleItems.length - 1)
     if (currentRow < 0) currentRow = 0
@@ -52,41 +95,27 @@
     }
   }
 
-  function renderElement(item, row) {
+  function renderElement(item) {
     const { idx: itemIndex, label, description } = item
     const listItem = document.createElement("li")
-    listItem.className = "row"
-    listItem.dataset.row = String(row)
+    listItem.className = "row item-content"
     listItem.dataset.idx = String(itemIndex)
-    listItem.id = "row-" + row
     listItem.setAttribute("role", "option")
     listItem.setAttribute(
       "aria-selected",
       selectedIndexes.has(itemIndex) ? "true" : "false",
     )
 
-    const descriptionHtml = description
-      ? `<div class="item-description">${escapeHtml(description)}</div>`
-      : ""
-
-    listItem.innerHTML = `
-        <label class="${""}">
-          <input hidden type="checkbox" value="${itemIndex}">
-          <div class="item-content">
-            <div class="item-label">${escapeHtml(label)}</div>
-            ${descriptionHtml}
-          </div>
-        </label>
-      `
+    let html = `<div class="item-label">${escapeHtml(label)}</div>`
+    if (description)
+      html += `<div class="item-description">${escapeHtml(description)}</div>`
+    listItem.innerHTML = html
     return listItem
   }
 
   function render() {
     // Check if the rendered items have changed
     let renderedVisibleItems = visibleItems.map((item) => item.idx).join(",")
-    // if (renderedVisibleItems === this._renderedVisibleItems) return
-    console.log("Rendering visible items:", renderedVisibleItems)
-    console.log("Changed?", renderedVisibleItems !== this._renderedVisibleItems)
     this._renderedVisibleItems = renderedVisibleItems
 
     this._itemElements = this._itemElements || {}
@@ -96,14 +125,15 @@
       let item = visibleItems[row]
       let listItem =
         this._itemElements[item.idx] ||
-        (this._itemElements[item.idx] = renderElement(item, row))
+        (this._itemElements[item.idx] = renderElement(item))
+
+      listItem.dataset.row = String(row)
+      listItem.id = "row-" + row
 
       if (selectedIndexes.has(item.idx)) {
         listItem.classList.add("selected")
-        listItem.querySelector('input[type="checkbox"]').checked = true
       } else {
         listItem.classList.remove("selected")
-        listItem.querySelector('input[type="checkbox"]').checked = false
       }
       if (row === currentRow) {
         listItem.classList.add("focused")
@@ -176,7 +206,14 @@
     if (!message || typeof message !== "object") return
     if (message.type === "init") {
       items = Array.isArray(message.items) ? message.items : []
-      filterText = ""
+
+      // Preserve any text typed before JS loaded
+      const filterElement = document.getElementById("filter")
+      filterText =
+        (filterElement && filterElement.__earlyInput) ||
+        filterElement.value ||
+        ""
+
       selectedIndexes = new Set()
       if (items.length > 0) selectedIndexes.add(0)
       currentRow = 0
@@ -184,13 +221,14 @@
       computeVisible()
       render()
       setTimeout(() => {
-        const filterElement = document.getElementById("filter")
         filterElement && filterElement.focus()
       }, 0)
     }
   })
 
-  document.getElementById("filter").addEventListener("input", (event) => {
+  const filterInput = document.getElementById("filter")
+
+  filterInput.addEventListener("input", (event) => {
     filterText = event.target.value || ""
     selectedIndexes = new Set()
     computeVisible()
@@ -213,12 +251,6 @@
       return
     } else {
       this._lastClickTime = event.timeStamp
-      if (
-        event.target.tagName &&
-        event.target.tagName.toLowerCase() === "input"
-      ) {
-        event.preventDefault()
-      }
       if (event.shiftKey) rangeSelectToRow(row)
       else if (event.metaKey) toggleRow(row)
       else selectOnlyRow(row)
