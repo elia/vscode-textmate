@@ -1,28 +1,20 @@
 // REF: https://code.visualstudio.com/api/extension-guides/webview
-/* global acquireVsCodeApi, document, addEventListener, window */
+/* global localStorage, acquireVsCodeApi, document, addEventListener, window */
 
-// Webview script for Select From List (macOS-like multi-select)
-;(() => {
-  const vscode = acquireVsCodeApi()
-  function escapeHtml(str) {
-    return String(str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
+class List {
+  constructor() {
+    this.items = []
+    this.filterText = ""
+    this.selectedIndexes = new Set()
+    this.visibleItems = []
+    this.currentRow = 0
+    this.anchorIndex = 0
+    this.listElement = null
+    this._itemElements = {}
+    this._renderedVisibleItems = ""
   }
 
-  /** @type {any[]} */
-  let items = []
-  let filterText = ""
-  let selectedIndexes = new Set()
-  selectedIndexes.add(0) // Initially select first item
-  let visibleItems = [] // [{ idx, label }]
-  let currentRow = 0
-  let anchorIndex = 0
-
-  const listElement = document.getElementById("list")
-
-  function fuzzyScore(pattern, ...strings) {
+  fuzzyScore(pattern, ...strings) {
     pattern = pattern.trim().toLowerCase()
     if (!pattern) return 0
     let score = 0
@@ -49,12 +41,12 @@
     return score
   }
 
-  function computeVisible() {
-    visibleItems = []
-    const filter = (filterText || "").trim().toLowerCase()
+  computeVisible() {
+    this.visibleItems = []
+    const filter = (this.filterText || "").trim().toLowerCase()
 
-    for (let index = 0; index < items.length; index++) {
-      let item = items[index]
+    for (let index = 0; index < this.items.length; index++) {
+      let item = this.items[index]
       let matchOn =
         item.matchOn ||
         (item.matchOn = String(
@@ -63,39 +55,39 @@
       if (!item.idx) item.idx = index
 
       if (!filter) {
-        visibleItems.push(item)
+        this.visibleItems.push(item)
         continue
       }
 
-      let score = fuzzyScore(filter, matchOn)
+      let score = this.fuzzyScore(filter, matchOn)
 
       if (score > 0) {
-        visibleItems.push(item)
+        this.visibleItems.push(item)
         continue
       }
 
       // Simple substring match as fallback
       if (filter && !matchOn.toLowerCase().includes(filter)) {
-        selectedIndexes.delete(index)
+        this.selectedIndexes.delete(index)
         continue
       }
 
-      visibleItems.push(item)
+      this.visibleItems.push(item)
     }
 
-    if (currentRow >= visibleItems.length)
-      currentRow = Math.max(0, visibleItems.length - 1)
-    if (currentRow < 0) currentRow = 0
-    if (selectedIndexes.size === 0 && visibleItems[0])
-      selectedIndexes.add(visibleItems[0].idx || 0)
+    if (this.currentRow >= this.visibleItems.length)
+      this.currentRow = Math.max(0, this.visibleItems.length - 1)
+    if (this.currentRow < 0) this.currentRow = 0
+    if (this.selectedIndexes.size === 0 && this.visibleItems[0])
+      this.selectedIndexes.add(this.visibleItems[0].idx || 0)
 
     // Reset anchor to current focused item if anchor is no longer visible
-    if (getRowFromIndex(anchorIndex) < 0 && visibleItems[currentRow]) {
-      anchorIndex = visibleItems[currentRow].idx
+    if (this.getRowFromIndex(this.anchorIndex) < 0 && this.visibleItems[this.currentRow]) {
+      this.anchorIndex = this.visibleItems[this.currentRow].idx
     }
   }
 
-  function renderElement(item) {
+  renderElement(item, escapeHtml) {
     const { idx: itemIndex, label, description } = item
     const listItem = document.createElement("li")
     listItem.className = "row item-content"
@@ -103,7 +95,7 @@
     listItem.setAttribute("role", "option")
     listItem.setAttribute(
       "aria-selected",
-      selectedIndexes.has(itemIndex) ? "true" : "false",
+      this.selectedIndexes.has(itemIndex) ? "true" : "false",
     )
 
     let html = `<div class="item-label">${escapeHtml(label)}</div>`
@@ -113,29 +105,29 @@
     return listItem
   }
 
-  function render() {
+  render(escapeHtml) {
     // Check if the rendered items have changed
-    let renderedVisibleItems = visibleItems.map((item) => item.idx).join(",")
+    let renderedVisibleItems = this.visibleItems.map((item) => item.idx).join(",")
     this._renderedVisibleItems = renderedVisibleItems
 
     this._itemElements = this._itemElements || {}
 
     const fragment = document.createDocumentFragment()
-    for (let row = 0; row < visibleItems.length; row++) {
-      let item = visibleItems[row]
+    for (let row = 0; row < this.visibleItems.length; row++) {
+      let item = this.visibleItems[row]
       let listItem =
         this._itemElements[item.idx] ||
-        (this._itemElements[item.idx] = renderElement(item))
+        (this._itemElements[item.idx] = this.renderElement(item, escapeHtml))
 
       listItem.dataset.row = String(row)
       listItem.id = "row-" + row
 
-      if (selectedIndexes.has(item.idx)) {
+      if (this.selectedIndexes.has(item.idx)) {
         listItem.classList.add("selected")
       } else {
         listItem.classList.remove("selected")
       }
-      if (row === currentRow) {
+      if (row === this.currentRow) {
         listItem.classList.add("focused")
         listItem.setAttribute("aria-current", "true")
       } else {
@@ -145,81 +137,112 @@
 
       fragment.appendChild(listItem)
     }
-    listElement.innerHTML = ""
-    listElement.appendChild(fragment)
-    if (visibleItems.length > 0)
-      listElement.setAttribute("aria-activedescendant", "row-" + currentRow)
-    else listElement.removeAttribute("aria-activedescendant")
+    this.listElement.innerHTML = ""
+    this.listElement.appendChild(fragment)
+    if (this.visibleItems.length > 0)
+      this.listElement.setAttribute("aria-activedescendant", "row-" + this.currentRow)
+    else this.listElement.removeAttribute("aria-activedescendant")
   }
 
-  function getIndexFromRow(row) {
-    const visibleItem = visibleItems[row]
+  getIndexFromRow(row) {
+    const visibleItem = this.visibleItems[row]
     return visibleItem ? visibleItem.idx : -1
   }
-  function getRowFromIndex(idx) {
-    return visibleItems.findIndex((visibleItem) => visibleItem.idx === idx)
+
+  getRowFromIndex(idx) {
+    return this.visibleItems.findIndex((visibleItem) => visibleItem.idx === idx)
   }
-  function ensureRowVisible(row) {
-    const listItem = listElement.querySelector('li[data-row="' + row + '"]')
+
+  ensureRowVisible(row) {
+    const listItem = this.listElement.querySelector('li[data-row="' + row + '"]')
     if (listItem) listItem.scrollIntoView({ block: "nearest" })
   }
-  function setFocusRow(row, shouldScroll = true) {
-    if (visibleItems.length === 0) return
-    row = Math.max(0, Math.min(row, visibleItems.length - 1))
-    currentRow = row
-    render()
-    if (shouldScroll) ensureRowVisible(currentRow)
+
+  setFocusRow(row, shouldScroll = true, escapeHtml) {
+    if (this.visibleItems.length === 0) return
+    row = Math.max(0, Math.min(row, this.visibleItems.length - 1))
+    this.currentRow = row
+    this.render(escapeHtml)
+    if (shouldScroll) this.ensureRowVisible(this.currentRow)
   }
-  function selectOnlyRow(row) {
-    const itemIndex = getIndexFromRow(row)
-    selectedIndexes = new Set()
-    if (itemIndex >= 0) selectedIndexes.add(itemIndex)
-    anchorIndex = itemIndex
-    setFocusRow(row)
+
+  selectOnlyRow(row, escapeHtml) {
+    const itemIndex = this.getIndexFromRow(row)
+    this.selectedIndexes = new Set()
+    if (itemIndex >= 0) this.selectedIndexes.add(itemIndex)
+    this.anchorIndex = itemIndex
+    this.setFocusRow(row, true, escapeHtml)
   }
-  function rangeSelectToRow(row) {
-    if (visibleItems.length === 0) return
-    if (anchorIndex == null) return selectOnlyRow(row)
+
+  rangeSelectToRow(row, escapeHtml) {
+    if (this.visibleItems.length === 0) return
+    if (this.anchorIndex == null) return this.selectOnlyRow(row, escapeHtml)
     const anchorRow = (() => {
-      const foundRow = getRowFromIndex(anchorIndex)
+      const foundRow = this.getRowFromIndex(this.anchorIndex)
       return foundRow >= 0 ? foundRow : row
     })()
     const start = Math.min(anchorRow, row)
     const end = Math.max(anchorRow, row)
-    selectedIndexes = new Set()
+    this.selectedIndexes = new Set()
     for (let rowIndex = start; rowIndex <= end; rowIndex++)
-      selectedIndexes.add(getIndexFromRow(rowIndex))
-    setFocusRow(row)
-  }
-  function toggleRow(row) {
-    const itemIndex = getIndexFromRow(row)
-    if (itemIndex < 0) return
-    if (selectedIndexes.has(itemIndex)) selectedIndexes.delete(itemIndex)
-    else selectedIndexes.add(itemIndex)
-    anchorIndex = itemIndex
-    setFocusRow(row, false)
-    ensureRowVisible(row)
+      this.selectedIndexes.add(this.getIndexFromRow(rowIndex))
+    this.setFocusRow(row, true, escapeHtml)
   }
 
+  toggleRow(row, escapeHtml) {
+    const itemIndex = this.getIndexFromRow(row)
+    if (itemIndex < 0) return
+    if (this.selectedIndexes.has(itemIndex)) this.selectedIndexes.delete(itemIndex)
+    else this.selectedIndexes.add(itemIndex)
+    this.anchorIndex = itemIndex
+    this.setFocusRow(row, false, escapeHtml)
+    this.ensureRowVisible(row)
+  }
+}
+
+
+// Webview script for Select From List (macOS-like multi-select)
+;(() => {
+  console.log("[DEBUG] main.js loaded")
+  const vscode = acquireVsCodeApi()
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+  }
+
+  const list = new List()
+  list.items = localStorage.getItem("selectFromList.items")
+    ? JSON.parse(localStorage.getItem("selectFromList.items"))
+    : []
+  if (!Array.isArray(list.items)) list.items = []
+  list.selectedIndexes.add(0) // Initially select first item
+  list.listElement = document.getElementById("list")
+  
+  if (list.items.length > 0) list.render(escapeHtml)
+
   addEventListener("message", (event) => {
+    console.log("[DEBUG] main.js received message:", event.data)
     const message = event.data
     if (!message || typeof message !== "object") return
     if (message.type === "init") {
-      items = Array.isArray(message.items) ? message.items : []
+      console.log("[DEBUG] Initializing with", message.items?.length || 0, "items")
+      list.items = Array.isArray(message.items) ? message.items : []
 
       // Preserve any text typed before JS loaded
       const filterElement = document.getElementById("filter")
-      filterText =
+      list.filterText =
         (filterElement && filterElement.__earlyInput) ||
         filterElement.value ||
         ""
 
-      selectedIndexes = new Set()
-      if (items.length > 0) selectedIndexes.add(0)
-      currentRow = 0
-      anchorIndex = 0
-      computeVisible()
-      render()
+      list.selectedIndexes = new Set()
+      if (list.items.length > 0) list.selectedIndexes.add(0)
+      list.currentRow = 0
+      list.anchorIndex = 0
+      list.computeVisible()
+      list.render(escapeHtml)
       setTimeout(() => {
         filterElement && filterElement.focus()
       }, 0)
@@ -229,31 +252,32 @@
   const filterInput = document.getElementById("filter")
 
   filterInput.addEventListener("input", (event) => {
-    filterText = event.target.value || ""
-    selectedIndexes = new Set()
-    computeVisible()
-    render()
+    list.filterText = event.target.value || ""
+    list.selectedIndexes = new Set()
+    list.computeVisible()
+    list.render(escapeHtml)
   })
 
-  this._lastClickTime = 0
+  let _lastClickTime = 0
 
-  listElement.addEventListener("click", (event) => {
+  list.listElement.addEventListener("click", (event) => {
     let listItem = event.target.closest("li")
     if (!listItem) return
     let row = parseInt(listItem.dataset.row, 10)
+    filterInput.focus()
 
     // Handle double-click manually to work around vscode not firing dblclick event
     // in webview for some reason.
-    if (event.timeStamp - this._lastClickTime < 250) {
+    if (event.timeStamp - _lastClickTime < 250) {
       if (!listItem) return
-      selectOnlyRow(row)
+      list.selectOnlyRow(row, escapeHtml)
       submit()
       return
     } else {
-      this._lastClickTime = event.timeStamp
-      if (event.shiftKey) rangeSelectToRow(row)
-      else if (event.metaKey) toggleRow(row)
-      else selectOnlyRow(row)
+      _lastClickTime = event.timeStamp
+      if (event.shiftKey) list.rangeSelectToRow(row, escapeHtml)
+      else if (event.metaKey) list.toggleRow(row, escapeHtml)
+      else list.selectOnlyRow(row, escapeHtml)
     }
   })
 
@@ -272,29 +296,29 @@
     let enter = key === "Enter"
     let esc = key === "Escape"
 
-    if (visibleItems.length === 0) return
+    if (list.visibleItems.length === 0) return
 
     if (down) {
       event.preventDefault()
-      let next = Math.min(currentRow + 1, visibleItems.length - 1)
-      if (alt) next = visibleItems.length - 1
-      if (shift) rangeSelectToRow(next)
-      else selectOnlyRow(next)
+      let next = Math.min(list.currentRow + 1, list.visibleItems.length - 1)
+      if (alt) next = list.visibleItems.length - 1
+      if (shift) list.rangeSelectToRow(next, escapeHtml)
+      else list.selectOnlyRow(next, escapeHtml)
     } else if (up) {
       event.preventDefault()
-      let prev = Math.max(currentRow - 1, 0)
+      let prev = Math.max(list.currentRow - 1, 0)
       if (alt) prev = 0
-      if (shift) rangeSelectToRow(prev)
-      else selectOnlyRow(prev)
+      if (shift) list.rangeSelectToRow(prev, escapeHtml)
+      else list.selectOnlyRow(prev, escapeHtml)
     } else if (space) {
       event.preventDefault()
-      toggleRow(currentRow)
+      list.toggleRow(list.currentRow, escapeHtml)
     } else if (meta && code === "KeyA") {
       event.preventDefault()
-      selectedIndexes = new Set(
-        visibleItems.map((visibleItem) => visibleItem.idx),
+      list.selectedIndexes = new Set(
+        list.visibleItems.map((visibleItem) => visibleItem.idx),
       )
-      render()
+      list.render(escapeHtml)
     } else if (enter) {
       event.preventDefault()
       submit()
@@ -305,7 +329,7 @@
   })
 
   function submit() {
-    const indexes = Array.from(selectedIndexes)
+    const indexes = Array.from(list.selectedIndexes)
       .filter(Number.isInteger)
       .sort((a, b) => a - b)
     vscode.postMessage({ type: "submit", indexes })
@@ -319,5 +343,18 @@
   // document.getElementById("cancel").addEventListener("click", cancel)
 
   // Notify extension we're ready to receive items
+  console.log("[DEBUG] Sending ready message to extension")
   vscode.postMessage({ type: "ready" })
+
+  // Debug page lifecycle events
+  window.addEventListener("beforeunload", () => {
+    console.log("[DEBUG] Page is about to unload")
+  })
+
+  window.addEventListener("unload", () => {
+    localStorage.setItem("selectFromList.filterText", list.filterText)
+    localStorage.setItem("selectFromList.items", JSON.stringify(list.items))
+
+    console.log("[DEBUG] Page is unloading")
+  })
 })()

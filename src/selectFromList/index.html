@@ -153,7 +153,11 @@
         </g>
       </svg>
 
-      <input id="filter" type="search" placeholder="Search" aria-label="Search" onload="this.focus()" />
+      <input id="filter" type="search" placeholder="Search" aria-label="Search" />
+      <script nonce="{{nonce}}">
+        const filterInput = document.getElementById('filter');
+        filterInput.focus();
+      </script>
     </label>
   </header>
   <main>
