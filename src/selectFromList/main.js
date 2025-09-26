@@ -56,7 +56,7 @@ class List {
   renderElement(item, escapeHtml) {
     const { idx: itemIndex, label, description } = item
     const listItem = document.createElement("li")
-    listItem.className = "row item-content"
+    listItem.className = "row"
     listItem.dataset.idx = String(itemIndex)
     listItem.setAttribute("role", "option")
     listItem.setAttribute(
@@ -64,12 +64,10 @@ class List {
       this.selectedIndexes.has(itemIndex) ? "true" : "false",
     )
 
-    let html = `<div class="item-label">${escapeHtml(
-      label,
-    )} <span class="score"></span></div>`
+    let html = `<div class="item-label">${escapeHtml(label)}`
     if (description)
       html += `<div class="item-description">${escapeHtml(description)}</div>`
-    listItem.innerHTML = html
+    listItem.innerHTML = `<div class="item-content">${html}</div>`
     return listItem
   }
 
@@ -108,10 +106,7 @@ class List {
 
       elements.push(listItem)
     }
-    // const fragment = document.createDocumentFragment()
-    this.listElement.innerHTML = ""
-    elements.forEach((element) => this.listElement.appendChild(element))
-    // this.listElement.appendChild(fragment)
+    this.listElement.replaceChildren(...elements)
     if (this.visibleItems.length > 0)
       this.listElement.setAttribute(
         "aria-activedescendant",

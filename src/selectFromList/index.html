@@ -58,15 +58,13 @@
       padding: 6px 6px;
       border-radius: 0;
 
-      &&::after {
-        float: left;
+      /* &&::before {
+        float: right;
         display: block;
-        content: " (" attr(data-score) ")";
+        content: attr(data-score);
         font-size: 0.8em;
         opacity: 0.5;
-      }
-
-
+      } */
     }
 
     li.selected {
@@ -83,12 +81,6 @@
     li.selected {
       background: var(--vscode-list-activeSelectionBackground);
       color: var(--vscode-list-activeSelectionForeground);
-    }
-
-    label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
 
     .item-content {
