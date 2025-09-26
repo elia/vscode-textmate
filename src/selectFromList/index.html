@@ -57,6 +57,16 @@
     li {
       padding: 6px 6px;
       border-radius: 0;
+
+      &&::after {
+        float: left;
+        display: block;
+        content: " (" attr(data-score) ")";
+        font-size: 0.8em;
+        opacity: 0.5;
+      }
+
+
     }
 
     li.selected {
@@ -155,8 +165,7 @@
 
       <input id="filter" type="search" placeholder="Search" aria-label="Search" />
       <script nonce="{{nonce}}">
-        const filterInput = document.getElementById('filter');
-        filterInput.focus();
+        document.getElementById('filter').focus();
       </script>
     </label>
   </header>

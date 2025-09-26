@@ -174,6 +174,7 @@ class SelectFromListViewProvider {
     let pathFor = (path) =>
       webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, path))
 
+
     let scriptUri = pathFor("src/selectFromList/main.js")
     let htmlUri = pathFor("src/selectFromList/index.html")
     let html = fs.readFileSync(htmlUri.fsPath, "utf8")
