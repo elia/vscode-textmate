@@ -1084,6 +1084,7 @@
         "command": "vscode-textmate.transposeWords"
       }
     ],
+    "viewsWelcome": [],
     "viewsContainers": {
       "activitybar": [
         {
