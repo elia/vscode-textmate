@@ -65,6 +65,7 @@ let activate = (context) => {
         {
           title: "Open Quickly…",
           renderAs: "panel",
+          limitFilteredResults: 50,
         }
       )
 

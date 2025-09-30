@@ -29,7 +29,11 @@ class SelectFromListViewProvider {
       this._webviewPanel = null
     } else if (this._webviewView) {
       // Hide the sidebar view when closing
-      vscode.commands.executeCommand('setContext', 'vscode-textmate.selectFromListView.visible', false)
+      vscode.commands.executeCommand(
+        "setContext",
+        "vscode-textmate.selectFromListView.visible",
+        false,
+      )
       setTimeout(
         () => vscode.commands.executeCommand("workbench.view.explorer"),
         0,
@@ -39,7 +43,11 @@ class SelectFromListViewProvider {
 
   dispose() {
     // Hide the view when disposing
-    vscode.commands.executeCommand('setContext', 'vscode-textmate.selectFromListView.visible', false)
+    vscode.commands.executeCommand(
+      "setContext",
+      "vscode-textmate.selectFromListView.visible",
+      false,
+    )
 
     if (this._webviewPanel) {
       this._webviewPanel.dispose()
@@ -124,13 +132,23 @@ class SelectFromListViewProvider {
     this.setupWebview(webviewView.webview)
   }
 
+  async initializeWebviewView(webviewHolder, items, options) {
+    await this._isReady
+    webviewHolder.webview.postMessage({
+      type: "init",
+      items,
+      limitFilteredResults: options.limitFilteredResults,
+    })
+    if (options.title) webviewHolder.title = options.title
+  }
+
   async chooseItems(items, options = {}) {
     return new Promise(async (resolve) => {
       this._resolve = resolve
       this.items = items
-      let title = options.title || "Select From List"
 
-      let renderAs = options.renderAs ||
+      let renderAs =
+        options.renderAs ||
         vscode.workspace
           .getConfiguration("vscode-textmate.selectFromList")
           .get("renderAs") ||
@@ -141,12 +159,10 @@ class SelectFromListViewProvider {
         if (this._webviewView) this._webviewView = null
 
         // Use panel mode
-        this.createWebviewPanel(title)
+        this.createWebviewPanel("Select From List")
         await this._isReady
-        this._webviewPanel.webview.postMessage({ type: "init", items })
-        this._webviewPanel.title = title
+        await this.initializeWebviewView(this._webviewPanel, items, options)
         this._webviewPanel.reveal(vscode.ViewColumn.Active, true)
-
       } else if (renderAs === "sidebar") {
         if (this._webviewPanel) {
           // Switching from panel to sidebar - dispose panel
@@ -155,15 +171,16 @@ class SelectFromListViewProvider {
         }
 
         // Show the sidebar view
-        vscode.commands.executeCommand('setContext', 'vscode-textmate.selectFromListView.visible', true)
+        vscode.commands.executeCommand(
+          "setContext",
+          "vscode-textmate.selectFromListView.visible",
+          true,
+        )
 
         await vscode.commands.executeCommand(
           "workbench.view.extension.vscodeTextmate",
         )
-
-        await this._isReady
-        this._webviewView.webview.postMessage({ type: "init", items })
-        this._webviewView.title = title
+        await this.initializeWebviewView(this._webviewPanel, items, options)
         this._webviewView.show(true)
       }
     })
@@ -173,7 +190,6 @@ class SelectFromListViewProvider {
     const nonce = Math.random().toString(36).slice(2)
     let pathFor = (path) =>
       webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, path))
-
 
     let scriptUri = pathFor("src/selectFromList/main.js")
     let htmlUri = pathFor("src/selectFromList/index.html")
@@ -191,7 +207,11 @@ function activate(context) {
   let provider = new SelectFromListViewProvider(context.extensionUri)
 
   // Hide the view initially
-  vscode.commands.executeCommand('setContext', 'vscode-textmate.selectFromListView.visible', false)
+  vscode.commands.executeCommand(
+    "setContext",
+    "vscode-textmate.selectFromListView.visible",
+    false,
+  )
 
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
@@ -222,7 +242,8 @@ function activate(context) {
         return provider.chooseItems(items, {
           title,
           canSelectMany: true,
-          renderAs: options.renderAs,
+          limitFilteredResults: null,
+          ...options,
         })
       },
     ),

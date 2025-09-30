@@ -12,6 +12,7 @@ class List {
     this.listElement = null
     this._itemElements = {}
     this._renderedVisibleItems = ""
+    this.limitFilteredResults = null
   }
 
   computeVisible() {
@@ -33,6 +34,13 @@ class List {
         this.visibleItems.push(item)
       } else {
         this.selectedIndexes.delete(index)
+      }
+
+      if (
+        this.limitFilteredResults &&
+        this.visibleItems.length >= this.limitFilteredResults
+      ) {
+        break
       }
     }
 
@@ -587,6 +595,10 @@ if (!Array.isArray(list.items)) list.items = []
 list.selectedIndexes.add(0) // Initially select first item
 list.listElement = document.getElementById("list")
 
+// Restore filter text from localStorage
+list.filterText = localStorage.getItem("selectFromList.filterText") || ""
+document.getElementById("filter").value = list.filterText
+
 if (list.items.length > 0) list.render(escapeHtml)
 
 addEventListener("message", (event) => {
@@ -594,12 +606,9 @@ addEventListener("message", (event) => {
   const message = event.data
   if (!message || typeof message !== "object") return
   if (message.type === "init") {
-    console.log(
-      "[DEBUG] Initializing with",
-      message.items?.length || 0,
-      "items",
-    )
+    console.log("[DEBUG] Initializing with", message)
     list.items = Array.isArray(message.items) ? message.items : []
+    list.limitFilteredResults = message.limitFilteredResults || null
 
     // Preserve any text typed before JS loaded
     const filterElement = document.getElementById("filter")
