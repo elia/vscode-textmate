@@ -58,6 +58,19 @@
       padding: 6px 6px;
       border-radius: 0;
 
+      &[data-label]::before {
+        float: right;
+        display: block;
+        content: attr(data-label);
+        font-size: 0.8em;
+        opacity: 0.5;
+        background: var(--vscode-list-activeSelectionForeground);
+        color: var(--vscode-list-activeSelectionBackground);
+        padding: 0 4px;
+        border-radius: 4px;
+        margin-left: 8px;
+      }
+
       /* &&::before {
         float: right;
         display: block;

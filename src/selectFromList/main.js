@@ -98,6 +98,9 @@ class List {
       listItem.dataset.row = String(row)
       listItem.id = "row-" + row
       listItem.dataset.score = String(item.score || 0)
+      if (item.isRecent)
+        listItem.dataset.label = "recent"
+      else delete listItem.dataset.label
 
       if (this.selectedIndexes.has(item.idx)) {
         listItem.classList.add("selected")
@@ -595,9 +598,9 @@ if (!Array.isArray(list.items)) list.items = []
 list.selectedIndexes.add(0) // Initially select first item
 list.listElement = document.getElementById("list")
 
-// Restore filter text from localStorage
-list.filterText = localStorage.getItem("selectFromList.filterText") || ""
-document.getElementById("filter").value = list.filterText
+// // Restore filter text from localStorage
+// list.filterText = localStorage.getItem("selectFromList.filterText") || ""
+// document.getElementById("filter").value = list.filterText
 
 if (list.items.length > 0) list.render(escapeHtml)
 
@@ -614,6 +617,7 @@ addEventListener("message", (event) => {
     const filterElement = document.getElementById("filter")
     list.filterText =
       (filterElement && filterElement.__earlyInput) || filterElement.value || ""
+    // document.getElementById("filter").value = list.filterText
 
     list.selectedIndexes = new Set()
     if (list.items.length > 0) list.selectedIndexes.add(0)

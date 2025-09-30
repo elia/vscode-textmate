@@ -1,6 +1,56 @@
 let vscode = require("vscode")
 let path = require("path")
 
+// Track recently viewed files
+let maxRecentFiles = 10
+
+let trackRecentFile = (context, uri) => {
+  if (!uri || uri.scheme !== "file") return
+
+  let recentFilesKey = "recentFiles"
+  let stored = context.workspaceState.get(recentFilesKey, [])
+
+  // Remove if already exists to avoid duplicates
+  stored = stored.filter(item => item.path !== uri.path)
+
+  // Add to front
+  stored.unshift({
+    path: uri.path,
+    relativePath: vscode.workspace.asRelativePath(uri),
+    lastOpened: Date.now()
+  })
+
+  // Keep only maxRecentFiles
+  stored = stored.slice(0, maxRecentFiles)
+
+  context.workspaceState.update(recentFilesKey, stored)
+}
+
+let getRecentFiles = (context, excludeCurrentActive = true) => {
+  let recentFilesKey = "recentFiles"
+  let stored = context.workspaceState.get(recentFilesKey, [])
+
+  // Get current active editor path to exclude
+  let currentPath = excludeCurrentActive && vscode.window.activeTextEditor?.document.uri.path
+
+  // Filter out files that no longer exist and optionally the current active file
+  return stored.filter(item => {
+    if (currentPath && item.path === currentPath) return false
+    try {
+      return require("fs").existsSync(item.path)
+    } catch {
+      return false
+    }
+  }).map(item => ({
+    label: path.basename(item.path),
+    description: item.relativePath,
+    detail: `Last opened: ${new Date(item.lastOpened).toLocaleString()}`,
+    uri: vscode.Uri.file(item.path),
+    relativePath: item.relativePath,
+    isRecent: true
+  }))
+}
+
 let gatherWorkspaceFiles = async () => {
   if (!vscode.workspace.workspaceFolders?.length) return []
 
@@ -50,18 +100,38 @@ let gatherWorkspaceFiles = async () => {
 }
 
 let activate = (context) => {
+  // Track when active editor changes (not just when files are opened)
+  let disposable = vscode.window.onDidChangeActiveTextEditor((editor) => {
+    if (editor?.document.uri) {
+      trackRecentFile(context, editor.document.uri)
+    }
+  })
+  context.subscriptions.push(disposable)
+
+  // Track current active editor on startup
+  if (vscode.window.activeTextEditor) {
+    trackRecentFile(context, vscode.window.activeTextEditor.document.uri)
+  }
+
   context.subscriptions.push(
     vscode.commands.registerCommand("vscode-textmate.openQuickly", async () => {
-      let files = await gatherWorkspaceFiles()
+      let recentFiles = getRecentFiles(context)
+      let workspaceFiles = await gatherWorkspaceFiles()
 
-      if (files.length === 0) {
+      // Combine recent files with workspace files, avoiding duplicates
+      let recentFilePaths = new Set(recentFiles.map(f => f.uri.path))
+      let otherFiles = workspaceFiles.filter(f => !recentFilePaths.has(f.uri.path))
+
+      let allFiles = [...recentFiles, ...otherFiles]
+
+      if (allFiles.length === 0) {
         vscode.window.showInformationMessage("No files found in workspace")
         return
       }
 
       let picks = await vscode.commands.executeCommand(
         "vscode-textmate.showSelectFromList",
-        files,
+        allFiles,
         {
           title: "Open Quickly…",
           renderAs: "panel",
