@@ -1,0 +1,33 @@
+#!/usr/bin/env ruby
+
+puts "~~> Installing extension from disk..."
+
+# Build the package.json first
+system("#{__dir__}/build") or exit(1)
+
+# Get version from VERSION file
+version = File.read("#{__dir__}/../VERSION").strip.delete_prefix('v')
+vsix_file = "vscode-textmate-#{version}.vsix"
+
+# Package the extension
+puts "~~> Packaging extension..."
+result = system("npx vsce package --out #{vsix_file}")
+unless result
+  puts "ERROR: Failed to package extension"
+  exit(1)
+end
+
+# Install the extension
+puts "~~> Installing #{vsix_file}..."
+result = system("code --install-extension #{vsix_file} --force")
+unless result
+  puts "ERROR: Failed to install extension"
+  exit(1)
+end
+
+# Clean up the VSIX file
+File.delete(vsix_file) if File.exist?(vsix_file)
+
+puts "~~> Extension installed successfully!"
+puts "    Open a new VS Code window with no workspace to see the welcome view"
+puts "    Or use: code --new-window"

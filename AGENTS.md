@@ -12,6 +12,7 @@
 - Install deps: `yarn install` (or `npm install`).
 - Build manifest: `bin/build` (Ruby script; merges `src/*.json` into `package.json`).
 - Watch + rebuild: `node bin/dev` (re-runs build on changes under `src/`).
+- Install locally: `bin/install` (builds, packages, and installs extension from disk).
 - Lint: `npm run lint` (ESLint over the repo).
 - Test: `npm test` (runs @vscode/test-electron + Mocha).
 - Release: `bin/release vX.Y.Z` (updates `VERSION`, rebuilds, tags, pushes, and runs `vsce publish`; requires `npx vsce login`).
