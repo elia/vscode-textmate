@@ -99,6 +99,15 @@ let gatherWorkspaceFiles = async () => {
   return allFiles
 }
 
+let parseRange = (text) => {
+  let [line, column] = text.split(":", 2).map(n => parseInt(n, 10))
+  if (isNaN(line)) line = 1
+  if (isNaN(column)) column = 1
+  if (line < 1) line = 1
+  if (column < 1) column = 1
+  return new vscode.Position((line - 1), (column - 1))
+}
+
 let activate = (context) => {
   // Track when active editor changes (not just when files are opened)
   let disposable = vscode.window.onDidChangeActiveTextEditor((editor) => {
@@ -141,7 +150,13 @@ let activate = (context) => {
 
       for (let pick of picks || []) {
         if (pick?.uri) {
-          await vscode.window.showTextDocument(pick.uri)
+          let editor = await vscode.window.showTextDocument(pick.uri)
+          if (picks.range) {
+            let pos = parseRange(picks.range)
+            console.log("Navigating to range:", picks.range, pos)
+            editor.selection = new vscode.Selection(pos, pos)
+            editor.revealRange(new vscode.Range(pos, pos), vscode.TextEditorRevealType.InCenter)
+          }
         }
       }
     })

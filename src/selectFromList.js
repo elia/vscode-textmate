@@ -77,7 +77,9 @@ class SelectFromListViewProvider {
         break
       }
       case "submit": {
-        this.writeResults(message.indexes.map((i) => this.items[i]))
+        let items = message.indexes.map((i) => this.items[i])
+        items.range = message.range
+        this.writeResults(items)
         break
       }
       case "cancel":

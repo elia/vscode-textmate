@@ -17,7 +17,7 @@ class List {
 
   computeVisible() {
     this.visibleItems = []
-    const filter = (this.filterText || "").trim().toLowerCase()
+    const filter = (this.filterText || "").trim().toLowerCase().split(":")[0]
 
     for (let index = 0; index < this.items.length; index++) {
       let item = this.items[index]
@@ -714,7 +714,9 @@ function submit() {
   const indexes = Array.from(list.selectedIndexes)
     .filter(Number.isInteger)
     .sort((a, b) => a - b)
-  vscode.postMessage({ type: "submit", indexes })
+  let range = list.filterText.substring(list.filterText.indexOf(":") + 1).trim()
+  console.log("submit", indexes, range)
+  vscode.postMessage({ type: "submit", indexes, range })
 }
 
 function cancel() {
