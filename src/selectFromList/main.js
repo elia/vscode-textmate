@@ -35,13 +35,6 @@ class List {
       } else {
         this.selectedIndexes.delete(index)
       }
-
-      if (
-        this.limitFilteredResults &&
-        this.visibleItems.length >= this.limitFilteredResults
-      ) {
-        break
-      }
     }
 
     this.visibleItems = this.visibleItems.sort((a, b) => b.score - a.score)
@@ -116,6 +109,13 @@ class List {
       }
 
       elements.push(listItem)
+
+      if (
+        this.limitFilteredResults &&
+        elements.length >= this.limitFilteredResults
+      ) {
+        break
+      }
     }
     this.listElement.replaceChildren(...elements)
     if (this.visibleItems.length > 0)
