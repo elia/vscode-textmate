@@ -21,8 +21,13 @@ if [ "$version" != "$(cat VERSION)" ]; then
   git commit -m "Release $version"
 fi
 
-git diff --exit-code
-git tag -m "" "v$(cat package.json | ruby -rjson -e 'puts JSON[$<.read][%{version}]')"
-git push --tags
-git push
+# skip if the tag already exists
+if git rev-parse "$version" >/dev/null 2>&1; then
+  echo "Tag $version already exists. Skipping tagging."
+  git diff --exit-code
+  git tag -m "" "v$(cat package.json | ruby -rjson -e 'puts JSON[$<.read][%{version}]')"
+  git push --tags
+  git push
+fi
+
 npx vsce publish || echo "Use 'npx vsce login' to update the personal-access-token"
