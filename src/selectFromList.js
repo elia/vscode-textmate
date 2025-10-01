@@ -140,6 +140,7 @@ class SelectFromListViewProvider {
       type: "init",
       items,
       limitFilteredResults: options.limitFilteredResults,
+      initialFilter: options.initialFilter || "",
     })
     if (options.title) webviewHolder.title = options.title
   }

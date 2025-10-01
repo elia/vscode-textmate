@@ -11,13 +11,13 @@ let trackRecentFile = (context, uri) => {
   let stored = context.workspaceState.get(recentFilesKey, [])
 
   // Remove if already exists to avoid duplicates
-  stored = stored.filter(item => item.path !== uri.path)
+  stored = stored.filter((item) => item.path !== uri.path)
 
   // Add to front
   stored.unshift({
     path: uri.path,
     relativePath: vscode.workspace.asRelativePath(uri),
-    lastOpened: Date.now()
+    lastOpened: Date.now(),
   })
 
   // Keep only maxRecentFiles
@@ -31,32 +31,39 @@ let getRecentFiles = (context, excludeCurrentActive = true) => {
   let stored = context.workspaceState.get(recentFilesKey, [])
 
   // Get current active editor path to exclude
-  let currentPath = excludeCurrentActive && vscode.window.activeTextEditor?.document.uri.path
+  let currentPath =
+    excludeCurrentActive && vscode.window.activeTextEditor?.document.uri.path
 
   // Filter out files that no longer exist and optionally the current active file
-  return stored.filter(item => {
-    if (currentPath && item.path === currentPath) return false
-    try {
-      return require("fs").existsSync(item.path)
-    } catch {
-      return false
-    }
-  }).map(item => ({
-    label: path.basename(item.path),
-    description: item.relativePath,
-    detail: `Last opened: ${new Date(item.lastOpened).toLocaleString()}`,
-    uri: vscode.Uri.file(item.path),
-    relativePath: item.relativePath,
-    isRecent: true
-  }))
+  return stored
+    .filter((item) => {
+      if (currentPath && item.path === currentPath) return false
+      try {
+        return require("fs").existsSync(item.path)
+      } catch {
+        return false
+      }
+    })
+    .map((item) => ({
+      label: path.basename(item.path),
+      description: item.relativePath,
+      detail: `Last opened: ${new Date(item.lastOpened).toLocaleString()}`,
+      uri: vscode.Uri.file(item.path),
+      relativePath: item.relativePath,
+      isRecent: true,
+    }))
 }
 
 let gatherWorkspaceFiles = async () => {
   if (!vscode.workspace.workspaceFolders?.length) return []
 
   let allFiles = []
-  let excludePattern = vscode.workspace.getConfiguration("files").get("exclude", {})
-  let searchExcludePattern = vscode.workspace.getConfiguration("search").get("exclude", {})
+  let excludePattern = vscode.workspace
+    .getConfiguration("files")
+    .get("exclude", {})
+  let searchExcludePattern = vscode.workspace
+    .getConfiguration("search")
+    .get("exclude", {})
 
   // Build exclude patterns
   let excludePatterns = {
@@ -73,13 +80,16 @@ let gatherWorkspaceFiles = async () => {
     try {
       let files = await vscode.workspace.findFiles(
         new vscode.RelativePattern(workspaceFolder, "**/*"),
-        new vscode.RelativePattern(workspaceFolder, `{${Object.keys(excludePatterns).join(",")}}`),
-        5000 // limit to prevent performance issues
+        new vscode.RelativePattern(
+          workspaceFolder,
+          `{${Object.keys(excludePatterns).join(",")}}`,
+        ),
+        5000, // limit to prevent performance issues
       )
 
       let workspaceFiles = files
-        .filter(uri => uri.scheme === "file")
-        .map(uri => {
+        .filter((uri) => uri.scheme === "file")
+        .map((uri) => {
           let relativePath = vscode.workspace.asRelativePath(uri)
           return {
             label: path.basename(uri.path),
@@ -100,12 +110,12 @@ let gatherWorkspaceFiles = async () => {
 }
 
 let parseRange = (text) => {
-  let [line, column] = text.split(":", 2).map(n => parseInt(n, 10))
+  let [line, column] = text.split(":", 2).map((n) => parseInt(n, 10))
   if (isNaN(line)) line = 1
   if (isNaN(column)) column = 1
   if (line < 1) line = 1
   if (column < 1) column = 1
-  return new vscode.Position((line - 1), (column - 1))
+  return new vscode.Position(line - 1, column - 1)
 }
 
 let activate = (context) => {
@@ -128,8 +138,10 @@ let activate = (context) => {
       let workspaceFiles = await gatherWorkspaceFiles()
 
       // Combine recent files with workspace files, avoiding duplicates
-      let recentFilePaths = new Set(recentFiles.map(f => f.uri.path))
-      let otherFiles = workspaceFiles.filter(f => !recentFilePaths.has(f.uri.path))
+      let recentFilePaths = new Set(recentFiles.map((f) => f.uri.path))
+      let otherFiles = workspaceFiles.filter(
+        (f) => !recentFilePaths.has(f.uri.path),
+      )
 
       let allFiles = [...recentFiles, ...otherFiles]
 
@@ -138,6 +150,10 @@ let activate = (context) => {
         return
       }
 
+      // If clipboard contains a valid file path, it will be the initial filter text
+      let currentClipboard = await vscode.env.clipboard.readText()
+      let initialFilter = currentClipboard ? currentClipboard.trim() : ""
+
       let picks = await vscode.commands.executeCommand(
         "vscode-textmate.showSelectFromList",
         allFiles,
@@ -145,7 +161,8 @@ let activate = (context) => {
           title: "Open Quickly…",
           renderAs: "panel",
           limitFilteredResults: 50,
-        }
+          initialFilter,
+        },
       )
 
       for (let pick of picks || []) {
@@ -155,11 +172,14 @@ let activate = (context) => {
             let pos = parseRange(picks.range)
             console.log("Navigating to range:", picks.range, pos)
             editor.selection = new vscode.Selection(pos, pos)
-            editor.revealRange(new vscode.Range(pos, pos), vscode.TextEditorRevealType.InCenter)
+            editor.revealRange(
+              new vscode.Range(pos, pos),
+              vscode.TextEditorRevealType.InCenter,
+            )
           }
         }
       }
-    })
+    }),
   )
 }
 

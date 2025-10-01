@@ -615,15 +615,27 @@ addEventListener("message", (event) => {
 
     // Preserve any text typed before JS loaded
     const filterElement = document.getElementById("filter")
-    list.filterText =
-      (filterElement && filterElement.__earlyInput) || filterElement.value || ""
+    list.filterText = (filterElement && filterElement.__earlyInput) || filterElement.value || ""
     // document.getElementById("filter").value = list.filterText
+
+    let initialFilter = (message.initialFilter || "").trim().toLowerCase()
+    if (initialFilter) {
+      list.filterText = initialFilter
+      filterElement.value = list.filterText
+    }
 
     list.selectedIndexes = new Set()
     if (list.items.length > 0) list.selectedIndexes.add(0)
     list.currentRow = 0
     list.anchorIndex = 0
     list.computeVisible()
+
+    if (initialFilter && list.visibleItems.length === 0) {
+      // If initial filter yields no results, clear it
+      list.filterText = ""
+      filterElement.value = ""
+      list.computeVisible()
+    }
     list.render(escapeHtml)
     setTimeout(() => {
       filterElement && filterElement.focus()
