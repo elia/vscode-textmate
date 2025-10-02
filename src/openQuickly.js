@@ -33,6 +33,7 @@ let getRecentFiles = (context, excludeCurrentActive = true) => {
   // Get current active editor path to exclude
   let currentPath =
     excludeCurrentActive && vscode.window.activeTextEditor?.document.uri.path
+  let currentItem = stored.find((item) => item.path === currentPath)
 
   // Filter out files that no longer exist and optionally the current active file
   return stored
@@ -43,7 +44,7 @@ let getRecentFiles = (context, excludeCurrentActive = true) => {
       } catch {
         return false
       }
-    })
+    }).concat(currentItem ? [currentItem] : [])
     .map((item) => ({
       label: path.basename(item.path),
       description: item.relativePath,
