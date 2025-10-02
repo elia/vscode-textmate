@@ -17,7 +17,8 @@ class List {
 
   computeVisible() {
     this.visibleItems = []
-    const filter = (this.filterText || "").trim().toLowerCase().split(":")[0]
+    let filter = (this.filterText || "").trim().toLowerCase().split(":")[0]
+    if (filter.length === 0) filter = null
 
     for (let index = 0; index < this.items.length; index++) {
       let item = this.items[index]
