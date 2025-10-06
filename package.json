@@ -1110,6 +1110,9 @@
     "pretest": "npm run lint",
     "test": "node ./test/runTest.js"
   },
+  "dependencies": {
+    "macos-pasteboard": "^0.1.1"
+  },
   "devDependencies": {
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
