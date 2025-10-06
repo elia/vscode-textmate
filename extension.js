@@ -9,6 +9,7 @@ const features = [
   require("./src/toggleCase"),
   require("./src/transposeWords"),
   require("./src/selectFromList"),
+  require("./src/pasteboard"),
 ]
 
 function activate(context) {

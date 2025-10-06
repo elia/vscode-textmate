@@ -83,6 +83,10 @@
         "command": "vscode-textmate.openQuickly"
       },
       {
+        "command": "vscode-textmate.copyToFindPasteboard",
+        "title": "Copy to Find Pasteboard"
+      },
+      {
         "title": "TextMate: Select From List",
         "command": "vscode-textmate.selectFromList"
       },
@@ -995,6 +999,11 @@
       {
         "key": "cmd+t",
         "command": "vscode-textmate.openQuickly"
+      },
+      {
+        "key": "cmd+e",
+        "command": "vscode-textmate.copyToFindPasteboard",
+        "when": "editorTextFocus && editorHasSelection"
       },
       {
         "key": "alt+right",

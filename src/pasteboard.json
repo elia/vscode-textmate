@@ -1,0 +1,17 @@
+{
+  "contributes": {
+    "commands": [
+      {
+        "command": "vscode-textmate.copyToFindPasteboard",
+        "title": "Copy to Find Pasteboard"
+      }
+    ],
+    "keybindings": [
+      {
+        "key": "cmd+e",
+        "command": "vscode-textmate.copyToFindPasteboard",
+        "when": "editorTextFocus && editorHasSelection"
+      }
+    ]
+  }
+}
