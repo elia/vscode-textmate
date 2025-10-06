@@ -78,7 +78,7 @@ class SelectFromListViewProvider {
       }
       case "submit": {
         let items = message.indexes.map((i) => this.items[i])
-        items.range = message.range
+        items.meta = message
         this.writeResults(items)
         break
       }

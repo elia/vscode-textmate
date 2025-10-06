@@ -167,12 +167,17 @@ let activate = (context) => {
         },
       )
 
+      if (picks.meta.alternate) {
+        // If alternate (option/alt) was held, close all other editors
+        vscode.commands.executeCommand("vscode-textmate.closeEditorInAllGroups")
+      }
+
       for (let pick of picks || []) {
         if (pick?.uri) {
           let editor = await vscode.window.showTextDocument(pick.uri)
-          if (picks.range) {
-            let pos = parseRange(picks.range)
-            console.log("Navigating to range:", picks.range, pos)
+          if (picks.meta.range) {
+            let pos = parseRange(picks.meta.range)
+            console.log("Navigating to range:", picks.meta.range, pos)
             editor.selection = new vscode.Selection(pos, pos)
             editor.revealRange(
               new vscode.Range(pos, pos),

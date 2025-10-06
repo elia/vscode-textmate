@@ -718,20 +718,20 @@ document.addEventListener("keydown", (event) => {
     list.render(escapeHtml)
   } else if (enter) {
     event.preventDefault()
-    submit()
+    submit({alternate: alt})
   } else if (esc) {
     event.preventDefault()
     cancel()
   }
 })
 
-function submit() {
+function submit({alternate = false} = {}) {
   const indexes = Array.from(list.selectedIndexes)
     .filter(Number.isInteger)
     .sort((a, b) => a - b)
   let range = list.filterText.substring(list.filterText.indexOf(":") + 1).trim()
   console.log("submit", indexes, range)
-  vscode.postMessage({ type: "submit", indexes, range })
+  vscode.postMessage({ type: "submit", indexes, range, alternate })
 }
 
 function cancel() {
