@@ -623,6 +623,7 @@ addEventListener("message", (event) => {
     if (initialFilter) {
       list.filterText = initialFilter
       filterElement.value = list.filterText
+      filterElement.select()
     }
 
     list.selectedIndexes = new Set()

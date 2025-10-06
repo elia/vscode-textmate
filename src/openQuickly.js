@@ -1,3 +1,4 @@
+// find.json:3
 let vscode = require("vscode")
 let path = require("path")
 
@@ -152,8 +153,8 @@ let activate = (context) => {
       }
 
       // If clipboard contains a valid file path, it will be the initial filter text
-      let currentClipboard = await vscode.env.clipboard.readText()
-      let initialFilter = currentClipboard ? currentClipboard.trim() : ""
+      let findClipboard = require("macos-pasteboard").readText("find") || ""
+      let initialFilter = findClipboard.match(/.+:\d+/) ? findClipboard : ""
 
       let picks = await vscode.commands.executeCommand(
         "vscode-textmate.showSelectFromList",
