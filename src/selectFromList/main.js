@@ -18,6 +18,7 @@ class List {
   computeVisible() {
     this.visibleItems = []
     let filter = (this.filterText || "").trim().toLowerCase().split(":")[0]
+    if (filter.startsWith("./")) filter = filter.substring(2)
     if (filter.length === 0) filter = null
 
     for (let index = 0; index < this.items.length; index++) {
