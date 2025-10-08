@@ -12,6 +12,8 @@ function activate(context) {
       return
     }
 
+    vscode.commands.executeCommand('actions.findWithSelection')
+
     try {
       const pasteboard = require("macos-pasteboard")
       pasteboard.writeText(selectedText, "find")
