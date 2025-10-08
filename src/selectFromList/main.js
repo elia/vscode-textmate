@@ -1,5 +1,5 @@
 // REF: https://code.visualstudio.com/api/extension-guides/webview
-/* global localStorage, acquireVsCodeApi, document, addEventListener, window */
+/* global localStorage, acquireVsCodeApi, document, addEventListener, window, requestAnimationFrame */
 
 class List {
   constructor() {
@@ -648,11 +648,25 @@ addEventListener("message", (event) => {
 
 const filterInput = document.getElementById("filter")
 
+let filtering = false
+let filterTimeout = null
 filterInput.addEventListener("input", (event) => {
+  // Update filter text immediately for responsive UI
   list.filterText = event.target.value || ""
-  list.selectedIndexes = new Set()
-  list.computeVisible()
-  list.render(escapeHtml)
+
+  // Debounce the expensive operations
+  clearTimeout(filterTimeout)
+  filterTimeout = setTimeout(() => {
+    filtering = true
+    list.selectedIndexes = new Set()
+    list.computeVisible()
+
+    // Use requestAnimationFrame for smooth DOM updates
+    requestAnimationFrame(() => {
+      list.render(escapeHtml)
+      filtering = false
+    })
+  }, filtering ? 150 : 0)
 })
 
 let _lastClickTime = 0
