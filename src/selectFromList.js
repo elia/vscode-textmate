@@ -173,6 +173,11 @@ class SelectFromListViewProvider {
           this._webviewPanel = null
         }
 
+        // Reset the ready promise when switching to sidebar
+        this._isReady = new Promise((resolve) => {
+          this._resolveReady = resolve
+        })
+
         // Show the sidebar view
         vscode.commands.executeCommand(
           "setContext",
@@ -183,7 +188,7 @@ class SelectFromListViewProvider {
         await vscode.commands.executeCommand(
           "workbench.view.extension.vscodeTextmate",
         )
-        await this.initializeWebviewView(this._webviewPanel, items, options)
+        await this.initializeWebviewView(this._webviewView, items, options)
         this._webviewView.show(true)
       }
     })
@@ -234,7 +239,7 @@ function activate(context) {
       "vscode-textmate.showSelectFromList",
       async (items, options) => {
         let title = options.title || "Select From List"
-        items.map((item) => {
+        let mappedItems = items.map((item) => {
           if (item == null) return String(item)
           if (typeof item === "string") return { label: item }
           if (typeof item === "number" || typeof item === "boolean")
@@ -242,7 +247,7 @@ function activate(context) {
           if (typeof item === "object") return item
         })
 
-        return provider.chooseItems(items, {
+        return provider.chooseItems(mappedItems, {
           title,
           canSelectMany: true,
           limitFilteredResults: null,
