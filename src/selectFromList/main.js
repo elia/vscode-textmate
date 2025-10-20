@@ -74,6 +74,23 @@ class List {
     return listItem
   }
 
+  renderSelectedItem(listItem, selected) {
+    if (selected) {
+      listItem.classList.add("selected")
+      listItem.setAttribute("aria-selected", "true")
+    } else {
+      listItem.classList.remove("selected")
+      listItem.setAttribute("aria-selected", "false")
+    }
+  }
+
+  renderSelection() {
+    this.listElement.querySelectorAll("li.row").forEach((listItem) => {
+      const itemIndex = parseInt(listItem.dataset.idx, 10)
+      this.renderSelectedItem(listItem, this.selectedIndexes.has(itemIndex))
+    })
+  }
+
   render() {
     // Check if the rendered items have changed
     let renderedVisibleItems = this.visibleItems
@@ -97,11 +114,8 @@ class List {
         listItem.dataset.label = "recent"
       else delete listItem.dataset.label
 
-      if (this.selectedIndexes.has(item.idx)) {
-        listItem.classList.add("selected")
-      } else {
-        listItem.classList.remove("selected")
-      }
+      this.renderSelectedItem(listItem, this.selectedIndexes.has(item.idx))
+
       if (row === this.currentRow) {
         listItem.classList.add("focused")
         listItem.setAttribute("aria-current", "true")
@@ -138,9 +152,7 @@ class List {
   }
 
   ensureRowVisible(row) {
-    const listItem = this.listElement.querySelector(
-      'li[data-row="' + row + '"]',
-    )
+    const listItem = this.listElement.querySelector(`li[data-row="${row}"]`)
     if (listItem) listItem.scrollIntoView({ block: "nearest" })
   }
 
@@ -148,7 +160,7 @@ class List {
     if (this.visibleItems.length === 0) return
     row = Math.max(0, Math.min(row, this.visibleItems.length - 1))
     this.currentRow = row
-    this.render()
+    this.renderSelection()
     if (shouldScroll) this.ensureRowVisible(this.currentRow)
   }
 
