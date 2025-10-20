@@ -56,7 +56,7 @@ class List {
     }
   }
 
-  renderElement(item, escapeHtml) {
+  renderElement(item) {
     const { idx: itemIndex, label, description } = item
     const listItem = document.createElement("li")
     listItem.className = "row"
@@ -74,7 +74,7 @@ class List {
     return listItem
   }
 
-  render(escapeHtml) {
+  render() {
     // Check if the rendered items have changed
     let renderedVisibleItems = this.visibleItems
       .map((item) => item.idx)
@@ -88,7 +88,7 @@ class List {
       let item = this.visibleItems[row]
       let listItem =
         this._itemElements[item.idx] ||
-        (this._itemElements[item.idx] = this.renderElement(item, escapeHtml))
+        (this._itemElements[item.idx] = this.renderElement(item))
 
       listItem.dataset.row = String(row)
       listItem.id = "row-" + row
@@ -144,25 +144,25 @@ class List {
     if (listItem) listItem.scrollIntoView({ block: "nearest" })
   }
 
-  setFocusRow(row, shouldScroll = true, escapeHtml) {
+  setFocusRow(row, shouldScroll = true) {
     if (this.visibleItems.length === 0) return
     row = Math.max(0, Math.min(row, this.visibleItems.length - 1))
     this.currentRow = row
-    this.render(escapeHtml)
+    this.render()
     if (shouldScroll) this.ensureRowVisible(this.currentRow)
   }
 
-  selectOnlyRow(row, escapeHtml) {
+  selectOnlyRow(row) {
     const itemIndex = this.getIndexFromRow(row)
     this.selectedIndexes = new Set()
     if (itemIndex >= 0) this.selectedIndexes.add(itemIndex)
     this.anchorIndex = itemIndex
-    this.setFocusRow(row, true, escapeHtml)
+    this.setFocusRow(row, true)
   }
 
-  rangeSelectToRow(row, escapeHtml) {
+  rangeSelectToRow(row) {
     if (this.visibleItems.length === 0) return
-    if (this.anchorIndex == null) return this.selectOnlyRow(row, escapeHtml)
+    if (this.anchorIndex == null) return this.selectOnlyRow(row)
     const anchorRow = (() => {
       const foundRow = this.getRowFromIndex(this.anchorIndex)
       return foundRow >= 0 ? foundRow : row
@@ -172,17 +172,17 @@ class List {
     this.selectedIndexes = new Set()
     for (let rowIndex = start; rowIndex <= end; rowIndex++)
       this.selectedIndexes.add(this.getIndexFromRow(rowIndex))
-    this.setFocusRow(row, true, escapeHtml)
+    this.setFocusRow(row, true)
   }
 
-  toggleRow(row, escapeHtml) {
+  toggleRow(row) {
     const itemIndex = this.getIndexFromRow(row)
     if (itemIndex < 0) return
     if (this.selectedIndexes.has(itemIndex))
       this.selectedIndexes.delete(itemIndex)
     else this.selectedIndexes.add(itemIndex)
     this.anchorIndex = itemIndex
-    this.setFocusRow(row, false, escapeHtml)
+    this.setFocusRow(row, false)
     this.ensureRowVisible(row)
   }
 }
@@ -604,7 +604,7 @@ list.listElement = document.getElementById("list")
 // list.filterText = localStorage.getItem("selectFromList.filterText") || ""
 // document.getElementById("filter").value = list.filterText
 
-if (list.items.length > 0) list.render(escapeHtml)
+if (list.items.length > 0) list.render()
 
 addEventListener("message", (event) => {
   console.log("[DEBUG] main.js received message:", event.data)
@@ -639,7 +639,7 @@ addEventListener("message", (event) => {
       filterElement.value = ""
       list.computeVisible()
     }
-    list.render(escapeHtml)
+    list.render()
     setTimeout(() => {
       filterElement && filterElement.focus()
     }, 0)
@@ -663,7 +663,7 @@ filterInput.addEventListener("input", (event) => {
 
     // Use requestAnimationFrame for smooth DOM updates
     requestAnimationFrame(() => {
-      list.render(escapeHtml)
+      list.render()
       filtering = false
     })
   }, filtering ? 150 : 0)
@@ -681,14 +681,14 @@ list.listElement.addEventListener("click", (event) => {
   // in webview for some reason.
   if (event.timeStamp - _lastClickTime < 250) {
     if (!listItem) return
-    list.selectOnlyRow(row, escapeHtml)
+    list.selectOnlyRow(row)
     submit()
     return
   } else {
     _lastClickTime = event.timeStamp
-    if (event.shiftKey) list.rangeSelectToRow(row, escapeHtml)
-    else if (event.metaKey) list.toggleRow(row, escapeHtml)
-    else list.selectOnlyRow(row, escapeHtml)
+    if (event.shiftKey) list.rangeSelectToRow(row)
+    else if (event.metaKey) list.toggleRow(row)
+    else list.selectOnlyRow(row)
   }
 })
 
@@ -713,23 +713,23 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault()
     let next = Math.min(list.currentRow + 1, list.visibleItems.length - 1)
     if (alt) next = list.visibleItems.length - 1
-    if (shift) list.rangeSelectToRow(next, escapeHtml)
-    else list.selectOnlyRow(next, escapeHtml)
+    if (shift) list.rangeSelectToRow(next)
+    else list.selectOnlyRow(next)
   } else if (up) {
     event.preventDefault()
     let prev = Math.max(list.currentRow - 1, 0)
     if (alt) prev = 0
-    if (shift) list.rangeSelectToRow(prev, escapeHtml)
-    else list.selectOnlyRow(prev, escapeHtml)
+    if (shift) list.rangeSelectToRow(prev)
+    else list.selectOnlyRow(prev)
   } else if (space) {
     event.preventDefault()
-    list.toggleRow(list.currentRow, escapeHtml)
+    list.toggleRow(list.currentRow)
   } else if (meta && code === "KeyA") {
     event.preventDefault()
     list.selectedIndexes = new Set(
       list.visibleItems.map((visibleItem) => visibleItem.idx),
     )
-    list.render(escapeHtml)
+    list.render()
   } else if (enter) {
     event.preventDefault()
     submit({alternate: alt})
