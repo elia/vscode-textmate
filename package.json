@@ -67,6 +67,11 @@
         "command": "vscode-textmate.closeOtherEditors"
       },
       {
+        "command": "vscode-textmate.command",
+        "title": "Execute TextMate Command",
+        "category": "TextMate"
+      },
+      {
         "title": "TextMate: join lines",
         "command": "vscode-textmate.joinLines"
       },

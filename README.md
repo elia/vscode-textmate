@@ -2,9 +2,99 @@
 
 <!-- <img src="./icon.png" width="36" align="top" style="width:1.4em;vertical-align:middle;line-height:0;"> -->
 
-This extension aims at recreating the TextMate experience in Visual Studio Code. It is a work in progress and is not yet ready for use.
+This extension aims at recreating the TextMate experience in Visual Studio Code. 
 
 ## Features
+
+### TextMate Commands
+
+Execute arbitrary scripts with configurable input/output handling via keyboard shortcuts. Define commands directly in your `keybindings.json` with full control over execution context.
+
+#### Usage
+
+Add keybindings to your `keybindings.json`:
+
+```json
+{
+  "key": "ctrl+alt+cmd+t",
+  "command": "vscode-textmate.command",
+  "when": "editorTextFocus",
+  "args": {
+    "script": "#!/usr/bin/env bash\n\nopen \"$TM_PROJECT_DIRECTORY\" -a Terminal.app",
+    "save": "currentDocument",
+    "input": "none",
+    "output": "discard"
+  }
+}
+```
+
+#### Arguments
+
+- **`script`** (string): Shell script to execute (supports shebang)
+- **`save`**: Document saving - `"none"` | `"currentDocument"` | `"allDocuments"`
+- **`input`**: Input source - `"selection"` | `"document"` | `"line"` | `"word"` | `"character"` | `"scope"` | `"none"`
+- **`output`**: Output handling - `"replaceInput"` | `"replaceSelection"` | `"replaceDocument"` | `"insertText"` | `"insertAsSnippet"` | `"newDocument"` | `"showAsHTML"` | `"showAsTooltip"` | `"discard"`
+- **`outputFormat`**: Output format - `"text"` | `"snippet"` | `"HTML"`
+- **`caretPlacement`**: Caret positioning - `"afterOutput"` | `"selectOutput"` | `"characterInterpolation"` | `"lineInterpolation"` | `"Heuristic"`
+
+#### Environment Variables
+
+Scripts receive TextMate-style environment variables:
+
+- `TM_SELECTED_TEXT` - Currently selected text
+- `TM_CURRENT_LINE` - Current line content
+- `TM_CURRENT_WORD` - Current word at cursor
+- `TM_FILENAME` - Current file name
+- `TM_FILEPATH` - Current file path
+- `TM_DIRECTORY` - Current file directory
+- `TM_PROJECT_DIRECTORY` - Workspace root directory
+- `TM_LINE_INDEX` - Current line (0-based)
+- `TM_LINE_NUMBER` - Current line (1-based)
+- `TM_COLUMN_NUMBER` - Current column (1-based)
+
+#### Examples
+
+**Text transformation:**
+```json
+{
+  "key": "ctrl+u",
+  "command": "vscode-textmate.command",
+  "when": "editorTextFocus",
+  "args": {
+    "script": "tr '[:lower:]' '[:upper:]'",
+    "input": "selection",
+    "output": "replaceInput"
+  }
+}
+```
+
+**Insert timestamp:**
+```json
+{
+  "key": "ctrl+alt+d",
+  "command": "vscode-textmate.command",
+  "when": "editorTextFocus",
+  "args": {
+    "script": "date +%Y-%m-%d",
+    "input": "none",
+    "output": "insertText"
+  }
+}
+```
+
+**Sort lines:**
+```json
+{
+  "key": "ctrl+alt+s",
+  "command": "vscode-textmate.command",
+  "when": "editorTextFocus",
+  "args": {
+    "script": "sort",
+    "input": "selection",
+    "output": "replaceInput"
+  }
+}
+```
 
 ### Keybindings
 

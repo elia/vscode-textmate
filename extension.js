@@ -10,6 +10,7 @@ const features = [
   require("./src/transposeWords"),
   require("./src/selectFromList"),
   require("./src/pasteboard"),
+  require("./src/command"),
 ]
 
 function activate(context) {

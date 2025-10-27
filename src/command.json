@@ -1,0 +1,11 @@
+{
+  "contributes": {
+    "commands": [
+      {
+        "command": "vscode-textmate.command",
+        "title": "Execute TextMate Command",
+        "category": "TextMate"
+      }
+    ]
+  }
+}
