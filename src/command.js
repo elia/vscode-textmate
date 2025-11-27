@@ -10,9 +10,21 @@ const os = require("os")
  */
 class CommandExecutor {
   constructor(editor, args = {}) {
-    this.editor = editor
-    this.document = editor.document
-    this.selection = editor.selection
+    this.editor = editor || {
+      document: {
+        isDirty: false,
+        getText: () => "",
+        fileName: ""
+      },
+      selection: {
+        isEmpty: true,
+        active: new vscode.Position(0, 0),
+        start: new vscode.Position(0, 0),
+        end: new vscode.Position(0, 0)
+      }
+    }
+    this.document = this.editor.document
+    this.selection = this.editor.selection
     this.args = args
   }
 
@@ -117,19 +129,21 @@ class CommandExecutor {
 
       // Set up environment variables (TextMate style)
       let workspaceFolder = vscode.workspace.workspaceFolders?.[0]
-      let env = {
-        ...process.env,
+      let documentEnv = this.document ? {
         TM_SELECTED_TEXT: this.document.getText(this.selection),
         TM_CURRENT_LINE: this.document.lineAt(this.selection.active.line).text,
         TM_CURRENT_WORD: this.getCurrentWord(),
         TM_FILENAME: this.document.fileName ? path.basename(this.document.fileName) : "",
         TM_FILEPATH: this.document.fileName || "",
         TM_DIRECTORY: this.document.fileName ? path.dirname(this.document.fileName) : "",
-        TM_PROJECT_DIRECTORY: workspaceFolder?.uri?.fsPath || "",
         TM_LINE_INDEX: this.selection.active.line.toString(),
         TM_LINE_NUMBER: (this.selection.active.line + 1).toString(),
         TM_COLUMN_NUMBER: (this.selection.active.character + 1).toString(),
-        TM_TERMINAL_APP: "Terminal.app" // Default, could be configurable
+      } : {}
+      let env = {
+        ...process.env,
+        ...documentEnv,
+        TM_PROJECT_DIRECTORY: workspaceFolder?.uri?.fsPath || "",
       }
 
       let child = spawn(scriptPath, [], {
@@ -370,10 +384,10 @@ function activate(context) {
   context.subscriptions.push(
     vscode.commands.registerCommand("vscode-textmate.command", async (args) => {
       let editor = vscode.window.activeTextEditor
-      if (!editor) {
-        vscode.window.showErrorMessage("No active text editor")
-        return
-      }
+      // if (!editor) {
+      //   vscode.window.showErrorMessage("No active text editor")
+      //   return
+      // }
 
       let executor = new CommandExecutor(editor, args)
       await executor.execute()
