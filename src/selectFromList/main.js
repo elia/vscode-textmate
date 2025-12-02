@@ -393,7 +393,12 @@ class FuzzySearch {
     }
 
     score += (m - prefixSize) / m / (2 * denom)
-    score += capitalsTouched / totalCapitals / (4 * denom)
+    // If there are no capitals, this term should be zero, not NaN
+    if (totalCapitals > 0) {
+      score += capitalsTouched / totalCapitals / (4 * denom)
+    } else {
+      score += 0
+    }
     score += n / m / (8 * denom)
 
     return score
@@ -553,39 +558,45 @@ class FuzzySearch {
   }
 
   static test() {
-    const testCases = [
-      { filter: "abc", candidate: "AlphaBetaCharlie", expected: true },
-      { filter: "xyz", candidate: "AlphaBetaCharlie", expected: false },
-      { filter: "doc", candidate: "DocumentController.mm", expected: true },
-      { filter: "DC", candidate: "DocumentController", expected: true },
-    ]
+      const testCases = [
+        { filter: "abc", candidate: "AlphaBetaCharlie", expected: true },
+        { filter: "xyz", candidate: "AlphaBetaCharlie", expected: false },
+        { filter: "doc", candidate: "DocumentController.mm", expected: true },
+        { filter: "DC", candidate: "DocumentController", expected: true },
+        // Dotfile tests
+        { filter: "git", candidate: ".gitignore", expected: true },
+        { filter: ".git", candidate: ".gitignore", expected: true },
+        { filter: "ignore", candidate: ".gitignore", expected: true },
+        { filter: "foo", candidate: ".gitignore", expected: false },
+      ]
 
-    console.log("Running fuzzy search tests...")
-    testCases.forEach(({ filter, candidate, expected }, i) => {
-      const score = this.rank(filter, candidate)
-      const hasMatch = score > 0
-      const status = hasMatch === expected ? "✓" : "✗"
-      console.log(
-        `${status} Test ${
-          i + 1
-        }: "${filter}" in "${candidate}" = ${score.toFixed(4)}`,
-      )
-    })
+      console.log("Running fuzzy search tests...")
+      testCases.forEach(({ filter, candidate, expected }, i) => {
+        const score = this.rank(filter, candidate)
+        const hasMatch = score > 0
+        const status = hasMatch === expected ? "✓" : "✗"
+        console.log(
+          `${status} Test ${
+            i + 1
+          }: "${filter}" in "${candidate}" = ${score.toFixed(4)}`,
+        )
+      })
 
-    // Search example
-    const files = [
-      "DocumentController.mm",
-      "FileChooser.mm",
-      "OakChooser.h",
-      "ranker.cc",
-      "TextMate.app",
-    ]
+      // Search example
+      const files = [
+        "DocumentController.mm",
+        "FileChooser.mm",
+        "OakChooser.h",
+        "ranker.cc",
+        "TextMate.app",
+        ".gitignore", // Added dotfile
+      ]
 
-    console.log('\nSearch results for "doc":')
-    const results = this.search("doc", files)
-    results.forEach(({ item, score }) => {
-      console.log(`  ${item}: ${score.toFixed(4)}`)
-    })
+      console.log('\nSearch results for "git":')
+      const results = this.search("git", files)
+      results.forEach(({ item, score }) => {
+        console.log(`  ${item}: ${score.toFixed(4)}`)
+      })
   }
 }
 
