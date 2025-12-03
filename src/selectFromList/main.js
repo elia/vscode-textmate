@@ -688,10 +688,11 @@ list.listElement.addEventListener("click", (event) => {
 
 // NOTE: Keyboard navigation is a core feature - these shortcuts must work:
 // - Arrow keys: move focus, with shift for range selection
-// - Alt+arrows: jump to first/last item
+// - Alt+arrows: jump to first/last item  
 // - Space: toggle current item
 // - Cmd+A: select all visible items
 // - Enter: submit selection
+// - Alt+Enter: submit with alternate action (close other files)
 // - Escape: cancel
 document.addEventListener("keydown", (event) => {
   let { key, code, shiftKey, metaKey, altKey } = event
@@ -734,7 +735,7 @@ document.addEventListener("keydown", (event) => {
       list.render()
     } else if (enter && list.visibleItems.length > 0) {
       event.preventDefault()
-      submit()
+      submit({ alternate: altKey })
     } else if (esc) {
       event.preventDefault()
       cancel()
