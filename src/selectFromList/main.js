@@ -653,6 +653,11 @@ filterInput.addEventListener("input", (event) => {
   filterTimeout = setTimeout(() => {
     list.selectedIndexes = new Set()
     list.computeVisible()
+    // NOTE: Always highlight first visible item after filtering - core UX behavior
+    if (list.visibleItems.length > 0) {
+      list.selectedIndexes.add(list.visibleItems[0].idx)
+      list.setFocusRow(0, false)
+    }
     requestAnimationFrame(() => list.render())
   }, 150)
 })
@@ -688,7 +693,7 @@ list.listElement.addEventListener("click", (event) => {
 
 // NOTE: Keyboard navigation is a core feature - these shortcuts must work:
 // - Arrow keys: move focus, with shift for range selection
-// - Alt+arrows: jump to first/last item  
+// - Alt+arrows: jump to first/last item
 // - Space: toggle current item
 // - Cmd+A: select all visible items
 // - Enter: submit selection

@@ -14,14 +14,20 @@ class CommandExecutor {
       document: {
         isDirty: false,
         getText: () => "",
-        fileName: ""
+        fileName: "",
+        lineAt: () => ({ text: "" }),
+        getWordRangeAtPosition: () => null,
+        positionAt: (offset) => new vscode.Position(0, 0),
+        save: async () => {}
       },
       selection: {
         isEmpty: true,
         active: new vscode.Position(0, 0),
         start: new vscode.Position(0, 0),
         end: new vscode.Position(0, 0)
-      }
+      },
+      edit: async () => true,
+      insertSnippet: async () => true
     }
     this.document = this.editor.document
     this.selection = this.editor.selection
