@@ -164,6 +164,24 @@ class List {
   }
 }
 
+// AI: Pre-allocated typed arrays for performance - reused across calculateRank calls
+let _maxN = 64, _maxM = 256
+let _matrix = new Float64Array(_maxN * _maxM)
+let _first = new Int32Array(_maxN)
+let _last = new Int32Array(_maxN)
+let _capitals = new Uint8Array(_maxM)
+
+function ensureCapacity(n, m) {
+  if (n > _maxN || m > _maxM) {
+    _maxN = Math.max(n, _maxN) * 2
+    _maxM = Math.max(m, _maxM) * 2
+    _matrix = new Float64Array(_maxN * _maxM)
+    _first = new Int32Array(_maxN)
+    _last = new Int32Array(_maxN)
+    _capitals = new Uint8Array(_maxM)
+  }
+}
+
 /**
  * TextMate-style Fuzzy Search Algorithm
  *
@@ -220,7 +238,8 @@ class FuzzySearch {
    * @returns {boolean}
    */
   static isAlnum(ch) {
-    return /[a-zA-Z0-9]/.test(ch)
+    let code = ch.charCodeAt(0)
+    return (code >= 48 && code <= 57) || (code >= 65 && code <= 90) || (code >= 97 && code <= 122)
   }
 
   /**
@@ -231,62 +250,65 @@ class FuzzySearch {
    * @returns {number} Score between 0-1, higher is better
    */
   static calculateRank(lhs, rhs, out = null) {
-    const n = lhs.length
-    const m = rhs.length
+    let n = lhs.length
+    let m = rhs.length
 
-    // Initialize matrices and arrays
-    const matrix = Array(n)
-      .fill()
-      .map(() => Array(m).fill(0))
-    const first = Array(n).fill(m)
-    const last = Array(n).fill(0)
-    const capitals = Array(m)
+    // Initialize matrices and arrays using pre-allocated typed arrays
+    ensureCapacity(n, m)
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < m; j++) _matrix[i * _maxM + j] = 0
+      _first[i] = m
+      _last[i] = 0
+    }
+    for (let j = 0; j < m; j++) _capitals[j] = 0
 
     // Mark capital letters and word boundaries
     let atBow = true // at beginning of word
+    let totalCapitals = 0
     for (let j = 0; j < m; j++) {
-      const ch = rhs[j]
-      capitals[j] = (atBow && this.isAlnum(ch)) || this.isUpper(ch)
+      let ch = rhs[j]
+      _capitals[j] = (atBow && this.isAlnum(ch)) || this.isUpper(ch)
+      if (_capitals[j]) totalCapitals++
       atBow = !this.isAlnum(ch) && ch !== "'" && ch !== "."
     }
 
     // Fill the matrix with match lengths
     for (let i = 0; i < n; i++) {
-      let j = i === 0 ? 0 : first[i - 1] + 1
+      let j = i === 0 ? 0 : _first[i - 1] + 1
       for (; j < m; j++) {
         if (lhs[i].toLowerCase() === rhs[j].toLowerCase()) {
-          matrix[i][j] = i === 0 || j === 0 ? 1 : matrix[i - 1][j - 1] + 1
-          first[i] = Math.min(j, first[i])
-          last[i] = Math.max(j + 1, last[i])
+          _matrix[i * _maxM + j] = i === 0 || j === 0 ? 1 : _matrix[(i - 1) * _maxM + (j - 1)] + 1
+          _first[i] = Math.min(j, _first[i])
+          _last[i] = Math.max(j + 1, _last[i])
         }
       }
     }
 
     // Optimize search boundaries (backward pass)
     for (let i = n - 1; i > 0; i--) {
-      let bound = last[i] - 1
-      if (bound < last[i - 1]) {
-        while (first[i - 1] < bound && matrix[i - 1][bound - 1] === 0) {
+      let bound = _last[i] - 1
+      if (bound < _last[i - 1]) {
+        while (_first[i - 1] < bound && _matrix[(i - 1) * _maxM + (bound - 1)] === 0) {
           bound--
         }
-        last[i - 1] = bound
+        _last[i - 1] = bound
       }
     }
 
     // Propagate match lengths backward
     for (let i = n - 1; i > 0; i--) {
-      for (let j = first[i]; j < last[i]; j++) {
-        if (matrix[i][j] && matrix[i - 1][j - 1]) {
-          matrix[i - 1][j - 1] = matrix[i][j]
+      for (let j = _first[i]; j < _last[i]; j++) {
+        if (_matrix[i * _maxM + j] && _matrix[(i - 1) * _maxM + (j - 1)]) {
+          _matrix[(i - 1) * _maxM + (j - 1)] = _matrix[i * _maxM + j]
         }
       }
     }
 
     // Propagate match lengths forward
     for (let i = 0; i < n; i++) {
-      for (let j = first[i]; j < last[i]; j++) {
-        if (matrix[i][j] > 1 && i + 1 < n && j + 1 < m) {
-          matrix[i + 1][j + 1] = matrix[i][j] - 1
+      for (let j = _first[i]; j < _last[i]; j++) {
+        if (_matrix[i * _maxM + j] > 1 && i + 1 < n && j + 1 < m) {
+          _matrix[(i + 1) * _maxM + (j + 1)] = _matrix[i * _maxM + j] - 1
         }
       }
     }
@@ -302,19 +324,19 @@ class FuzzySearch {
       let bestJLength = 0
 
       // Find best match position for current character
-      for (let j = first[i]; j < last[i]; j++) {
-        if (matrix[i][j] && capitals[j]) {
+      for (let j = _first[i]; j < _last[i]; j++) {
+        if (_matrix[i * _maxM + j] && _capitals[j]) {
           bestJIndex = j
-          bestJLength = matrix[i][j]
+          bestJLength = _matrix[i * _maxM + j]
 
           // Count capitals touched in this match
           for (let k = j; k < j + bestJLength; k++) {
-            if (capitals[k]) capitalsTouched++
+            if (_capitals[k]) capitalsTouched++
           }
           break
-        } else if (bestJLength < matrix[i][j]) {
+        } else if (bestJLength < _matrix[i * _maxM + j]) {
           bestJIndex = j
-          bestJLength = matrix[i][j]
+          bestJLength = _matrix[i * _maxM + j]
         }
       }
 
@@ -330,14 +352,14 @@ class FuzzySearch {
         len++
         if (i === n) break
 
-        first[i] = Math.max(bestJIndex + len, first[i])
+        _first[i] = Math.max(bestJIndex + len, _first[i])
         if (len < bestJLength && n < 4) {
-          if (capitals[first[i]]) {
+          if (_capitals[_first[i]]) {
             continue
           }
 
-          for (let j = first[i]; j < last[i] && !foundCapital; j++) {
-            if (matrix[i][j] && capitals[j]) {
+          for (let j = _first[i]; j < _last[i] && !foundCapital; j++) {
+            if (_matrix[i * _maxM + j] && _capitals[j]) {
               foundCapital = true
             }
           }
@@ -352,7 +374,6 @@ class FuzzySearch {
     }
 
     // Calculate final score
-    const totalCapitals = capitals.filter((c) => c).length
     let score = 0.0
     const denom = n * (n + 1) + 1
 

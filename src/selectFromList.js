@@ -1,3 +1,46 @@
+// AI: Performance analysis of selectFromList system (2026-02-13)
+//
+// The hot path is: keystroke → 150ms debounce → computeVisible() → render()
+// Where computeVisible() runs FuzzySearch.rankFile() on EVERY item per keystroke.
+//
+// BOTTLENECK 1: Matrix allocation in calculateRank() [main.js]
+//   Array(n).fill().map(() => Array(m).fill(0)) creates a fresh n×m matrix per
+//   candidate. For 5-char filter × 40-char filename × 10k items = 2M array cells
+//   per keystroke. Fix: reuse pre-allocated typed arrays.
+//
+// BOTTLENECK 2: isAlnum() uses regex in innermost loop [main.js]
+//   /[a-zA-Z0-9]/.test(ch) is called per character inside calculateRank.
+//   Fix: use charCode comparisons instead.
+//
+// BOTTLENECK 3: capitals.filter(c => c).length iterates full array [main.js]
+//   Counts truthy values after the loop. Fix: accumulate count during the loop.
+//
+// BOTTLENECK 4: Full DOM rebuild on every render [main.js]
+//   replaceChildren(...elements) swaps all DOM nodes even when list barely changed.
+//   No virtual scrolling — 10k items means 10k DOM nodes.
+//   Fix: virtual scrolling (only render visible rows).
+//
+// BOTTLENECK 5: getRowFromIndex() linear scan [main.js]
+//   findIndex on visibleItems array for every selection check.
+//   Fix: maintain an index→row Map.
+//
+// BOTTLENECK 6: renderSelection() querySelectorAll on full DOM [main.js]
+//   Iterates all li.row elements to toggle .selected class.
+//   Fix: track previous selection and only update changed rows.
+//
+// BOTTLENECK 7: Sort on every computeVisible() even when unfiltered [main.js]
+//   When filter is empty all items have score=1, sort is pointless O(n log n).
+//   Fix: skip sort when no filter.
+//
+// PRIORITY ORDER (biggest impact first):
+//   1. Virtual scrolling (BOTTLENECK 4) — eliminates DOM overhead for large lists
+//   2. Typed array reuse (BOTTLENECK 1) — eliminates GC pressure in hot loop
+//   3. isAlnum charCode (BOTTLENECK 2) — micro-optimization in innermost loop
+//   4. Skip unfiltered sort (BOTTLENECK 7) — easy win
+//   5. Accumulate capital count (BOTTLENECK 3) — easy win
+//   6. Index→row Map (BOTTLENECK 5) — helps selection perf
+//   7. Diff-based selection rendering (BOTTLENECK 6) — helps selection perf
+
 const vscode = require("vscode")
 const fs = require("fs")
 
