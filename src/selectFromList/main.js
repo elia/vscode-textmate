@@ -13,6 +13,8 @@ class List {
     this._itemElements = {}
     this._renderedVisibleItems = ""
     this.limitFilteredResults = null
+    this._indexToRow = new Map()
+    this._previousSelectedIndexes = new Set()
   }
 
   computeVisible() {
@@ -36,7 +38,14 @@ class List {
       }
     }
 
-    this.visibleItems = this.visibleItems.sort((a, b) => b.score - a.score)
+    if (filter) {
+      this.visibleItems = this.visibleItems.sort((a, b) => b.score - a.score)
+    }
+
+    this._indexToRow = new Map()
+    for (let row = 0; row < this.visibleItems.length; row++) {
+      this._indexToRow.set(this.visibleItems[row].idx, row)
+    }
 
     if (this.currentRow >= this.visibleItems.length)
       this.currentRow = Math.max(0, this.visibleItems.length - 1)
@@ -82,10 +91,32 @@ class List {
   }
 
   renderSelection() {
-    this.listElement.querySelectorAll("li.row").forEach((listItem) => {
-      const itemIndex = parseInt(listItem.dataset.idx, 10)
-      this.renderSelectedItem(listItem, this.selectedIndexes.has(itemIndex))
-    })
+    let added = new Set()
+    let removed = new Set()
+
+    for (let idx of this.selectedIndexes) {
+      if (!this._previousSelectedIndexes.has(idx)) {
+        added.add(idx)
+      }
+    }
+
+    for (let idx of this._previousSelectedIndexes) {
+      if (!this.selectedIndexes.has(idx)) {
+        removed.add(idx)
+      }
+    }
+
+    for (let idx of added) {
+      let listItem = this.listElement.querySelector(`li[data-idx="${idx}"]`)
+      if (listItem) this.renderSelectedItem(listItem, true)
+    }
+
+    for (let idx of removed) {
+      let listItem = this.listElement.querySelector(`li[data-idx="${idx}"]`)
+      if (listItem) this.renderSelectedItem(listItem, false)
+    }
+
+    this._previousSelectedIndexes = new Set(this.selectedIndexes)
   }
 
   render() {
@@ -112,7 +143,8 @@ class List {
   }
 
   getRowFromIndex(idx) {
-    return this.visibleItems.findIndex((visibleItem) => visibleItem.idx === idx)
+    let row = this._indexToRow.get(idx)
+    return row !== undefined ? row : -1
   }
 
   ensureRowVisible(row) {
