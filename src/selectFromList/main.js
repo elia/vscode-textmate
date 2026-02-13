@@ -22,25 +22,38 @@ class List {
   }
 
   computeVisible() {
-    this.visibleItems = []
     let filter = (this.filterText || "").trim().toLowerCase().split(":")[0]
     if (filter.startsWith("./")) filter = filter.substring(2)
     if (filter.length === 0) filter = null
 
-    for (let index = 0; index < this.items.length; index++) {
-      let item = this.items[index]
-      if (!item.idx) item.idx = index
+    // Incremental filtering: when user types more chars, narrow from previous matches
+    let candidates = this.items
+    if (
+      filter && this._lastFilter &&
+      filter.startsWith(this._lastFilter) &&
+      this._lastVisibleItems
+    ) {
+      candidates = this._lastVisibleItems
+    }
+
+    this.visibleItems = []
+    for (let index = 0; index < candidates.length; index++) {
+      let item = candidates[index]
+      if (item.idx == null) item.idx = index
 
       if (!filter) {
         item.score = 1
         this.visibleItems.push(item)
       } else {
-        item.score = FuzzySearch.rankFile(filter, item.label, item.description)
+        item.score = FuzzySearch.rankFile(filter, item.label, item.description, item._lowerLabel, item._lowerDescription)
         if (item.score > 0) {
           this.visibleItems.push(item)
         }
       }
     }
+
+    this._lastFilter = filter
+    this._lastVisibleItems = filter ? this.visibleItems : null
 
     if (filter) {
       this.visibleItems = this.visibleItems.sort((a, b) => b.score - a.score)
@@ -274,16 +287,11 @@ class FuzzySearch {
    * @param {string} haystack - The candidate string
    * @returns {boolean}
    */
-  static isSubset(needle, haystack) {
+  static isSubset(needle, haystackLower) {
     let n = 0,
       m = 0
-    while (n < needle.length && m < haystack.length) {
-      if (
-        needle[n].toLowerCase() === haystack[m].toLowerCase() ||
-        needle[n] === haystack[m].toUpperCase()
-      ) {
-        n++
-      }
+    while (n < needle.length && m < haystackLower.length) {
+      if (needle[n] === haystackLower[m]) n++
       m++
     }
     return n === needle.length
@@ -324,7 +332,7 @@ class FuzzySearch {
    * @param {Array} out - Optional array to store match ranges
    * @returns {number} Score between 0-1, higher is better
    */
-  static calculateRank(lhs, rhs, out = null) {
+  static calculateRank(lhs, rhs, rhsLower, out = null) {
     let n = lhs.length
     let m = rhs.length
 
@@ -347,11 +355,11 @@ class FuzzySearch {
       atBow = !this.isAlnum(ch) && ch !== "'" && ch !== "."
     }
 
-    // Fill the matrix with match lengths
+    // Fill the matrix with match lengths (use pre-lowered strings)
     for (let i = 0; i < n; i++) {
       let j = i === 0 ? 0 : _first[i - 1] + 1
       for (; j < m; j++) {
-        if (lhs[i].toLowerCase() === rhs[j].toLowerCase()) {
+        if (lhs[i] === rhsLower[j]) {
           _matrix[i * _maxM + j] = i === 0 || j === 0 ? 1 : _matrix[(i - 1) * _maxM + (j - 1)] + 1
           _first[i] = Math.min(j, _first[i])
           _last[i] = Math.max(j + 1, _last[i])
@@ -478,16 +486,18 @@ class FuzzySearch {
    * @param {Array} out - Optional array to store match ranges
    * @returns {number} Score between 0-1, 0 means no match
    */
-  static rank(filter, candidate, out = null) {
+  static rank(filter, candidate, candidateLower, out = null) {
     if (!filter) {
       return 1
     }
 
-    if (!this.isSubset(filter, candidate)) {
+    if (!candidateLower) candidateLower = candidate.toLowerCase()
+
+    if (!this.isSubset(filter, candidateLower)) {
       return 0
     }
 
-    if (filter === candidate) {
+    if (filter === candidateLower) {
       if (out) {
         out.push([0, filter.length])
       }
@@ -499,7 +509,7 @@ class FuzzySearch {
       return filter.length / candidate.length
     }
 
-    return this.calculateRank(filter, candidate, out)
+    return this.calculateRank(filter, candidate, candidateLower, out)
   }
 
   /**
@@ -515,6 +525,8 @@ class FuzzySearch {
     filter,
     filename,
     directory = null,
+    filenameLower = null,
+    directoryLower = null,
     isCurrent = false,
     out = null,
   ) {
@@ -522,9 +534,11 @@ class FuzzySearch {
       return 1
     }
 
+    if (!filenameLower) filenameLower = filename.toLowerCase()
+
     // First try to match just the filename (higher priority)
     const fileMatches = []
-    let rank = this.rank(filter, filename, fileMatches)
+    let rank = this.rank(filter, filename, filenameLower, fileMatches)
 
     if (rank > 0) {
       // Found a match in filename - boost the score
@@ -537,8 +551,11 @@ class FuzzySearch {
     } else if (directory) {
       // No filename match, try full path
       const fullPath = directory + "/" + filename
+      const fullPathLower = directoryLower
+        ? directoryLower + "/" + filenameLower
+        : fullPath.toLowerCase()
       const pathMatches = []
-      rank = this.rank(filter, fullPath, pathMatches)
+      rank = this.rank(filter, fullPath, fullPathLower, pathMatches)
 
       if (rank > 0 && out && pathMatches.length > 0) {
         // Split matches between directory and filename parts
@@ -579,7 +596,7 @@ class FuzzySearch {
 
     for (const candidate of candidates) {
       const matches = []
-      const score = this.rank(normalizedFilter, candidate, matches)
+      const score = this.rank(normalizedFilter, candidate, null, matches)
 
       if (score > 0) {
         results.push({
@@ -639,7 +656,7 @@ class FuzzySearch {
 
       console.log("Running fuzzy search tests...")
       testCases.forEach(({ filter, candidate, expected }, i) => {
-        const score = this.rank(filter, candidate)
+        const score = this.rank(filter, candidate, null)
         const hasMatch = score > 0
         const status = hasMatch === expected ? "✓" : "✗"
         console.log(
@@ -708,6 +725,11 @@ addEventListener("message", (event) => {
 
   if (message.type === "init") {
     list.items = Array.isArray(message.items) ? message.items : []
+    // Pre-lowercase labels once to avoid per-char toLowerCase in hot loop
+    for (let item of list.items) {
+      item._lowerLabel = item.label ? item.label.toLowerCase() : ""
+      if (item.description) item._lowerDescription = item.description.toLowerCase()
+    }
     list.limitFilteredResults = message.limitFilteredResults || null
     currentRequestId = message.requestId || null
 
@@ -724,6 +746,8 @@ addEventListener("message", (event) => {
     if (list.items.length > 0) list.selectedIndexes.add(0)
     list.currentRow = 0
     list.anchorIndex = 0
+    list._lastFilter = null
+    list._lastVisibleItems = null
     list.computeVisible()
 
     let scrollContainer = list.listElement.closest("main") || list.listElement.parentElement
@@ -769,7 +793,7 @@ filterInput.addEventListener("input", (event) => {
       list.setFocusRow(0, false)
     }
     requestAnimationFrame(() => list.render())
-  }, 150)
+  }, 30)
 })
 
 let _lastClickTime = 0
