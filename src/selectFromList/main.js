@@ -15,6 +15,10 @@ class List {
     this.limitFilteredResults = null
     this._indexToRow = new Map()
     this._previousSelectedIndexes = new Set()
+    this._rowHeight = 0
+    this._overscan = 20
+    this._scrollTop = 0
+    this._viewportHeight = 0
   }
 
   computeVisible() {
@@ -119,9 +123,31 @@ class List {
     this._previousSelectedIndexes = new Set(this.selectedIndexes)
   }
 
+  measureRowHeight() {
+    if (this._rowHeight > 0 || this.visibleItems.length === 0) return
+    let sample = this.renderElement(this.visibleItems[0])
+    this.listElement.appendChild(sample)
+    this._rowHeight = sample.getBoundingClientRect().height || 30
+    this.listElement.removeChild(sample)
+  }
+
   render() {
+    this.measureRowHeight()
+
+    if (this._rowHeight === 0) {
+      this.listElement.replaceChildren()
+      return
+    }
+
+    let totalHeight = this.visibleItems.length * this._rowHeight
+    let startRow = Math.max(0, Math.floor(this._scrollTop / this._rowHeight) - this._overscan)
+    let endRow = Math.min(
+      this.visibleItems.length,
+      Math.ceil((this._scrollTop + this._viewportHeight) / this._rowHeight) + this._overscan
+    )
+
     let elements = []
-    for (let row = 0; row < this.visibleItems.length; row++) {
+    for (let row = startRow; row < endRow; row++) {
       let item = this.visibleItems[row]
       let listItem =
         this._itemElements[item.idx] ||
@@ -130,7 +156,13 @@ class List {
       listItem.dataset.row = String(row)
       elements.push(listItem)
     }
+
+    this.listElement.style.height = totalHeight + "px"
+    this.listElement.style.paddingTop = (startRow * this._rowHeight) + "px"
+    this.listElement.style.boxSizing = "border-box"
+
     this.listElement.replaceChildren(...elements)
+    this._previousSelectedIndexes = new Set()
     if (this.visibleItems.length > 0) {
       this.renderSelection()
       this.ensureRowVisible(this.currentRow)
@@ -148,8 +180,19 @@ class List {
   }
 
   ensureRowVisible(row) {
-    const listItem = this.listElement.querySelector(`li[data-row="${row}"]`)
-    if (listItem) listItem.scrollIntoView({ block: "nearest" })
+    if (this._rowHeight <= 0) return
+    let scrollContainer = this.listElement.closest("main") || this.listElement.parentElement
+    if (!scrollContainer) return
+    let rowTop = row * this._rowHeight
+    let rowBottom = rowTop + this._rowHeight
+    let viewTop = scrollContainer.scrollTop
+    let viewBottom = viewTop + scrollContainer.clientHeight
+
+    if (rowTop < viewTop) {
+      scrollContainer.scrollTop = rowTop
+    } else if (rowBottom > viewBottom) {
+      scrollContainer.scrollTop = rowBottom - scrollContainer.clientHeight
+    }
   }
 
   setFocusRow(row, shouldScroll = true) {
@@ -646,6 +689,15 @@ if (!Array.isArray(list.items)) list.items = []
 list.selectedIndexes.add(0)
 list.listElement = document.getElementById("list")
 
+let scrollContainer = list.listElement.closest("main") || list.listElement.parentElement
+if (scrollContainer) {
+  scrollContainer.addEventListener("scroll", () => {
+    list._scrollTop = scrollContainer.scrollTop
+    list._viewportHeight = scrollContainer.clientHeight
+    requestAnimationFrame(() => list.render())
+  })
+}
+
 let currentRequestId = null
 
 if (list.items.length > 0) list.render()
@@ -673,6 +725,11 @@ addEventListener("message", (event) => {
     list.currentRow = 0
     list.anchorIndex = 0
     list.computeVisible()
+
+    let scrollContainer = list.listElement.closest("main") || list.listElement.parentElement
+    if (scrollContainer) {
+      list._viewportHeight = scrollContainer.clientHeight
+    }
 
     if (initialFilter && list.visibleItems.length === 0) {
       list.filterText = ""
