@@ -147,10 +147,10 @@ class SelectFromListViewProvider {
   }
 
   createWebviewPanel(title) {
-    // Dispose of any existing panel first
+    // Reuse existing panel if it's still alive
     if (this._webviewPanel) {
-      this._webviewPanel.dispose()
-      this._webviewPanel = null
+      this._webviewPanel.title = title
+      return
     }
 
     // Reset the ready promise when creating a new panel
@@ -220,9 +220,8 @@ class SelectFromListViewProvider {
       if (renderAs === "panel") {
         if (this._webviewView) this._webviewView = null
         this.createWebviewPanel("Select From List")
-        await this._isReady
+        this._webviewPanel.reveal(vscode.ViewColumn.Active, false)
         await this.initializeWebviewView(this._webviewPanel, items, options, requestId)
-        this._webviewPanel.reveal(vscode.ViewColumn.Active, true)
       } else if (renderAs === "sidebar") {
         if (this._webviewPanel) {
           this._webviewPanel.dispose()

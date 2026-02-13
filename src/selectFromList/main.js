@@ -761,22 +761,17 @@ addEventListener("message", (event) => {
       list.computeVisible()
     }
     list.render()
-    setTimeout(() => filterElement.focus(), 0)
+    filterElement.focus()
   }
 })
 
-// Handle webview becoming visible again
+// Handle webview becoming visible again — re-focus search input
 addEventListener("focus", () => {
-  const filterElement = document.getElementById("filter")
-  setTimeout(() => filterElement.focus(), 0)
+  document.getElementById("filter").focus()
 })
 
-// Also handle when the window becomes visible
 addEventListener("visibilitychange", () => {
-  if (!document.hidden) {
-    const filterElement = document.getElementById("filter")
-    setTimeout(() => filterElement.focus(), 0)
-  }
+  if (!document.hidden) document.getElementById("filter").focus()
 })
 
 const filterInput = document.getElementById("filter")
