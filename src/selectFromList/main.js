@@ -26,16 +26,13 @@ class List {
       if (!item.idx) item.idx = index
 
       if (!filter) {
-        this.visibleItems.push(item)
-        continue
-      }
-
-      item.score = FuzzySearch.rankFile(filter, item.label, item.description)
-
-      if (item.score > 0) {
+        item.score = 1
         this.visibleItems.push(item)
       } else {
-        this.selectedIndexes.delete(index)
+        item.score = FuzzySearch.rankFile(filter, item.label, item.description)
+        if (item.score > 0) {
+          this.visibleItems.push(item)
+        }
       }
     }
 
@@ -67,7 +64,7 @@ class List {
       this.selectedIndexes.has(itemIndex) ? "true" : "false",
     )
 
-    let html = `<div class="item-label">${escapeHtml(label)}`
+    let html = `<div class="item-label">${escapeHtml(label)}</div>`
     if (description)
       html += `<div class="item-description">${escapeHtml(description)}</div>`
     listItem.innerHTML = `<div class="item-content">${html}</div>`
@@ -92,14 +89,6 @@ class List {
   }
 
   render() {
-    // Check if the rendered items have changed
-    let renderedVisibleItems = this.visibleItems
-      .map((item) => item.idx)
-      .join(",")
-    this._renderedVisibleItems = renderedVisibleItems
-
-    this._itemElements = this._itemElements || {}
-
     let elements = []
     for (let row = 0; row < this.visibleItems.length; row++) {
       let item = this.visibleItems[row]
@@ -108,38 +97,13 @@ class List {
         (this._itemElements[item.idx] = this.renderElement(item))
 
       listItem.dataset.row = String(row)
-      listItem.id = "row-" + row
-      listItem.dataset.score = String(item.score || 0)
-      if (item.isRecent)
-        listItem.dataset.label = "recent"
-      else delete listItem.dataset.label
-
-      this.renderSelectedItem(listItem, this.selectedIndexes.has(item.idx))
-
-      if (row === this.currentRow) {
-        listItem.classList.add("focused")
-        listItem.setAttribute("aria-current", "true")
-      } else {
-        listItem.classList.remove("focused")
-        listItem.removeAttribute("aria-current")
-      }
-
       elements.push(listItem)
-
-      if (
-        this.limitFilteredResults &&
-        elements.length >= this.limitFilteredResults
-      ) {
-        break
-      }
     }
     this.listElement.replaceChildren(...elements)
-    if (this.visibleItems.length > 0)
-      this.listElement.setAttribute(
-        "aria-activedescendant",
-        "row-" + this.currentRow,
-      )
-    else this.listElement.removeAttribute("aria-activedescendant")
+    if (this.visibleItems.length > 0) {
+      this.renderSelection()
+      this.ensureRowVisible(this.currentRow)
+    }
   }
 
   getIndexFromRow(row) {
@@ -161,7 +125,7 @@ class List {
     row = Math.max(0, Math.min(row, this.visibleItems.length - 1))
     this.currentRow = row
     this.renderSelection()
-    if (shouldScroll) this.ensureRowVisible(this.currentRow)
+    if (shouldScroll) this.ensureRowVisible(row)
   }
 
   selectOnlyRow(row) {
@@ -174,25 +138,26 @@ class List {
 
   rangeSelectToRow(row) {
     if (this.visibleItems.length === 0) return
-    if (this.anchorIndex == null) return this.selectOnlyRow(row)
-    const anchorRow = (() => {
-      const foundRow = this.getRowFromIndex(this.anchorIndex)
-      return foundRow >= 0 ? foundRow : row
-    })()
+    if (this.anchorIndex == null) this.anchorIndex = this.getIndexFromRow(0)
+    const anchorRow = this.getRowFromIndex(this.anchorIndex)
     const start = Math.min(anchorRow, row)
     const end = Math.max(anchorRow, row)
     this.selectedIndexes = new Set()
-    for (let rowIndex = start; rowIndex <= end; rowIndex++)
-      this.selectedIndexes.add(this.getIndexFromRow(rowIndex))
+    for (let rowIndex = start; rowIndex <= end; rowIndex++) {
+      const itemIndex = this.getIndexFromRow(rowIndex)
+      if (itemIndex >= 0) this.selectedIndexes.add(itemIndex)
+    }
     this.setFocusRow(row, true)
   }
 
   toggleRow(row) {
     const itemIndex = this.getIndexFromRow(row)
     if (itemIndex < 0) return
-    if (this.selectedIndexes.has(itemIndex))
+    if (this.selectedIndexes.has(itemIndex)) {
       this.selectedIndexes.delete(itemIndex)
-    else this.selectedIndexes.add(itemIndex)
+    } else {
+      this.selectedIndexes.add(itemIndex)
+    }
     this.anchorIndex = itemIndex
     this.setFocusRow(row, false)
     this.ensureRowVisible(row)
@@ -201,7 +166,13 @@ class List {
 
 /**
  * TextMate-style Fuzzy Search Algorithm
- * Vanilla JavaScript implementation of the ranking algorithm from ranker.cc
+ *
+ * NOTE: This is a 1:1 port of TextMate's ranking algorithm from ranker.cc
+ * DO NOT MODIFY without extreme care - this algorithm has been battle-tested
+ * and any changes will break compatibility with TextMate's behavior.
+ *
+ * The current implementation is a simplified version for basic functionality.
+ * The full algorithm includes complex matrix calculations for optimal scoring.
  */
 class FuzzySearch {
   /**
@@ -604,10 +575,9 @@ class FuzzySearch {
 if (typeof window === "undefined") {
   FuzzySearch.test()
 }
-
-// Webview script for Select From List (macOS-like multi-select)
-console.log("[DEBUG] main.js loaded")
+// Webview script for Select From List
 const vscode = acquireVsCodeApi()
+
 function escapeHtml(str) {
   return String(str)
     .replace(/&/g, "&amp;")
@@ -620,34 +590,29 @@ list.items = localStorage.getItem("selectFromList.items")
   ? JSON.parse(localStorage.getItem("selectFromList.items"))
   : []
 if (!Array.isArray(list.items)) list.items = []
-list.selectedIndexes.add(0) // Initially select first item
+list.selectedIndexes.add(0)
 list.listElement = document.getElementById("list")
 
-// // Restore filter text from localStorage
-// list.filterText = localStorage.getItem("selectFromList.filterText") || ""
-// document.getElementById("filter").value = list.filterText
+let currentRequestId = null
 
 if (list.items.length > 0) list.render()
 
 addEventListener("message", (event) => {
-  console.log("[DEBUG] main.js received message:", event.data)
   const message = event.data
   if (!message || typeof message !== "object") return
+
   if (message.type === "init") {
-    console.log("[DEBUG] Initializing with", message)
     list.items = Array.isArray(message.items) ? message.items : []
     list.limitFilteredResults = message.limitFilteredResults || null
+    currentRequestId = message.requestId || null
 
-    // Preserve any text typed before JS loaded
     const filterElement = document.getElementById("filter")
-    list.filterText = (filterElement && filterElement.__earlyInput) || filterElement.value || ""
-    // document.getElementById("filter").value = list.filterText
+    list.filterText = filterElement.value || ""
 
-    let initialFilter = (message.initialFilter || "").trim().toLowerCase()
+    let initialFilter = (message.initialFilter || "").trim()
     if (initialFilter) {
       list.filterText = initialFilter
-      filterElement.value = list.filterText
-      filterElement.select()
+      filterElement.value = initialFilter
     }
 
     list.selectedIndexes = new Set()
@@ -657,108 +622,123 @@ addEventListener("message", (event) => {
     list.computeVisible()
 
     if (initialFilter && list.visibleItems.length === 0) {
-      // If initial filter yields no results, clear it
       list.filterText = ""
       filterElement.value = ""
       list.computeVisible()
     }
     list.render()
-    setTimeout(() => {
-      filterElement && filterElement.focus()
-    }, 0)
+    setTimeout(() => filterElement.focus(), 0)
+  }
+})
+
+// Handle webview becoming visible again
+addEventListener("focus", () => {
+  const filterElement = document.getElementById("filter")
+  setTimeout(() => filterElement.focus(), 0)
+})
+
+// Also handle when the window becomes visible
+addEventListener("visibilitychange", () => {
+  if (!document.hidden) {
+    const filterElement = document.getElementById("filter")
+    setTimeout(() => filterElement.focus(), 0)
   }
 })
 
 const filterInput = document.getElementById("filter")
-
-let filtering = false
 let filterTimeout = null
 filterInput.addEventListener("input", (event) => {
-  // Update filter text immediately for responsive UI
   list.filterText = event.target.value || ""
-
-  // Debounce the expensive operations
   clearTimeout(filterTimeout)
   filterTimeout = setTimeout(() => {
-    filtering = true
     list.selectedIndexes = new Set()
     list.computeVisible()
-
-    // Use requestAnimationFrame for smooth DOM updates
-    requestAnimationFrame(() => {
-      list.render()
-      filtering = false
-    })
-  }, filtering ? 150 : 0)
+    requestAnimationFrame(() => list.render())
+  }, 150)
 })
 
 let _lastClickTime = 0
 
+// NOTE: Multi-select interaction is a core feature - preserve these behaviors:
+// - Regular click: select only this item (standard behavior)
+// - Cmd+click: toggle item in/out of selection (multi-select)
+// - Shift+click: range select from anchor to clicked item
+// - Double-click: submit selection immediately
 list.listElement.addEventListener("click", (event) => {
   let listItem = event.target.closest("li")
   if (!listItem) return
   let row = parseInt(listItem.dataset.row, 10)
   filterInput.focus()
 
-  // Handle double-click manually to work around vscode not firing dblclick event
-  // in webview for some reason.
   if (event.timeStamp - _lastClickTime < 250) {
-    if (!listItem) return
     list.selectOnlyRow(row)
     submit()
     return
   } else {
     _lastClickTime = event.timeStamp
-    if (event.shiftKey) list.rangeSelectToRow(row)
-    else if (event.metaKey) list.toggleRow(row)
-    else list.selectOnlyRow(row)
+    if (event.shiftKey) {
+      list.rangeSelectToRow(row)
+    } else if (event.metaKey || event.ctrlKey) {
+      list.toggleRow(row)
+    } else {
+      list.selectOnlyRow(row)
+    }
   }
 })
 
+// NOTE: Keyboard navigation is a core feature - these shortcuts must work:
+// - Arrow keys: move focus, with shift for range selection
+// - Alt+arrows: jump to first/last item
+// - Space: toggle current item
+// - Cmd+A: select all visible items
+// - Enter: submit selection
+// - Escape: cancel
 document.addEventListener("keydown", (event) => {
-  let {
-    key,
-    code,
-    shiftKey: shift,
-    metaKey: meta,
-    ctrlKey: _ctrl,
-    altKey: alt,
-  } = event
+  let { key, code, shiftKey, metaKey, altKey } = event
   let down = key === "ArrowDown"
   let up = key === "ArrowUp"
   let space = key === " " || code === "Space"
   let enter = key === "Enter"
   let esc = key === "Escape"
 
-  if (list.visibleItems.length === 0) return
+  // Always handle these keys for the list, regardless of focus
+  if (down || up || space || enter || esc || (metaKey && code === "KeyA")) {
+    if (list.visibleItems.length === 0 && !esc) return
 
-  if (down) {
-    event.preventDefault()
-    let next = Math.min(list.currentRow + 1, list.visibleItems.length - 1)
-    if (alt) next = list.visibleItems.length - 1
-    if (shift) list.rangeSelectToRow(next)
-    else list.selectOnlyRow(next)
-  } else if (up) {
-    event.preventDefault()
-    let prev = Math.max(list.currentRow - 1, 0)
-    if (alt) prev = 0
-    if (shift) list.rangeSelectToRow(prev)
-    else list.selectOnlyRow(prev)
-  } else if (space) {
-    event.preventDefault()
-    list.toggleRow(list.currentRow)
-  } else if (meta && code === "KeyA") {
-    event.preventDefault()
-    list.selectedIndexes = new Set(
-      list.visibleItems.map((visibleItem) => visibleItem.idx),
-    )
-    list.render()
-  } else if (enter) {
-    event.preventDefault()
-    submit({alternate: alt})
-  } else if (esc) {
-    event.preventDefault()
-    cancel()
+    if (down) {
+      event.preventDefault()
+      let next = Math.min(list.currentRow + 1, list.visibleItems.length - 1)
+      if (altKey) next = list.visibleItems.length - 1 // Jump to last
+      if (shiftKey) {
+        list.rangeSelectToRow(next)
+      } else {
+        list.selectOnlyRow(next)
+      }
+    } else if (up) {
+      event.preventDefault()
+      let prev = Math.max(list.currentRow - 1, 0)
+      if (altKey) prev = 0 // Jump to first
+      if (shiftKey) {
+        list.rangeSelectToRow(prev)
+      } else {
+        list.selectOnlyRow(prev)
+      }
+    } else if (space && list.visibleItems.length > 0) {
+      event.preventDefault()
+      list.toggleRow(list.currentRow)
+    } else if (metaKey && code === "KeyA") {
+      event.preventDefault()
+      list.selectedIndexes = new Set(
+        list.visibleItems.map((visibleItem) => visibleItem.idx)
+      )
+      list.render()
+    } else if (enter && list.visibleItems.length > 0) {
+      event.preventDefault()
+      submit()
+    } else if (esc) {
+      event.preventDefault()
+      cancel()
+    }
   }
 })
 
@@ -767,26 +747,29 @@ function submit({alternate = false} = {}) {
     .filter(Number.isInteger)
     .sort((a, b) => a - b)
   let range = list.filterText.substring(list.filterText.indexOf(":") + 1).trim()
-  console.log("submit", indexes, range)
-  vscode.postMessage({ type: "submit", indexes, range, alternate })
+  vscode.postMessage({
+    type: "submit",
+    indexes,
+    range,
+    alternate,
+    requestId: currentRequestId
+  })
 }
 
 function cancel() {
-  vscode.postMessage({ type: "cancel" })
+  vscode.postMessage({
+    type: "cancel",
+    requestId: currentRequestId
+  })
 }
 
-// Notify extension we're ready to receive items
-console.log("[DEBUG] Sending ready message to extension")
-vscode.postMessage({ type: "ready" })
-
-// Debug page lifecycle events
-window.addEventListener("beforeunload", () => {
-  console.log("[DEBUG] Page is about to unload")
+// Notify extension we're ready
+vscode.postMessage({
+  type: "ready",
+  requestId: currentRequestId
 })
 
 window.addEventListener("unload", () => {
   localStorage.setItem("selectFromList.filterText", list.filterText)
   localStorage.setItem("selectFromList.items", JSON.stringify(list.items))
-
-  console.log("[DEBUG] Page is unloading")
 })

@@ -11,6 +11,8 @@ class SelectFromListViewProvider {
       this._resolveReady = resolve
     })
     this.reset()
+    this._currentRequestId = null
+    this._pendingResolve = null
   }
 
   get webview() {
@@ -20,7 +22,8 @@ class SelectFromListViewProvider {
   reset() {
     this.items = []
     this.title = "Select From List"
-    this._resolve = null
+    this._currentRequestId = null
+    this._pendingResolve = null
   }
 
   close() {
@@ -60,22 +63,24 @@ class SelectFromListViewProvider {
   }
 
   writeResults(items) {
-    console.log("writeResults", items)
-    if (this._resolve) {
-      this._resolve(items)
-      this._resolve = null
+    if (this._pendingResolve) {
+      this._pendingResolve(items)
+      this._pendingResolve = null
     }
+    this._currentRequestId = null
     this.close()
   }
 
   handleMessage(message) {
     if (typeof message !== "object") return
-
-    switch (message.type) {
-      case "ready": {
-        this._resolveReady()
-        break
-      }
+    let { type, requestId } = message
+    if (type === "ready") {
+      this._resolveReady()
+      return
+    }
+    // Only handle messages for the current request
+    if (!requestId || requestId !== this._currentRequestId) return
+    switch (type) {
       case "submit": {
         let items = message.indexes.map((i) => this.items[i])
         items.meta = message
@@ -92,6 +97,7 @@ class SelectFromListViewProvider {
     webview.options = {
       enableScripts: true,
       localResourceRoots: [this._extensionUri],
+      retainContextWhenHidden: true,
     }
     webview.html = this.getHtml(webview)
     webview.onDidReceiveMessage(this.handleMessage.bind(this))
@@ -116,6 +122,7 @@ class SelectFromListViewProvider {
       {
         enableScripts: true,
         localResourceRoots: [this._extensionUri],
+        retainContextWhenHidden: true,
       },
     )
 
@@ -134,10 +141,11 @@ class SelectFromListViewProvider {
     this.setupWebview(webviewView.webview)
   }
 
-  async initializeWebviewView(webviewHolder, items, options) {
+  async initializeWebviewView(webviewHolder, items, options, requestId) {
     await this._isReady
     webviewHolder.webview.postMessage({
       type: "init",
+      requestId,
       items,
       limitFilteredResults: options.limitFilteredResults,
       initialFilter: options.initialFilter || "",
@@ -146,9 +154,18 @@ class SelectFromListViewProvider {
   }
 
   async chooseItems(items, options = {}) {
+    // Always clear out any previous pending promise
+    if (this._pendingResolve) {
+      this._pendingResolve([])
+      this._pendingResolve = null
+      this._currentRequestId = null
+    }
     return new Promise(async (resolve) => {
-      this._resolve = resolve
+      this._pendingResolve = resolve
       this.items = items
+      // Generate a unique requestId for this execution
+      let requestId = Math.random().toString(36).slice(2) + Date.now()
+      this._currentRequestId = requestId
 
       let renderAs =
         options.renderAs ||
@@ -158,37 +175,28 @@ class SelectFromListViewProvider {
         "panel"
 
       if (renderAs === "panel") {
-        // Switching from sidebar to panel - clean up sidebar state
         if (this._webviewView) this._webviewView = null
-
-        // Use panel mode
         this.createWebviewPanel("Select From List")
         await this._isReady
-        await this.initializeWebviewView(this._webviewPanel, items, options)
+        await this.initializeWebviewView(this._webviewPanel, items, options, requestId)
         this._webviewPanel.reveal(vscode.ViewColumn.Active, true)
       } else if (renderAs === "sidebar") {
         if (this._webviewPanel) {
-          // Switching from panel to sidebar - dispose panel
           this._webviewPanel.dispose()
           this._webviewPanel = null
         }
-
-        // Reset the ready promise when switching to sidebar
         this._isReady = new Promise((resolve) => {
           this._resolveReady = resolve
         })
-
-        // Show the sidebar view
         vscode.commands.executeCommand(
           "setContext",
           "vscode-textmate.selectFromListView.visible",
           true,
         )
-
         await vscode.commands.executeCommand(
           "workbench.view.extension.vscodeTextmate",
         )
-        await this.initializeWebviewView(this._webviewView, items, options)
+        await this.initializeWebviewView(this._webviewView, items, options, requestId)
         this._webviewView.show(true)
       }
     })
