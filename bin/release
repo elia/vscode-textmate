@@ -10,6 +10,13 @@ if [ -z "$version" ]; then
   exit 1
 fi
 
+# warn if version doesn't start with "v"
+if [[ ! "$version" =~ ^v ]]; then
+  echo "Warning: Version should start with 'v' (e.g., v1.2.3)"
+  echo "Got: $version"
+  exit 1
+fi
+
 # if version file is not up to date, update it
 if [ "$version" != "$(cat VERSION)" ]; then
   echo "Version file is not up to date. Updating it..."
