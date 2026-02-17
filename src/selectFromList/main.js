@@ -23,7 +23,11 @@ class List {
 
   computeVisible() {
     let filter = (this.filterText || "").trim().toLowerCase().split(":")[0]
-    if (filter.startsWith("./")) filter = filter.substring(2)
+    let rootLevelBoost = false
+    if (filter.startsWith("./")) {
+      filter = filter.substring(2)
+      rootLevelBoost = true
+    }
     if (filter.length === 0) filter = null
 
     // Incremental filtering: when user types more chars, narrow from previous matches
@@ -47,6 +51,15 @@ class List {
       } else {
         item.score = FuzzySearch.rankFile(filter, item.label, item.description, item._lowerLabel, item._lowerDescription)
         if (item.score > 0) {
+          // Boost root-level files when user types ./
+          if (rootLevelBoost && (!item.description || item.description === ".")) {
+            item.score += 10
+          }
+          // Apply path depth penalty - shorter paths rank higher
+          if (item.description) {
+            let depth = item.description.split("/").length
+            item.score -= depth * 0.01
+          }
           this.visibleItems.push(item)
         }
       }
