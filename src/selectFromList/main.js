@@ -136,13 +136,14 @@ class List {
       }
     }
 
+    let container = this._viewport || this.listElement
     for (let idx of added) {
-      let listItem = this.listElement.querySelector(`li[data-idx="${idx}"]`)
+      let listItem = container.querySelector(`li[data-idx="${idx}"]`)
       if (listItem) this.renderSelectedItem(listItem, true)
     }
 
     for (let idx of removed) {
-      let listItem = this.listElement.querySelector(`li[data-idx="${idx}"]`)
+      let listItem = container.querySelector(`li[data-idx="${idx}"]`)
       if (listItem) this.renderSelectedItem(listItem, false)
     }
 
@@ -172,6 +173,19 @@ class List {
       Math.ceil((this._scrollTop + this._viewportHeight) / this._rowHeight) + this._overscan
     )
 
+    // Spacer element maintains total scroll height without affecting layout
+    if (!this._spacer) {
+      this._spacer = document.createElement("div")
+      this._spacer.style.pointerEvents = "none"
+    }
+    this._spacer.style.height = totalHeight + "px"
+
+    // Viewport container holds only visible items, positioned via translateY
+    if (!this._viewport) {
+      this._viewport = document.createElement("div")
+    }
+    this._viewport.style.transform = `translateY(${startRow * this._rowHeight}px)`
+
     let elements = []
     for (let row = startRow; row < endRow; row++) {
       let item = this.visibleItems[row]
@@ -183,15 +197,22 @@ class List {
       elements.push(listItem)
     }
 
-    this.listElement.style.height = totalHeight + "px"
-    this.listElement.style.paddingTop = (startRow * this._rowHeight) + "px"
-    this.listElement.style.boxSizing = "border-box"
+    this._viewport.replaceChildren(...elements)
+    this.listElement.style.height = ""
+    this.listElement.style.paddingTop = ""
+    this.listElement.replaceChildren(this._spacer, this._viewport)
 
-    this.listElement.replaceChildren(...elements)
+    // Spacer creates scroll height; viewport is absolutely positioned over it
+    this.listElement.style.position = "relative"
+    this._spacer.style.width = "1px"
+    this._viewport.style.position = "absolute"
+    this._viewport.style.top = "0"
+    this._viewport.style.left = "0"
+    this._viewport.style.right = "0"
+
     this._previousSelectedIndexes = new Set()
     if (this.visibleItems.length > 0) {
       this.renderSelection()
-      this.ensureRowVisible(this.currentRow)
     }
   }
 
@@ -218,7 +239,14 @@ class List {
       scrollContainer.scrollTop = rowTop
     } else if (rowBottom > viewBottom) {
       scrollContainer.scrollTop = rowBottom - scrollContainer.clientHeight
+    } else {
+      return // no scroll needed
     }
+
+    // Sync immediately — don't wait for the async scroll event
+    this._scrollTop = scrollContainer.scrollTop
+    this._viewportHeight = scrollContainer.clientHeight
+    this.render()
   }
 
   setFocusRow(row, shouldScroll = true) {
@@ -724,7 +752,7 @@ if (scrollContainer) {
   scrollContainer.addEventListener("scroll", () => {
     list._scrollTop = scrollContainer.scrollTop
     list._viewportHeight = scrollContainer.clientHeight
-    requestAnimationFrame(() => list.render())
+    list.render()
   })
 }
 
