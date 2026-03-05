@@ -193,16 +193,6 @@
         }
       },
       {
-        "key": "alt+cmd+0",
-        "command": "editor.foldAll",
-        "when": "editorTextFocus && foldingEnabled"
-      },
-      {
-        "key": "cmd+k cmd+0",
-        "command": "-editor.foldAll",
-        "when": "editorTextFocus && foldingEnabled"
-      },
-      {
         "key": "ctrl+shift+right",
         "command": "-editor.action.smartSelect.expand",
         "when": "editorTextFocus"

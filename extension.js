@@ -11,6 +11,7 @@ const features = [
   require("./src/selectFromList"),
   require("./src/pasteboard"),
   require("./src/command"),
+  require("./src/foldAtDepth"),
 ]
 
 function activate(context) {

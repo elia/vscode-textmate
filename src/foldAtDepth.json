@@ -1,0 +1,68 @@
+{
+  "contributes": {
+    "configuration": {
+      "properties": {}
+    },
+    "commands": [
+      {
+        "title": "TextMate: Toggle Fold at Depth",
+        "command": "vscode-textmate.foldAtDepth"
+      }
+    ],
+    "keybindings": [
+      {
+        "key": "alt+cmd+0",
+        "command": "vscode-textmate.foldAtDepth",
+        "args": { "depth": 0 },
+        "when": "editorTextFocus && foldingEnabled"
+      },
+      {
+        "key": "alt+cmd+1",
+        "command": "vscode-textmate.foldAtDepth",
+        "args": { "depth": 1 },
+        "when": "editorTextFocus && foldingEnabled"
+      },
+      {
+        "key": "alt+cmd+2",
+        "command": "vscode-textmate.foldAtDepth",
+        "args": { "depth": 2 },
+        "when": "editorTextFocus && foldingEnabled"
+      },
+      {
+        "key": "alt+cmd+3",
+        "command": "vscode-textmate.foldAtDepth",
+        "args": { "depth": 3 },
+        "when": "editorTextFocus && foldingEnabled"
+      },
+      {
+        "key": "alt+cmd+4",
+        "command": "vscode-textmate.foldAtDepth",
+        "args": { "depth": 4 },
+        "when": "editorTextFocus && foldingEnabled"
+      },
+      {
+        "key": "alt+cmd+5",
+        "command": "vscode-textmate.foldAtDepth",
+        "args": { "depth": 5 },
+        "when": "editorTextFocus && foldingEnabled"
+      },
+      {
+        "key": "alt+cmd+6",
+        "command": "vscode-textmate.foldAtDepth",
+        "args": { "depth": 6 },
+        "when": "editorTextFocus && foldingEnabled"
+      },
+      {
+        "key": "alt+cmd+7",
+        "command": "vscode-textmate.foldAtDepth",
+        "args": { "depth": 7 },
+        "when": "editorTextFocus && foldingEnabled"
+      },
+      {
+        "key": "cmd+k cmd+0",
+        "command": "-editor.foldAll",
+        "when": "editorTextFocus && foldingEnabled"
+      }
+    ]
+  }
+}

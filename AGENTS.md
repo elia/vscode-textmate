@@ -40,3 +40,4 @@
 ## Security & Configuration Tips
 - Target VS Code `^1.77.0`; extension supports untrusted/virtual workspaces—avoid operations requiring full trust by default.
 - Never hand-edit generated files (`package.json`); run `bin/build` instead.
+- Each feature module has a matching `.json` fragment (e.g., `src/foldAtDepth.js` + `src/foldAtDepth.json`). Commands and keybindings go in the JSON fragment, not in `keybindings.json` (which is for general/unrelated keybindings only).
