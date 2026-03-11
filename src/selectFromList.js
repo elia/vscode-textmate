@@ -219,6 +219,8 @@ class SelectFromListViewProvider {
 
       if (renderAs === "panel") {
         if (this._webviewView) this._webviewView = null
+        // Immediately strip editor text focus so fast typing doesn't land in the file
+        await vscode.commands.executeCommand("workbench.action.focusSideBar")
         this.createWebviewPanel("Select From List")
         this._webviewPanel.reveal(vscode.ViewColumn.Active, false)
         await this.initializeWebviewView(this._webviewPanel, items, options, requestId)
