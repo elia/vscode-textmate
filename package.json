@@ -52,12 +52,6 @@
           ],
           "default": "sidebar",
           "description": "Default render mode for Select From List interface (can be overridden by command callers)"
-        },
-        "vscode-textmate.windowTitle": {
-          "type": "string",
-          "default": null,
-          "description": "The window title to use for the editor. If not set, the default title will be used.",
-          "scope": "resource"
         }
       }
     },

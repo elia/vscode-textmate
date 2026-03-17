@@ -100,10 +100,6 @@ Scripts receive TextMate-style environment variables:
 
 A good amount of keybindings have been ported from TextMate.
 
-### `windowTitle`
-
-You can now use `scmBranchName` in the `windowTitle` setting.
-
 ### `closeOtherEditors`, `closeEditorInAllGroups`
 
 Fix the default VSCode behavior of asking to save unsaved files when closing editors.
@@ -204,6 +200,28 @@ You can now navigate between brackets and blocks using `ctrl` with `up` and `dow
 | Transpose   | `transpose`  | <kbd>⌃T</kbd>  |
 
 _All commands are under the `vscode-textmate` namespace, e.g. `vscode-textmate.moveToEndOfColumn`._
+
+## Migration Notes
+
+### Window title (up to v0.27.1)
+
+Prior to v0.28.0, this extension managed the window title by directly writing to the `window.title` workspace setting, injecting the current SCM branch via a custom `${scmBranch}` variable and polling for changes every few seconds.
+
+This approach is no longer needed — VS Code 1.35+ includes `${activeRepositoryBranchName}` as a native `window.title` variable. If you were using the old `vscode-textmate.windowTitle` setting, you can remove it and configure `window.title` directly in your settings.
+
+**Before (in `.vscode/settings.json`):**
+```json
+{
+  "vscode-textmate.windowTitle": "${scmBranch} — ${rootName}"
+}
+```
+
+**After (in `settings.json`):**
+```json
+{
+  "window.title": "${activeRepositoryBranchName} — ${rootName}"
+}
+```
 
 ## Troubleshooting
 
