@@ -22,9 +22,9 @@ if [ "$version" != "$(cat VERSION)" ]; then
   echo "Version file is not up to date. Updating it..."
   echo "$version" >VERSION
 
-  yarn install
+  npm install
   bin/build
-  git add VERSION package.json yarn.lock
+  git add VERSION package.json package-lock.json
   git commit -m "Release $version"
 fi
 

@@ -9,7 +9,7 @@
 - `test/`: VS Code integration tests (`test/suite/*.test.js`).
 
 ## Build, Test, and Development Commands
-- Install deps: `yarn install` (or `npm install`).
+- Install deps: `npm install`.
 - Build manifest: `bin/build` (Ruby script; merges `src/*.json` into `package.json`).
 - Watch + rebuild: `node bin/dev` (re-runs build on changes under `src/`).
 - Install locally: `bin/install` (builds, packages, and installs extension from disk).
