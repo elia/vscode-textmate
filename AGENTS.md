@@ -15,7 +15,7 @@
 - Install locally: `bin/install` (builds, packages, and installs extension from disk).
 - Lint: `npm run lint` (ESLint over the repo).
 - Test: `npm test` (runs @vscode/test-electron + Mocha).
-- Release: `bin/release vX.Y.Z` (updates `VERSION`, rebuilds, tags, pushes, and runs `vsce publish`; requires `npx vsce login`).
+- Release: `bin/release vX.Y.Z` (updates `VERSION`, rebuilds, tags, pushes, and runs `bin/vsce publish`; requires `bin/vsce login`).
 
 ## Coding Style & Naming Conventions
 - Code should be clean and concise, make it readable like english.

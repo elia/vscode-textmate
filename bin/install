@@ -11,7 +11,7 @@ vsix_file = "vscode-textmate-#{version}.vsix"
 
 # Package the extension
 puts "~~> Packaging extension..."
-result = system("npx vsce package --out #{vsix_file}")
+result = system("bin/vsce package --out #{vsix_file}")
 unless result
   puts "ERROR: Failed to package extension"
   exit(1)

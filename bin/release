@@ -42,5 +42,5 @@ else
   git push
 fi
 
-npx vsce package
-npx vsce publish || echo "Use 'npx vsce login' to update the personal-access-token"
+bin/vsce package
+bin/vsce publish || echo "Use 'bin/vsce login' to update the personal-access-token"
