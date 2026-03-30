@@ -153,7 +153,11 @@ async function openProject(pathname, context, recentFolders) {
   context.globalState.update("recentFolders", recentFolders)
 
   let uri = vscode.Uri.file(pathname)
-  if (await folderExists(pathname)) {
+  if (pathname.endsWith(".code-workspace")) {
+    vscode.commands.executeCommand("vscode.openFolder", uri, {
+      forceNewWindow: vscode.workspace.workspaceFolders,
+    })
+  } else if (await folderExists(pathname)) {
     let workspaceFiles = (await fs.readDirectory(uri))
       .filter(([name, _]) => name.endsWith(".code-workspace"))
 
