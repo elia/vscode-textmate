@@ -3,6 +3,7 @@ const { spawn } = require("child_process")
 const fs = require("fs")
 const path = require("path")
 const os = require("os")
+const { pickWorkspaceFolder } = require("../utils")
 
 /**
  * Generic TextMate-style command executor
@@ -120,6 +121,10 @@ class CommandExecutor {
       return input
     }
 
+    let workspaceFolder =
+      (this.document?.fileName && vscode.workspace.getWorkspaceFolder(vscode.Uri.file(this.document.fileName))) ||
+      await pickWorkspaceFolder()
+
     return new Promise((resolve, reject) => {
       // Create temporary script file
       let tempDir = os.tmpdir()
@@ -132,9 +137,6 @@ class CommandExecutor {
       }
 
       fs.writeFileSync(scriptPath, scriptContent, { mode: 0o755 })
-
-      // Set up environment variables (TextMate style)
-      let workspaceFolder = vscode.workspace.workspaceFolders?.[0]
       let documentEnv = this.document ? {
         TM_SELECTED_TEXT: this.document.getText(this.selection),
         TM_CURRENT_LINE: this.document.lineAt(this.selection.active.line).text,
