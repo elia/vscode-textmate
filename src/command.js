@@ -143,7 +143,7 @@ class CommandExecutor {
         TM_CURRENT_WORD: this.getCurrentWord(),
         TM_FILENAME: this.document.fileName ? path.basename(this.document.fileName) : "",
         TM_FILEPATH: this.document.fileName || "",
-        TM_DIRECTORY: this.document.fileName ? path.dirname(this.document.fileName) : "",
+        TM_DIRECTORY: workspaceFolder?.uri?.fsPath || (this.document.fileName ? path.dirname(this.document.fileName) : ""),
         TM_LINE_INDEX: this.selection.active.line.toString(),
         TM_LINE_NUMBER: (this.selection.active.line + 1).toString(),
         TM_COLUMN_NUMBER: (this.selection.active.character + 1).toString(),

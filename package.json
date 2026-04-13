@@ -975,11 +975,17 @@
       },
       {
         "key": "ctrl+alt+cmd+b",
-        "command": "workbench.action.openGlobalKeybindings"
+        "command": "workbench.action.openGlobalKeybindings",
+        "when": "activeEditor != 'workbench.editor.keybindings'"
       },
       {
         "key": "cmd+k cmd+s",
         "command": "-workbench.action.openGlobalKeybindings"
+      },
+      {
+        "key": "ctrl+alt+cmd+b",
+        "command": "workbench.action.openGlobalKeybindingsFile",
+        "when": "activeEditor == 'workbench.editor.keybindings'"
       },
       {
         "key": "up",
@@ -1053,6 +1059,11 @@
         "key": "cmd+up",
         "command": "-editor.action.goToTopHover",
         "when": "editorHoverFocused"
+      },
+      {
+        "key": "alt+cmd+i",
+        "command": "editor.action.toggleRenderWhitespace",
+        "when": "editorTextFocus"
       },
       {
         "key": "cmd+shift+o",
