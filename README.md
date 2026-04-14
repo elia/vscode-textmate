@@ -105,6 +105,11 @@ A good amount of keybindings have been ported from TextMate.
 Fix the default VSCode behavior of asking to save unsaved files when closing editors.
 These commands will close specified editors except any "dirty" or "pinned" editor.
 
+| Name                      | Command                  | Keybinding      |
+| ------------------------- | ------------------------ | --------------- |
+| Close Other Editors       | `closeOtherEditors`      | <kbd>⌃⌘W</kbd>  |
+| Close Editor in All Groups | `closeEditorInAllGroups` | <kbd>⌃⌥⌘W</kbd> |
+
 ### `openProject`
 
 Open a project in a new window, selecting from subfolders of the folders listed in the `projectFolders` setting.
@@ -174,13 +179,28 @@ const picks = await vscode.commands.executeCommand(
 | ------------ | ------------- | ------------- |
 | Open Quickly | `openQuickly` | <kbd>⌘T</kbd> |
 
+### Find
+
+Replaces VS Code's find keybindings with TextMate-style behavior.
+
+| Name                        | Keybinding    |
+| --------------------------- | ------------- |
+| Find in Files               | <kbd>⇧⌘F</kbd> |
+| In-editor Find              | <kbd>⌘F</kbd>  |
+| Next Search Result          | <kbd>⌘G</kbd>  |
+| Previous Search Result      | <kbd>⇧⌘G</kbd> |
+
 ### Navigation
 
-You can now navigate between brackets and blocks using `ctrl` with `up` and `down`, adding `shift` to also update the selection.
+You can navigate between brackets and blocks using `ctrl` with `up` and `down`, adding `shift` to also update the selection. Word movement (`alt+left/right`) follows TextMate semantics.
 
 | Name                          | Command                                     | Keybinding     |
 | ----------------------------- | ------------------------------------------- | -------------- |
 | Jump to Selection             | `jumpToSelection`                           | <kbd>⌘J</kbd>  |
+| Move Word Left                | `moveWordLeft`                              | <kbd>⌥←</kbd>  |
+| Move Word Right               | `moveWordRight`                             | <kbd>⌥→</kbd>  |
+| Select Word Left              | `moveWordLeftAndModifySelection`            | <kbd>⌥⇧←</kbd> |
+| Select Word Right             | `moveWordRightAndModifySelection`           | <kbd>⌥⇧→</kbd> |
 | Move to beginning of Block    | `moveToBeginningOfBlock`                    | <kbd>⌃⭡</kbd>  |
 | Move to end of Block          | `moveToEndOfBlock`                          | <kbd>⌃⭣</kbd>  |
 | Select to beginning of Block  | `moveToBeginningOfBlockAndModifySelection`  | <kbd>⌃⇧⭡</kbd> |
@@ -189,15 +209,30 @@ You can now navigate between brackets and blocks using `ctrl` with `up` and `dow
 | Move to end of Column         | `moveToEndOfColumn`                         | <kbd>⌥⭣</kbd>  |
 | Select to beginning of Column | `moveToBeginningOfColumnAndModifySelection` | <kbd>⌥⇧⭡</kbd> |
 | Select to end of Column       | `moveToEndOfColumnAndModifySelection`       | <kbd>⌥⇧⭣</kbd> |
-| Jump to Selection             | `jumpToSelection`                           | <kbd>⌘J</kbd>  |
 
 ### Editing
 
-| Name        | Command      | Keybinding     |
-| ----------- | ------------ | -------------- |
-| Join Lines  | `joinLines`  | <kbd>⌃⇧J</kbd> |
-| Toggle Case | `toggleCase` | <kbd>⌃_</kbd>  |
-| Transpose   | `transpose`  | <kbd>⌃T</kbd>  |
+| Name           | Command           | Keybinding     |
+| -------------- | ----------------- | -------------- |
+| Join Lines     | `joinLines`       | <kbd>⌃⇧J</kbd> |
+| Toggle Case    | `toggleCase`      | <kbd>⌃⇧-</kbd> |
+| Transpose      | `transposeWords`  | <kbd>⌃T</kbd>  |
+| Copy to Find Pasteboard | `copyToFindPasteboard` | <kbd>⌘E</kbd> |
+
+### Folding
+
+Toggle folding at a specific depth with <kbd>⌥⌘0</kbd>–<kbd>⌥⌘7</kbd>.
+
+| Name                   | Command        | Keybinding     |
+| ---------------------- | -------------- | -------------- |
+| Toggle Fold at Depth 0 | `foldAtDepth`  | <kbd>⌥⌘0</kbd> |
+| Toggle Fold at Depth 1 | `foldAtDepth`  | <kbd>⌥⌘1</kbd> |
+| Toggle Fold at Depth 2 | `foldAtDepth`  | <kbd>⌥⌘2</kbd> |
+| Toggle Fold at Depth 3 | `foldAtDepth`  | <kbd>⌥⌘3</kbd> |
+| Toggle Fold at Depth 4 | `foldAtDepth`  | <kbd>⌥⌘4</kbd> |
+| Toggle Fold at Depth 5 | `foldAtDepth`  | <kbd>⌥⌘5</kbd> |
+| Toggle Fold at Depth 6 | `foldAtDepth`  | <kbd>⌥⌘6</kbd> |
+| Toggle Fold at Depth 7 | `foldAtDepth`  | <kbd>⌥⌘7</kbd> |
 
 _All commands are under the `vscode-textmate` namespace, e.g. `vscode-textmate.moveToEndOfColumn`._
 
