@@ -2,10 +2,10 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta http-equiv="Content-Security-Policy"
-    content="default-src 'none'; img-src {{cspSource}} https:; style-src 'nonce-{{nonce}}'; script-src 'nonce-{{nonce}}' {{cspSource}};" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+    content="default-src 'none'; img-src {{cspSource}} https:; style-src 'nonce-{{nonce}}'; script-src 'nonce-{{nonce}}' {{cspSource}};">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Select From List</title>
 
   <style nonce="{{nonce}}">
@@ -171,7 +171,7 @@
         </g>
       </svg>
 
-      <input id="filter" type="search" placeholder="Search" aria-label="Search" autofocus />
+      <input id="filter" autocomplete="off" type="search" placeholder="Search" aria-label="Search" autofocus>
       <script nonce="{{nonce}}">
         document.getElementById('filter').focus();
       </script>
