@@ -103,7 +103,15 @@ class List {
       this.selectedIndexes.has(itemIndex) ? "true" : "false",
     )
 
-    let html = `<div class="item-label">${escapeHtml(label)}</div>`
+    let labelHtml
+    if (item.labelDimSuffix && label.endsWith(item.labelDimSuffix)) {
+      let base = escapeHtml(label.slice(0, -item.labelDimSuffix.length))
+      let suffix = escapeHtml(item.labelDimSuffix)
+      labelHtml = `${base}<span class="muted">${suffix}</span>`
+    } else {
+      labelHtml = escapeHtml(label)
+    }
+    let html = `<div class="item-label">${labelHtml}</div>`
     if (description)
       html += `<div class="item-description">${escapeHtml(description)}</div>`
     listItem.innerHTML = `<div class="item-content">${html}</div>`

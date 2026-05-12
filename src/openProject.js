@@ -85,14 +85,19 @@ function addProjectSection(items, label, pathnames, iconPath, useQuickPick) {
     items.push({ label, kind: vscode.QuickPickItemKind.Separator })
   }
 
-  pathnames.forEach((pathname) =>
-    items.push({
-      label: path.basename(pathname),
+  pathnames.forEach((pathname) => {
+    let basename = path.basename(pathname)
+    let item = {
+      label: basename,
       description: path.dirname(pathname),
       pathname,
       iconPath,
-    })
-  )
+    }
+    if (!useQuickPick && basename.endsWith(".code-workspace")) {
+      item.labelDimSuffix = ".code-workspace"
+    }
+    items.push(item)
+  })
 }
 
 async function showProjectPicker(items, useQuickPick) {
